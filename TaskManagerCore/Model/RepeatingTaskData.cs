@@ -6,13 +6,13 @@
         //public DateTime StartFrom { get; }  // could drop StartFrom, use DueDate don't change it's value, but change override the getter to return duedate + interval*repeats...
         public int Repititions { get; }
         public new DateTime DueDate { get; }
-        //get => NextDueDate(); ? put that in the accessor? ugly?
 
         #region constructors
         public RepeatingTaskData(string description, string notes, DateTime dueDate, TimeInterval interval)
             : base(description, notes, dueDate)
         {
             RepeatingInterval = interval;
+            DueDate = dueDate; // must re-assing dueDate here since we overwrote the member in the base class
             //StartFrom = dueDate;
             Repititions = 0;
         }
@@ -21,6 +21,7 @@
             : base(id, description, notes, completed, dueDate)
         {
             RepeatingInterval = interval;
+            DueDate = dueDate;
             //StartFrom = startFrom;
             Repititions = repititions;
         }
@@ -33,7 +34,7 @@
         public override bool IsOverdue()
         {
             //var hours = (int) RepeatingInterval * (Repititions + 1);
-            return !Completed && ComparisonTime() > NextDueDate();
+            return !Completed && ComparisonTime() > DueDate;
         }
 
         /// <summary>
@@ -58,12 +59,12 @@
 
         internal DateTime NextDueDate()
         {
-            var hours = (int)RepeatingInterval * (Repititions + 1);
+            //var hours = (int)RepeatingInterval;
             //if (DueDate == null)
             //{
             //    return DateTime.Now; // This should never occur
             //}
-            return DueDate.AddHours(hours);
+            return DueDate.AddHours((int)RepeatingInterval);
         }
 
 

@@ -10,15 +10,21 @@ namespace TaskManagerCore.XunitTests
         {
             var now = DateTime.Now;
             var repeatingTaskData = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
+            repeatingTaskData.FakeDateTime = now;
+
+            var dueDate = repeatingTaskData.DueDate;
             var overdue = repeatingTaskData.Overdue;
-            Assert.True(overdue);
+            now = DateTime.Now;
+            Console.WriteLine($"{dueDate.ToString("yyyy-MM-dd HH:mm:ss")}");
+            
+            Assert.False(overdue);
 
             repeatingTaskData.FakeDateTime = now.AddMinutes(61);
             //repeatingTaskData.Overdue 
+            dueDate = repeatingTaskData.DueDate;
             overdue = repeatingTaskData.Overdue;
-            var dueDate = repeatingTaskData.DueDate;
             Console.WriteLine($"{dueDate.ToString("yyyy-MM-dd HH:mm:ss")}");
-            Assert.False(overdue);
+            Assert.True(overdue);
         }
     }
 }

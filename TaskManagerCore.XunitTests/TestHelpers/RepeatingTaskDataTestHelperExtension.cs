@@ -16,7 +16,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             FakeDateTime = DateTime.Now;
         }
 
-        public void SetFakeDateTime(string dateString)
+        public void SetFakeDateTimeByString(string dateString)
         {
             FakeDateTime = DateTime.Parse(dateString);
         }

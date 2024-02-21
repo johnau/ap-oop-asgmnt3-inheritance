@@ -1,0 +1,14 @@
+D:\Assignment3-Inheritence\InheritenceIssue\bin\Debug\net8.0\InheritenceIssue.exe
+D:\Assignment3-Inheritence\InheritenceIssue\bin\Debug\net8.0\InheritenceIssue.deps.json
+D:\Assignment3-Inheritence\InheritenceIssue\bin\Debug\net8.0\InheritenceIssue.runtimeconfig.json
+D:\Assignment3-Inheritence\InheritenceIssue\bin\Debug\net8.0\InheritenceIssue.dll
+D:\Assignment3-Inheritence\InheritenceIssue\bin\Debug\net8.0\InheritenceIssue.pdb
+D:\Assignment3-Inheritence\InheritenceIssue\obj\Debug\net8.0\InheritenceIssue.GeneratedMSBuildEditorConfig.editorconfig
+D:\Assignment3-Inheritence\InheritenceIssue\obj\Debug\net8.0\InheritenceIssue.AssemblyInfoInputs.cache
+D:\Assignment3-Inheritence\InheritenceIssue\obj\Debug\net8.0\InheritenceIssue.AssemblyInfo.cs
+D:\Assignment3-Inheritence\InheritenceIssue\obj\Debug\net8.0\InheritenceIssue.csproj.CoreCompileInputs.cache
+D:\Assignment3-Inheritence\InheritenceIssue\obj\Debug\net8.0\InheritenceIssue.dll
+D:\Assignment3-Inheritence\InheritenceIssue\obj\Debug\net8.0\refint\InheritenceIssue.dll
+D:\Assignment3-Inheritence\InheritenceIssue\obj\Debug\net8.0\InheritenceIssue.pdb
+D:\Assignment3-Inheritence\InheritenceIssue\obj\Debug\net8.0\InheritenceIssue.genruntimeconfig.cache
+D:\Assignment3-Inheritence\InheritenceIssue\obj\Debug\net8.0\ref\InheritenceIssue.dll
