@@ -11,8 +11,8 @@
         public RepeatingTaskData(string description, string notes, DateTime dueDate, TimeInterval interval)
             : base(description, notes, dueDate)
         {
+            DueDate = dueDate; // must re-assign dueDate here since we overwrote the member in the base class
             RepeatingInterval = interval;
-            DueDate = dueDate; // must re-assing dueDate here since we overwrote the member in the base class
             //StartFrom = dueDate;
             Repititions = 0;
         }
@@ -20,8 +20,8 @@
         public RepeatingTaskData(string id, string description, string notes, bool completed, DateTime dueDate, TimeInterval interval, int repititions)
             : base(id, description, notes, completed, dueDate)
         {
-            RepeatingInterval = interval;
             DueDate = dueDate;
+            RepeatingInterval = interval;
             //StartFrom = startFrom;
             Repititions = repititions;
         }

@@ -28,7 +28,10 @@ namespace TaskManagerCore.XunitTests.TestHelpers
 
         public override RepeatingTaskDataTestHelperExtension WithCompleted(bool value)
         {
-            return new RepeatingTaskDataTestHelperExtension(Id, Description, Notes, value, DueDate, RepeatingInterval, Repititions);
+            var completed = base.WithCompleted(value); 
+            // process the base class method and assign values here - this isn't the nicest, but interfaces don't feel appropriate.
+            // really the model class should just be refactored to have the business logic shifted up the hierarchy, one level to an accessor class... would make testing easier
+            return new RepeatingTaskDataTestHelperExtension(completed.Id, completed.Description, completed.Notes, false, completed.DueDate, completed.RepeatingInterval, completed.Repititions);
         }
 
         protected override DateTime ComparisonTime()
