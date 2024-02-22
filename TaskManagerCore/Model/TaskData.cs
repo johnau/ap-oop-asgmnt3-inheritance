@@ -55,18 +55,10 @@ namespace TaskManagerCore.Model
         #endregion
         /// <summary>
         /// Calculates if Task is overdue, same result as 'Overdue' property
+        /// Should this logic be here? Should this class stay as a lightweight, immutable model object, and get an accessor/wrapper class?
         /// </summary>
         /// <returns></returns>
         public virtual bool IsOverdue() => DueDate != null && !Completed && ComparisonTime() > DueDate;
-        //{
-        //    //if (DueDate == null)
-        //    //{
-        //    //    return false;
-        //    //}
-
-        //    //return !Completed && ComparisonTime() > DueDate;
-        //    return DueDate != null && !Completed && ComparisonTime() > DueDate;
-        //}
 
         #region Builder methods
         public virtual TaskData WithDescription(string value)

@@ -10,12 +10,20 @@ namespace TaskManagerCore.Controller
     {
         private readonly ICrudRepository<TaskData, string> TaskDataRepository;
         private readonly ICrudRepository<TaskFolder, string> TaskFolderRepository;
-
+        private readonly GetTaskDtoMapper DtoMapperGetTask;
+        private readonly GetFolderDtoMapper DtoMapperGetFolder;
+        private readonly CreateTaskDtoMapper DtoMapperCreateTask;
+        private readonly CreateFolderDtoMapper DtoMapperCreateFolder;
         public TaskController(ICrudRepository<TaskData, string> taskDataRepository,
                                 ICrudRepository<TaskFolder, string> taskFolderRepository)
         {
             TaskDataRepository = taskDataRepository;
             TaskFolderRepository = taskFolderRepository;
+            DtoMapperGetTask = new GetTaskDtoMapper();
+            DtoMapperGetFolder = new GetFolderDtoMapper();
+            DtoMapperCreateTask = new CreateTaskDtoMapper();
+            DtoMapperCreateFolder = new CreateFolderDtoMapper();
+
         }
 
         /// <summary>
@@ -27,10 +35,9 @@ namespace TaskManagerCore.Controller
             var all = TaskDataRepository.FindAll();
             List<GetTaskDto> dtos = new List<GetTaskDto>();
 
-            var mapper = new GetTaskDtoMapper();
             foreach (var item in all)
             {
-                dtos.Add(mapper.Map(item));
+                dtos.Add(DtoMapperGetTask.Map(item));
             }
 
             return dtos;
@@ -49,8 +56,7 @@ namespace TaskManagerCore.Controller
                 return null;
             }
 
-            var mapper = new GetTaskDtoMapper();
-            return mapper.Map(task);
+            return DtoMapperGetTask.Map(task);
         }
 
         /// <summary>
@@ -62,10 +68,9 @@ namespace TaskManagerCore.Controller
             var all = TaskFolderRepository.FindAll();
             List<GetFolderDto> dtos = new List<GetFolderDto>();
 
-            var mapper = new GetFolderDtoMapper();
             foreach (var item in all)
             {
-                dtos.Add(mapper.Map(item));
+                dtos.Add(DtoMapperGetFolder.Map(item));
             }
 
             return dtos;
@@ -84,8 +89,7 @@ namespace TaskManagerCore.Controller
                 return null;
             }
 
-            var mapper = new GetFolderDtoMapper();
-            return mapper.Map(folder);
+            return DtoMapperGetFolder.Map(folder);
         }
 
         /// <summary>
@@ -182,7 +186,7 @@ namespace TaskManagerCore.Controller
                 throw new Exception($"Could not find Folder: {dto.InFolderId}");
             }
 
-            var task = new CreateTaskDtoMapper().Map(dto);
+            var task = DtoMapperCreateTask.Map(dto);
             var taskId = TaskDataRepository.Save(task);
 
             var folderUpdated = folder.WithTask(taskId);
@@ -199,7 +203,7 @@ namespace TaskManagerCore.Controller
         /// <exception cref="Exception"></exception>
         public string CreateTaskFolder(CreateFolderDto dto)
         {
-            var taskFolder = new CreateTaskFolderDtoMapper().Map(dto);
+            var taskFolder = DtoMapperCreateFolder.Map(dto);
             try
             {
                 return TaskFolderRepository.Save(taskFolder);

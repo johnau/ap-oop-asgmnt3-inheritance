@@ -16,9 +16,19 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             FakeDateTime = DateTime.Now;
         }
 
+        public RepeatingTaskDataTestHelperExtension(string id, string description, string notes, bool completed, DateTime dueDate, TimeInterval interval, int repititions)
+            : base(id, description, notes, completed, dueDate, interval, repititions)
+        {
+        }
+
         public void SetFakeDateTimeByString(string dateString)
         {
             FakeDateTime = DateTime.Parse(dateString);
+        }
+
+        public override RepeatingTaskDataTestHelperExtension WithCompleted(bool value)
+        {
+            return new RepeatingTaskDataTestHelperExtension(Id, Description, Notes, value, DueDate, RepeatingInterval, Repititions);
         }
 
         protected override DateTime ComparisonTime()

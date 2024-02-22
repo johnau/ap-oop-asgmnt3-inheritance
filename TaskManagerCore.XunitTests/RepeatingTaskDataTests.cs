@@ -1,30 +1,51 @@
-﻿using System.Diagnostics;
-using TaskManagerCore.XunitTests.TestHelpers;
+﻿using TaskManagerCore.XunitTests.TestHelpers;
 
 namespace TaskManagerCore.XunitTests
 {
     public class RepeatingTaskDataTests
     {
         [Fact]
-        public void WithCompleted_BeforeDueDate_WillChangeDueDate()
+        public void CheckOverdueTwice_WithCompleted_WillNotBeOverdue()
         {
             var now = DateTime.Now;
-            var repeatingTaskData = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
-            repeatingTaskData.FakeDateTime = now;
+            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
 
-            var dueDate = repeatingTaskData.DueDate;
-            var overdue = repeatingTaskData.Overdue;
-            now = DateTime.Now;
-            Console.WriteLine($"{dueDate.ToString("yyyy-MM-dd HH:mm:ss")}");
+            Assert.False(repeatingTask.Overdue);
+
+            repeatingTask.FakeDateTime = now.AddMinutes(61); // 1 min past old due date
+
+            Assert.True(repeatingTask.Overdue);
+
+            repeatingTask = repeatingTask.WithCompleted(true);
+
+            Assert.False(repeatingTask.Overdue);
+        }
+
+        [Fact]
+        public void CheckOverdue_PassedDueDate_WillBeOverdue()
+        {
+            var now = DateTime.Now;
+            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
+
+            Assert.False(repeatingTask.Overdue);
+
+            repeatingTask.FakeDateTime = now.AddMinutes(61); // 1 min past old due date
+
+            Assert.True(repeatingTask.Overdue);
+        }
+
+        [Fact]
+        public void CheckOverdue_WithCompleted_WillNotBeOverdue()
+        {
+            var now = DateTime.Now;
+            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
+
+            Assert.False(repeatingTask.Overdue);
+
+            repeatingTask = repeatingTask.WithCompleted(true);
+            repeatingTask.FakeDateTime = now.AddMinutes(61); // 1 min past old due date
             
-            Assert.False(overdue);
-
-            repeatingTaskData.FakeDateTime = now.AddMinutes(61);
-            //repeatingTaskData.Overdue 
-            dueDate = repeatingTaskData.DueDate;
-            overdue = repeatingTaskData.Overdue;
-            Console.WriteLine($"{dueDate.ToString("yyyy-MM-dd HH:mm:ss")}");
-            Assert.True(overdue);
+            Assert.False(repeatingTask.Overdue);
         }
     }
 }

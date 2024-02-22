@@ -2,11 +2,11 @@
 {
     public class RepeatingTaskData : TaskData
     {
+        public new DateTime DueDate { get; }
         public TimeInterval RepeatingInterval { get; }
         //public DateTime StartFrom { get; }  // could drop StartFrom, use DueDate don't change it's value, but change override the getter to return duedate + interval*repeats...
         public int Repititions { get; }
-        public new DateTime DueDate { get; }
-
+        
         #region constructors
         public RepeatingTaskData(string description, string notes, DateTime dueDate, TimeInterval interval)
             : base(description, notes, dueDate)
@@ -59,14 +59,7 @@
 
         internal DateTime NextDueDate()
         {
-            //var hours = (int)RepeatingInterval;
-            //if (DueDate == null)
-            //{
-            //    return DateTime.Now; // This should never occur
-            //}
             return DueDate.AddHours((int)RepeatingInterval);
         }
-
-
     }
 }

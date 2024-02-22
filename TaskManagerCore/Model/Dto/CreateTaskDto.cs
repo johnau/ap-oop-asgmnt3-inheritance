@@ -1,4 +1,6 @@
-﻿namespace TaskManagerCore.Model.Dto
+﻿using System.Formats.Asn1;
+
+namespace TaskManagerCore.Model.Dto
 {
     public class CreateTaskDto
     {
@@ -14,23 +16,40 @@
 
         public TimeInterval? RepeatInterval { get; }
 
-        public CreateTaskDto(TaskType type, string folderId, string description, string notes, DateTime? dueDate = null)
+        // TaskType could be removed, and replaced by a bool (`trackStreaks`).
+        // - If TimeInerval IS `None` and `trackStreaks` is FALSE, its a regular task
+        // - If TimeInerval IS NOT `None` and `trackStreaks` is FALSE, its a repeating task
+        // - If TimeInerval IS NOT `None` and `trackStreaks` is TRUE, its a habitual task
+        public CreateTaskDto(TaskType type, string folderId, string description, string notes, DateTime? dueDate = null, TimeInterval interval = TimeInterval.None)
         {
             TaskType = type;
             InFolderId = folderId;
             Description = description;
             Notes = notes;
             DueDate = dueDate;
+            RepeatInterval = interval;
         }
 
-        public CreateTaskDto(TaskType type, string folderId, string description, string notes, DateTime dueDate, TimeInterval interval)
+        public CreateTaskDto(string folderId, string description, string notes, DateTime? dueDate = null, TimeInterval interval = TimeInterval.None, bool trackStreaks = false)
         {
-            TaskType = type;
+            if (interval == TimeInterval.None  && !trackStreaks)
+            {
+                TaskType = TaskType.SINGLE;
+            } 
+            else if (interval != TimeInterval.None && !trackStreaks)
+            {
+                TaskType = TaskType.REPEATING;
+            } 
+            else if (interval != TimeInterval.None && trackStreaks)
+            {
+                TaskType = TaskType.REPEATING_STREAK;
+            }
+            
             InFolderId = folderId;
             Description = description;
             Notes = notes;
-            RepeatInterval = interval;
             DueDate = dueDate;
+            RepeatInterval = interval;
         }
     }
 }
