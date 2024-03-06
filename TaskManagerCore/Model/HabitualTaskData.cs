@@ -24,7 +24,7 @@
             // increment streak or reset
             var nextDueDate = NextDueDate();
             Console.WriteLine($"Next Due Date (calculated) = {nextDueDate} and ComparisonTime = {ComparisonTime()}");
-            if (ComparisonTime() <= nextDueDate)
+            if (ComparisonTime() <= DueDate)
             {
                 return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, Streak + 1);
             }
