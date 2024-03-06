@@ -9,6 +9,11 @@ namespace TaskManagerCore.Model
     /// - The Id does not have a publicly accessible setter (populated at construction and then passed through builder methods internally)
     /// - Description, Notes, Completed, DueDate (Optional)
     /// - Overdue method
+    /// 
+    /// Structuring these classes for tests:
+    /// - Shift all date comparison logic up the hierarchy and keep this class lightweight, make another class handle and accept the date testing stuff
+    /// - Make this class accept a date provider object that can be controlled by the tests (will work but sullies the class with test related code)
+    /// - 
     /// </summary>
     public class TaskData
     {

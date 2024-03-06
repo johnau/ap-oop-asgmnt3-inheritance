@@ -23,14 +23,14 @@
             }
             // increment streak or reset
             var nextDueDate = NextDueDate();
-            if (DateTime.Now <= nextDueDate)
+            Console.WriteLine($"Next Due Date (calculated) = {nextDueDate} and ComparisonTime = {ComparisonTime()}");
+            if (ComparisonTime() <= nextDueDate)
             {
                 return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, Streak + 1);
             }
-            else
-            {
-                return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, 0);
-            }
+
+            // Reset the streak to zero if we have completed it outside of the due date
+            return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, 0);
         }
     }
 }

@@ -3,7 +3,8 @@
 namespace TaskManagerCore.XunitTests.TestHelpers
 {
     /// <summary>
-    /// This project is about Inheritance, so have tried to use inheritance for testing
+    /// This helper class is effecitvely just a wrapper around the tested class to bridge the assembly boundary.
+    /// C# Does not allow casting across assembly boundaries
     /// </summary>
     public class RepeatingTaskDataTestHelperExtension : RepeatingTaskData
     {
