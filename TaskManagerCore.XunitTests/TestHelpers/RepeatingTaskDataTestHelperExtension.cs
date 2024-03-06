@@ -16,16 +16,34 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             FakeDateTime = DateTime.Now;
         }
 
+        /// <summary>
+        /// RepeatingTaskData Constructor Wrapper (for WithCompleted method)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="description"></param>
+        /// <param name="notes"></param>
+        /// <param name="completed"></param>
+        /// <param name="dueDate"></param>
+        /// <param name="interval"></param>
+        /// <param name="repititions"></param>
         public RepeatingTaskDataTestHelperExtension(string id, string description, string notes, bool completed, DateTime dueDate, TimeInterval interval, int repititions)
             : base(id, description, notes, completed, dueDate, interval, repititions)
-        {
-        }
+        { }
 
+        /// <summary>
+        /// Convenience method to set a specific date
+        /// </summary>
+        /// <param name="dateString"></param>
         public void SetFakeDateTimeByString(string dateString)
         {
             FakeDateTime = DateTime.Parse(dateString);
         }
 
+        /// <summary>
+        /// WithCompleted Method Wrapper
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public override RepeatingTaskDataTestHelperExtension WithCompleted(bool value)
         {
             var completed = base.WithCompleted(value); 

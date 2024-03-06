@@ -19,29 +19,29 @@ namespace TaskManagerCore.Infrastructure.Memory
 
         public TaskDataEntity FromModel(TaskData taskData)
         {
-            if (taskData is HabitualTaskData)
+            if (taskData is HabitualTaskData habitual)
             {
-                return new HabitualTaskDataEntity(taskData.Id) // generates a new ID here
+                return new HabitualTaskDataEntity(habitual.Id) // generates a new ID here
                 {
-                    Description = taskData.Description,
-                    Notes = taskData.Notes,
-                    Completed = taskData.Completed,
-                    DueDate = ((HabitualTaskData)taskData).DueDate,
-                    RepeatingInterval = ((HabitualTaskData)taskData).RepeatingInterval,
-                    Repititions = ((HabitualTaskData)taskData).Repititions,
-                    Streak = ((HabitualTaskData)taskData).Streak,
+                    Description = habitual.Description,
+                    Notes = habitual.Notes,
+                    Completed = habitual.Completed,
+                    DueDate = habitual.DueDate,
+                    RepeatingInterval = habitual.RepeatingInterval,
+                    Repititions = habitual.Repititions,
+                    Streak = habitual.Streak,
                 };
             }
-            else if (taskData is RepeatingTaskData)
+            else if (taskData is RepeatingTaskData repeating)
             {
-                return new RepeatingTaskDataEntity(taskData.Id) // generates a new ID here
+                return new RepeatingTaskDataEntity(repeating.Id) // generates a new ID here
                 {
-                    Description = taskData.Description,
-                    Notes = taskData.Notes,
-                    Completed = taskData.Completed,
-                    DueDate = ((RepeatingTaskData)taskData).DueDate,
-                    RepeatingInterval = ((RepeatingTaskData)taskData).RepeatingInterval,
-                    Repititions = ((RepeatingTaskData)taskData).Repititions,
+                    Description = repeating.Description,
+                    Notes = repeating.Notes,
+                    Completed = repeating.Completed,
+                    DueDate = repeating.DueDate,
+                    RepeatingInterval = repeating.RepeatingInterval,
+                    Repititions = repeating.Repititions,
                 };
             }
             else

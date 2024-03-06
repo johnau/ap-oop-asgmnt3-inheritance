@@ -44,25 +44,63 @@ namespace TaskManagerCore.Model.Dto
             _xData = new Dictionary<string, string>();
         }
 
-        public GetTaskDto(TaskType type,
+        GetTaskDto(TaskType type,
                     string id,
                     string description,
                     string notes,
                     bool completed,
-                    DateTime dueDate,
-                    Dictionary<string, string> xData,
-                    bool overdue = false,
-                    string? folderId = null)
+                    DateTime? dueDate,
+                    bool overdue,
+                    string? folderId,
+                    Dictionary<string, string> xData)
+            : this(type, id, description, notes, completed, dueDate, overdue, folderId)
         {
-            Type = type;
-            Id = id;
-            Description = description;
-            Notes = notes;
-            Completed = completed;
-            DueDate = dueDate;
-            Overdue = overdue;
-            InFolderId = folderId;
             _xData = xData;
         }
+
+        public GetTaskDto WithExtraData(Dictionary<string, string> xData)
+        {
+            return new GetTaskDto(Type, Id, Description, Notes, Completed, DueDate, Overdue, InFolderId, xData);
+        }
+
+        public void AddExtraData(string key, string value) { 
+            _xData.Add(key, value);
+        }
+
+        public void AddExtraData(Dictionary<string, string> xData)
+        {
+            foreach (var _ in xData) 
+            { 
+                _xData.Add(_.Key, _.Value);
+            }
+        }
+
+        //public GetTaskDto(TaskType type,
+        //            string id,
+        //            string description,
+        //            string notes,
+        //            bool completed,
+        //            DateTime dueDate,
+        //            bool overdue = false,
+        //            string? folderId = null,
+        //            Dictionary<string, string>? xData = null)
+        //    : this(type, id, description, notes, completed, dueDate, overdue, folderId)
+        //{
+        //    //Type = type;
+        //    //Id = id;
+        //    //Description = description;
+        //    //Notes = notes;
+        //    //Completed = completed;
+        //    //DueDate = dueDate;
+        //    //Overdue = overdue;
+        //    //InFolderId = folderId;
+        //    if (xData != null)
+        //    {
+        //        _xData = xData;
+        //    } else
+        //    {
+        //        _xData = new Dictionary<string, string>();
+        //    }
+        //}
     }
 }

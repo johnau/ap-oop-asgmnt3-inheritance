@@ -23,7 +23,6 @@ namespace TaskManagerCore.Controller
             DtoMapperGetFolder = new GetFolderDtoMapper();
             DtoMapperCreateTask = new CreateTaskDtoMapper();
             DtoMapperCreateFolder = new CreateFolderDtoMapper();
-
         }
 
         /// <summary>
@@ -105,7 +104,6 @@ namespace TaskManagerCore.Controller
             var folder = TaskFolderRepository.FindById(folderId);
             if (folder == null)
             {
-                Debug.WriteLine($"Unable to find Folder with Id: {folderId}");
                 throw new Exception($"Unable to find Folder with Id: {folderId}");
             }
 
@@ -132,7 +130,6 @@ namespace TaskManagerCore.Controller
             var task = TaskDataRepository.FindById(id);
             if (task == null)
             {
-                Debug.WriteLine($"Unable to find Task with Id: {id}");
                 throw new Exception($"Unable to find Task with Id: {id}");
             }
 

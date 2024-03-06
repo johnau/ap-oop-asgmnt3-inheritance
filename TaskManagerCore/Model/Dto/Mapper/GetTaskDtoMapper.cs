@@ -4,26 +4,38 @@
     {
         public GetTaskDto Map(TaskData o)
         {
-            if (o is HabitualTaskData)
+            // Note:
+            // `is` operator will return true for all types in the hierarchy
+            // .GetType() == typeof(clazz) will only return true for exact class match
+            // as such, the hierarchy must be checked in reverse order.
+            // This is OK for this small linear hierarchy, but if expanded in two dimensions, GetType() == typeof()
+            // will be more robust without a doubt.
+
+            //if (o.GetType() == typeof(HabitualTaskData))
+            if (o is HabitualTaskData habitual)
             {
                 var taskType = TaskType.REPEATING_STREAK;
                 var xData = new Dictionary<string, string>()
                     {
-                        { "interval", ((HabitualTaskData)o).RepeatingInterval.ToString() },
-                        { "streak", ((HabitualTaskData)o).Streak+""}
+                        { "interval", habitual.RepeatingInterval.ToString() },
+                        { "streak", habitual.Streak+""}
                     };
-                return new GetTaskDto(taskType, o.Id, o.Description, o.Notes, o.Completed, o.DueDate, o.Overdue);
+                return new GetTaskDto(taskType, o.Id, o.Description, o.Notes, o.Completed, o.DueDate, o.Overdue)
+                    .WithExtraData(xData);
             }
-            else if (o is RepeatingTaskData)
+            //else if (o.GetType() == typeof(RepeatingTaskData))
+            else if (o is RepeatingTaskData repeating)
             {
                 var taskType = TaskType.REPEATING;
                 var xData = new Dictionary<string, string>()
                     {
-                        { "interval", ((RepeatingTaskData)o).RepeatingInterval.ToString() }
+                        { "interval", repeating.RepeatingInterval.ToString() }
                     };
-
-                return new GetTaskDto(taskType, o.Id, o.Description, o.Notes, o.Completed, o.DueDate, o.Overdue);
+                return new GetTaskDto(taskType, o.Id, o.Description, o.Notes, o.Completed, o.DueDate, o.Overdue)
+                        .WithExtraData(xData);
             }
+            // else if (o.GetType() == typeof(TaskData)) {} // explicit check all and error on else
+            //else { throw new ArgumentException("Unrecognized type"); }
             else
             {
                 var taskType = TaskType.SINGLE;

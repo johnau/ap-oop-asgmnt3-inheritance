@@ -1,4 +1,6 @@
-﻿namespace TaskManagerCore.Configuration
+﻿using TaskManagerCore.Model.Repository;
+
+namespace TaskManagerCore.Configuration
 {
     public interface ICrudRepository<T, ID> 
         where T : class

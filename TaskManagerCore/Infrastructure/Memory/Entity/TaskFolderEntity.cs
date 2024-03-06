@@ -1,6 +1,4 @@
-﻿using TaskManagerCore.Model;
-
-namespace TaskManagerCore.Infrastructure.Memory.Entity
+﻿namespace TaskManagerCore.Infrastructure.Memory.Entity
 {
     public class TaskFolderEntity : EntityBase
     {

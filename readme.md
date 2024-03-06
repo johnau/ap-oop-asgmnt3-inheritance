@@ -7,7 +7,8 @@
 - Immutable Builder pattern in Model classes
 - Inheritance in testing -  Extending classes and implementing interfaces to create mock objects for tests.  Attempting to use inheritance in testing to avoid creating minimal excess to the classes
 - Encapsulation in regards to tests - standard practice seems to be a separate assembly for tests - internal classes can be accessed with `[assembly: InternalsVisibleTo("TestingProject.Tests")]`
-- Writing C# 7.3 code (avoiding conveniences of LINQ for now)
+- Writing C# 7.3 for .Net framework 4.8 (have been working with the conveniences of C#11+ up until now)
+- Casting, implcit and explicit (coercion), `a.GetType() == typeof(Clazz)`, `is`, `as`, is with explicit cast `(a is Clazz b)`, user-defined conversion operators (static implicit/explicit operator extension methods)
 
 ## Requirements
 - Implement `Task` object (Must inlcude immutable GUID Id, description, notes, completed flag, optional due date, overdue calculation)
