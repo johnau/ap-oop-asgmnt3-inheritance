@@ -566,5 +566,47 @@ namespace TaskManagerCore.XunitTests
             
             Assert.Throws<Exception>(() => controller.CreateTaskFolder(dto));
         }
+
+        /// <summary>
+        /// Not a great test of this method, more tests needed, but this method is not required or used and was just added becuase it seemed like it would be needed at some point.  
+        /// Finish tests for this method if reuqired.
+        /// </summary>
+        /// <exception cref="Exception"></exception>
+        [Fact]
+        public void MoveTask_ValidIds_WillSucceed()
+        {
+            var task = new TaskData(Guid.NewGuid().ToString(), "Test Task 1 - Do The Thing", "", false, null);
+            var taskId = task.Id;
+            var taskFolderFrom = new TaskFolder(Guid.NewGuid().ToString(), "Folder From", new());
+            var taskFolderFromId = taskFolderFrom.Id;            
+            var taskFolderTo = new TaskFolder(Guid.NewGuid().ToString(), "Folder To", new());
+            var taskFolderToId = taskFolderFrom.Id;
+
+            // Set up mock responses
+            TaskDataRepository = new MockTaskDataRepository()
+            {
+                OnFindById = (id) => id == taskId ? task : null,
+                OnSave = (task) => taskId,
+            };
+            TaskFolderRepository = new MockTaskFolderRepository()
+            {
+                OnFindById = (id) => {
+                    if (id == taskFolderFromId) return taskFolderFrom;
+                    else if (id == taskFolderToId) return taskFolderTo;
+                    else return null;
+                },
+                OnSave = (folder) =>
+                {
+                    if (folder.Id == taskFolderFrom.Id) return taskFolderFromId;
+                    else if (folder.Id == taskFolderTo.Id) return taskFolderToId;
+                    else throw new Exception("Test error");
+                },
+            };
+
+            var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
+            var result = controller.MoveTask(taskId, taskFolderFromId, taskFolderToId);
+
+            Assert.True(result);
+        }
     }
 }

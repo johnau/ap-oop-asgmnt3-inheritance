@@ -226,7 +226,7 @@ namespace TaskManagerCore.Controller
         /// <param name="folderIdFrom"></param>
         /// <param name="folderIdTo"></param>
         /// <exception cref="Exception"></exception>
-        public void MoveTask(string taskId, string folderIdFrom, string folderIdTo)
+        public bool MoveTask(string taskId, string folderIdFrom, string folderIdTo)
         {
             var task = TaskDataRepository.FindById(taskId);
             if (task == null)
@@ -244,8 +244,16 @@ namespace TaskManagerCore.Controller
             fromFolder = fromFolder.WithoutTask(taskId);
             toFolder = toFolder.WithTask(taskId);
 
-            TaskFolderRepository.Save(fromFolder);
-            TaskFolderRepository.Save(toFolder);
+            var savedTaskId = TaskFolderRepository.Save(fromFolder);
+            var savedFromFolderId = TaskFolderRepository.Save(fromFolder);
+            var savedToFolderId = TaskFolderRepository.Save(toFolder);
+
+            if (savedTaskId == null || savedFromFolderId == null || savedToFolderId == null)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
