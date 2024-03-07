@@ -97,10 +97,8 @@ namespace TaskManagerCore.XunitTests
 
             Debug.WriteLine($"Habitual Task Due @ {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
 
-            // Loop through amount of times for test
-            // Each loop adds the current minutes interval
-            // Checks that the task is overdue, complete it to increment the task to the next due time, without succeeding in a streak worthy completion
-            // Increment the interval time by one hour
+            // Loop #1 - DO NOT CREATE STREAK
+            // Task is Completed after it is Overdue - No Streak is started
             // At completion, no streak shoud be created, but all tasks have been completed (late) up to the current hour
             for (int i = 1; i <= testLimit; i++)
             {
@@ -113,43 +111,48 @@ namespace TaskManagerCore.XunitTests
                 Assert.False(habitualTask.Overdue);
                 
                 minutesFromNow += intervalInMinutes;
-                Debug.WriteLine($"!!! Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
+                Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
             }
 
             // Should not have a streak at this point
             Assert.Equal(0, habitualTask.Streak);
 
-            minutesFromNow -= intervalInMinutes + (intervalInMinutes/2); // Set the clock back to ensure that the next task is completed within the due time
+            // Set the clock back to ensure that the next task is completed within the due time
+            minutesFromNow -= intervalInMinutes + (intervalInMinutes/2);
             habitualTask.FakeDateTime = now.AddMinutes(minutesFromNow);
-
-            Assert.False(habitualTask.Overdue); // the task should not be overdue with the time setback above
+            Assert.False(habitualTask.Overdue);
             Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak})");
 
-            // Loop to testLimit.
-            // Each loop will mark the task completed within the duedate, counting as a successful addition to the streak
-            // At the end of the loop, the interval will be incremented by 1 hour for the next task iteration
+            // Loop #2 - CREATE STREAK
+            // Task is completed before it is Due, Streak is incremented
             for (int i = 1; i <= testLimit; i++)
             {
+                // Complete task before Due Time to start or continue Streak
                 habitualTask.FakeDateTime = now.AddMinutes(minutesFromNow);
                 habitualTask = habitualTask.WithCompleted(true);
                 Assert.False(habitualTask.Overdue);
-                Debug.WriteLine($"!!! Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
+                
                 minutesFromNow += intervalInMinutes;
+                Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
             }
 
-            Assert.Equal(testLimit, habitualTask.Streak); // A streak of *testLimit* variable will be achieved here
+            // Check we have the expected Streak
+            Assert.Equal(testLimit, habitualTask.Streak);
 
-            minutesFromNow += intervalInMinutes + (intervalInMinutes / 2); // Add on an amount of time  to ensure that the next task is not completed within the due date (ending the streak)
+            // Set the clock forward so we are Overdue - To end the streak
+            minutesFromNow += intervalInMinutes + (intervalInMinutes / 2);
             habitualTask.FakeDateTime = now.AddMinutes(minutesFromNow);
-
-            Assert.True(habitualTask.Overdue); // The task should be overdue (which will end the streak)
+            Assert.True(habitualTask.Overdue);
             
+            // Complete the task while Overdue
             habitualTask = habitualTask.WithCompleted(true);
-            Assert.False(habitualTask.Overdue); // Check that the task is completed, and no longer overdue
-            
-            Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
+            Assert.False(habitualTask.Overdue);
 
-            Assert.Equal(0, habitualTask.Streak); // Check that the task streak is over, now back to 0.
+            // Confirm the Streak has been ended
+            Assert.Equal(0, habitualTask.Streak);
+
+            Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
+            Debug.WriteLine("Habitual Task Test Complete");
         }
     }
 }
