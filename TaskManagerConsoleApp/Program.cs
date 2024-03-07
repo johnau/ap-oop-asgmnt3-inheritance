@@ -134,13 +134,13 @@ namespace TaskManagerConsoleApp
             {
                 case "T":
                     Console.WriteLine($"Creating new Task...");
-                    return "task";
+                    throw new NotImplementedException();
                 case "F":
                     Console.WriteLine($"Creating new Folder...");
-                    return "folder";
+                    throw new NotImplementedException();
                 case "C":
                     Console.WriteLine($"Cancelling");
-                    return "cancel";
+                    throw new NotImplementedException();
                 default:
                     Console.WriteLine("Unrecognized command, try again.");
                     return Prompt_CreateActions();

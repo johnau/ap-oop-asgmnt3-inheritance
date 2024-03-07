@@ -133,10 +133,13 @@ namespace TaskManagerCore.Controller
                 throw new Exception($"Unable to find Task with Id: {id}");
             }
 
-            TaskDataRepository.Save(task.WithCompleted(true));
+            var savedId = TaskDataRepository.Save(task.WithCompleted(true));
 
             Debug.WriteLine($"Updated Task '{id}' => Completed=True");
-            return true;
+            if (savedId != null) // not good enough
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -153,20 +156,23 @@ namespace TaskManagerCore.Controller
             if (folder == null)
             {
                 Debug.WriteLine($"Unable to find Folder with Id: {folderId}");
-                return false;
+                throw new Exception($"Unable to find Folder with Id: {folderId}");
             }
 
             var task = TaskDataRepository.FindById(taskId);
             if (task == null)
             {
                 Debug.WriteLine($"Unable to find Task with Id: {taskId}");
-                return false;
+                throw new Exception($"Unable to find Task with Id: {taskId}");
             }
 
-            TaskFolderRepository.Save(folder.WithoutTask(taskId));
-            TaskDataRepository.Delete(taskId);
+            var savedFolderId = TaskFolderRepository.Save(folder.WithoutTask(taskId));
+            var didDeleteTask = TaskDataRepository.Delete(taskId);
 
-            return true;
+            if (savedFolderId != null && didDeleteTask) // not great, but fits purpose
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -187,7 +193,9 @@ namespace TaskManagerCore.Controller
             var taskId = TaskDataRepository.Save(task);
 
             var folderUpdated = folder.WithTask(taskId);
-            TaskFolderRepository.Save(folderUpdated);
+            var updatedFolderId = TaskFolderRepository.Save(folderUpdated);
+            if (taskId == null || updatedFolderId == null)
+                throw new Exception($"Unable to Create task in folder {dto.InFolderId}");
 
             return taskId;
         }

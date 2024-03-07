@@ -29,7 +29,9 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         /// <param name="repititions"></param>
         public RepeatingTaskDataTestHelperExtension(string id, string description, string notes, bool completed, DateTime dueDate, TimeInterval interval, int repititions)
             : base(id, description, notes, completed, dueDate, interval, repititions)
-        { }
+        {
+            FakeDateTime = DateTime.MinValue;
+        }
 
         /// <summary>
         /// Convenience method to set a specific date

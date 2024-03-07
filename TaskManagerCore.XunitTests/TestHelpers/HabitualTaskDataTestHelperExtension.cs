@@ -3,6 +3,11 @@ using TaskManagerCore.Model;
 
 namespace TaskManagerCore.XunitTests.TestHelpers
 {
+    /// <summary>
+    /// Test Wrapper Class
+    /// Would be better to refactor the data class a lightweight struct and use an accessor class to mutate (A check on overdue may include a mutation)
+    /// This would allow for a slightly nicer test setup? This setup is not the nicest for tests
+    /// </summary>
     internal class HabitualTaskDataTestHelperExtension : HabitualTaskData
     {
         public DateTime FakeDateTime { get; set; }
@@ -15,7 +20,9 @@ namespace TaskManagerCore.XunitTests.TestHelpers
 
         public HabitualTaskDataTestHelperExtension(string id, string description, string notes, bool completed, DateTime dueDate, TimeInterval interval, int repititions, int streak) 
             : base(id, description, notes, completed, dueDate, interval, repititions, streak)
-        { }
+        {
+            FakeDateTime = DateTime.MinValue;
+        }
 
         /// <summary>
         /// Convenience method to set a specific date

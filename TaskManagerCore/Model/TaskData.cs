@@ -3,7 +3,8 @@
 namespace TaskManagerCore.Model
 {
     /// <summary>
-    /// Immutable class (ie. 'record' after C# 9.0)
+    /// Immutable class (ie. 'record' after C# 9.0) - should it just be a struct? and should all business logic move up to an accessor/helper class?
+    /// 
     /// 
     /// As per requirements:
     /// - The Id does not have a publicly accessible setter (populated at construction and then passed through builder methods internally)
