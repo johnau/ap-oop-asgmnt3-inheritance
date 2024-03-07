@@ -15,22 +15,33 @@
             Streak = streak;
         }
 
+        /// <summary>
+        /// Refactored the method to call the base method from the RepeatingTaskData, in this case a debatable action, but for inheritance exercise is appropriate?
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public override HabitualTaskData WithCompleted(bool value)
         {
-            if (value == false) // || DueDate == null)
+            if (value == false)
             {
                 return this;
             }
-            // increment streak or reset
-            var nextDueDate = NextDueDate();
-            Console.WriteLine($"Next Due Date (calculated) = {nextDueDate} and ComparisonTime = {ComparisonTime()}");
-            if (ComparisonTime() <= DueDate)
-            {
-                return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, Streak + 1);
-            }
 
-            // Reset the streak to zero if we have completed it outside of the due date
-            return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, 0);
+            var _ = base.WithCompleted(value); // use the repeating task method to increment DueDate and Repititions
+
+            var newStreak = ComparisonTime() <= DueDate ? Streak + 1 : 0;
+
+            return new HabitualTaskData(_.Id, _.Description, _.Notes, _.Overdue, _.DueDate, _.RepeatingInterval, _.Repititions, newStreak);
+
+            ////var nextDueDate = NextDueDate();
+            //// Increment Streak if completed within the due time.
+            //if (comparisonTime <= DueDate)
+            //{
+            //    return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, Streak + 1);
+            //}
+
+            //// Reset the streak to zero if we have completed it outside of the due date.
+            //return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, 0);
         }
     }
 }

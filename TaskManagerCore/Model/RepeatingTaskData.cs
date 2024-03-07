@@ -1,4 +1,6 @@
-﻿namespace TaskManagerCore.Model
+﻿using System.Diagnostics;
+
+namespace TaskManagerCore.Model
 {
     public class RepeatingTaskData : TaskData
     {
@@ -50,9 +52,9 @@
             {
                 return this;
             }
-            // never completes, just shifts to the next interval (repititions + 1) and updates the due date
-            //var hoursTilNextDue = (int)RepeatingInterval * (Repititions + 1);
-            //var newDueDate = StartFrom.AddHours(hoursTilNextDue);
+
+            // Increment repititions and due date for the next reptition
+            // (Would you want this to go to the next possible due date, or just stick to the intervals. i.e. If a daily task is completed 2 days late, does the next due time become yesterday, or today/tomorrow)
             var nextDueDate = NextDueDate();
             return new RepeatingTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1);
         }

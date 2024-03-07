@@ -1,4 +1,5 @@
-﻿using TaskManagerCore.Model;
+﻿using System.Diagnostics;
+using TaskManagerCore.Model;
 
 namespace TaskManagerCore.XunitTests.TestHelpers
 {
@@ -29,12 +30,15 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         {
             var completed = base.WithCompleted(value);
 
-            return new HabitualTaskDataTestHelperExtension(completed.Id, completed.Description, completed.Notes, false, completed.DueDate, completed.RepeatingInterval, completed.Repititions, completed.Streak);
+            return new HabitualTaskDataTestHelperExtension(completed.Id, completed.Description, completed.Notes, false, completed.DueDate, completed.RepeatingInterval, completed.Repititions, completed.Streak) 
+            { 
+                FakeDateTime = FakeDateTime
+            };
         }
 
         protected override DateTime ComparisonTime()
         {
-            Console.WriteLine($"Returning FakeDateTime for tests: {FakeDateTime}");
+            Debug.WriteLine($"Returning FakeDateTime for tests: {FakeDateTime}");
             return FakeDateTime;
         }
     }
