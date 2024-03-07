@@ -253,7 +253,7 @@ namespace TaskManagerCore.XunitTests
             var taskId = task.Id;
             TaskDataRepository = new MockTaskDataRepository()
             {
-                OnFindById = (id) => task,
+                OnFindById = (id) => id == taskId ? task : null,
                 OnSave = (task) => taskId,
             };
 
