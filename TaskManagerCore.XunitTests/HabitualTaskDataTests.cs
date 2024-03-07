@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.Utilities;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using TaskManagerCore.Model;
 using TaskManagerCore.XunitTests.TestHelpers;
 
