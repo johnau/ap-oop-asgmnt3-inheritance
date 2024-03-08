@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TaskManagerCore.XunitTests
+﻿namespace TaskManagerCore.XunitTests
 {
-    internal class TaskFolderDaoTests
+    /// <summary>
+    /// TODO...
+    /// </summary>
+    public class TaskFolderDaoTests
     {
+        [Fact]
+        public void Save_WithValidEntity_WillReturnExpected()
+        {
+
+        }
     }
 }

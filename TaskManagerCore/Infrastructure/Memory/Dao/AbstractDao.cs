@@ -8,22 +8,22 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
     public abstract class AbstractDao<T> : ICrudRepository<T, string>
         where T : EntityBase
     {
-        protected Dictionary<string, T> _data;
+        protected Dictionary<string, T> InMemoryData;
 
         protected AbstractDao()
         {
-            _data = new Dictionary<string, T>();
+            InMemoryData = new Dictionary<string, T>();
         }
 
         public List<T> FindAll()
         {
-            return new List<T>(_data.Values);
+            return new List<T>(InMemoryData.Values);
         }
 
         public List<T> FindByIds(List<string> ids)
         {
             List<T> matching = new List<T>();
-            foreach (var item in _data)
+            foreach (var item in InMemoryData)
             {
                 if (ids.Contains(item.Key)) 
                 {
@@ -35,16 +35,16 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
 
         public virtual T? FindById(string id)
         {
-            _data.TryGetValue(id, out T? entity);
+            InMemoryData.TryGetValue(id, out T? entity);
             return entity;
         }
 
         public virtual bool Delete(T entity)
         {
-            if (_data.ContainsKey(entity.Id))
+            if (InMemoryData.ContainsKey(entity.Id))
             {
                 Debug.WriteLine($"Deleting task: {entity.Id}");
-                _data.Remove(entity.Id);
+                InMemoryData.Remove(entity.Id);
                 return true;
             }
 
@@ -56,10 +56,10 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
 
         public virtual bool Delete(string id)
         {
-            if (_data.ContainsKey(id))
+            if (InMemoryData.ContainsKey(id))
             {
                 Debug.WriteLine($"Deleting {typeof(T).Name}: {id}");
-                return _data.Remove(id);
+                return InMemoryData.Remove(id);
             }
 
             Debug.WriteLine($"Can't remove {typeof(T).Name} with Id={id}. It does not exist");

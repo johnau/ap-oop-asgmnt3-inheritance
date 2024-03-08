@@ -23,7 +23,7 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
 
         public override string Save(TaskFolderEntity entity)
         {
-            foreach (var folder in _data)
+            foreach (var folder in InMemoryData)
             {
                 if (folder.Key == entity.Id) continue;
 
@@ -33,7 +33,7 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
                 }
             }
 
-            if (_data.TryAdd(entity.Id, entity))
+            if (InMemoryData.TryAdd(entity.Id, entity))
             {
                 Debug.WriteLine($"Saved new Folder: {entity.Id}");
                 return entity.Id;
@@ -42,7 +42,7 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
             Debug.WriteLine($"Updating Folder: {entity.Id}");
 
             // assume entity is present and Adding did not fail for some other reason
-            var existing = _data[entity.Id];
+            var existing = InMemoryData[entity.Id];
             existing.Name = entity.Name;
             existing.TaskIds = entity.TaskIds; 
 

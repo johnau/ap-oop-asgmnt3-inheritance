@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using TaskManagerCore.Configuration;
 using TaskManagerCore.Infrastructure.Memory.Entity;
 
 namespace TaskManagerCore.Infrastructure.Memory.Dao
@@ -7,19 +6,7 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
     //public class TaskDataDao : ICrudRepository<TaskDataEntity, string>
     public class TaskDataDao : AbstractDao<TaskDataEntity>
     {
-        public TaskDataDao()
-        {
-        }
-
-        //public List<TaskDataEntity> FindAll()
-        //{
-        //    return new List<TaskDataEntity>(_data.Values);
-        //}
-
-        //public TaskDataEntity? FindById(string id)
-        //{
-        //    return _data[id];
-        //}
+        public TaskDataDao() { }
 
         /// <summary>
         /// Handles Save and Update
@@ -29,62 +16,52 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
         public override string Save(TaskDataEntity entity)
         {
             // Try to add new task
-            if (entity is HabitualTaskDataEntity)
+
+            if (entity is HabitualTaskDataEntity habitualEntity)
             {
-                if (_data.TryAdd(entity.Id, (HabitualTaskDataEntity)entity)) 
+                if (InMemoryData.TryAdd(entity.Id, habitualEntity)) 
                     return entity.Id;
             }
-            else if (entity is RepeatingTaskDataEntity)
+            else if (entity is RepeatingTaskDataEntity repeatingEntity)
             {
-                if (_data.TryAdd(entity.Id, (RepeatingTaskDataEntity)entity))
+                if (InMemoryData.TryAdd(entity.Id, repeatingEntity))
                     return entity.Id;
             }
             else
             {
-                if (_data.TryAdd(entity.Id, entity))
+                if (InMemoryData.TryAdd(entity.Id, entity))
                     return entity.Id;
             }
 
             // Update existing task
+
             Debug.WriteLine($"Updating Task: {entity.Id} {entity.GetType()}");
-            var existing = _data[entity.Id];
+
+            var existing = InMemoryData[entity.Id];
             existing.Description = entity.Description;
             existing.Notes = entity.Notes;
             existing.Completed = entity.Completed;
             existing.DueDate = entity.DueDate;
 
-            var type = entity.GetType();
+            //var type = entity.GetType(); // Better to use for more specific type matching?
 
-            if (entity is RepeatingTaskDataEntity)
+            if (entity is RepeatingTaskDataEntity repeating) // update params if is repeating
             {
                 var _existing = ((RepeatingTaskDataEntity)existing);
-                var _entity = ((RepeatingTaskDataEntity)entity);
+                var _entity = repeating;
                 _existing.DueDate = _entity.DueDate;
                 _existing.RepeatingInterval = _entity.RepeatingInterval;
                 _existing.Repititions = _entity.Repititions;
             }
-            if (entity is HabitualTaskDataEntity)
+            if (entity is HabitualTaskDataEntity habitual) // update params again if also habitual
             {
                 var _existing = ((HabitualTaskDataEntity)existing);
-                var _entity = ((HabitualTaskDataEntity)entity);
+                var _entity = habitual;
                 _existing.Streak = _entity.Streak;
             }
 
             return existing.Id;
         }
-
-        //public bool Delete(string id)
-        //{
-        //    if (_data.ContainsKey(id))
-        //    {
-        //        Debug.WriteLine($"Deleting TaskData: {id}");
-        //        return _data.Remove(id);
-        //    }
-
-        //    Debug.WriteLine($"Can't remove TaskData with Id={id}. It does not exist");
-        //    return false;
-        //}
-
     }
 }
 

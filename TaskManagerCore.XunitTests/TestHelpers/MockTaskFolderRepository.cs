@@ -31,7 +31,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             return OnFindByIds != null ? OnFindByIds(ids) : throw new NotImplementedException("Did not provide a function for testing");
         }
 
-        public string Save(TaskFolder o)
+        public string? Save(TaskFolder o)
         {
             return OnSave != null ? OnSave(o) : throw new NotImplementedException("Did not provide a function for testing");
         }

@@ -2,7 +2,7 @@
 using TaskManagerCore.Model;
 using TaskManagerCore.XunitTests.TestHelpers;
 
-namespace TaskManagerCore.XunitTests
+namespace TaskManagerCore.XunitTests.Model
 {
     public class HabitualTaskDataTests
     {
@@ -52,7 +52,7 @@ namespace TaskManagerCore.XunitTests
             Assert.Equal(0, habitualTask.Streak);
 
             // Set the clock back to ensure that the next task is completed within the due time
-            minutesFromNow -= intervalInMinutes + (intervalInMinutes / 2);
+            minutesFromNow -= intervalInMinutes + intervalInMinutes / 2;
             habitualTask.FakeDateTime = now.AddMinutes(minutesFromNow);
             Assert.False(habitualTask.Overdue);
             Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak})");
@@ -74,7 +74,7 @@ namespace TaskManagerCore.XunitTests
             Assert.Equal(testLimit, habitualTask.Streak);
 
             // Set the clock forward so we are Overdue - To end the streak
-            minutesFromNow += intervalInMinutes + (intervalInMinutes / 2);
+            minutesFromNow += intervalInMinutes + intervalInMinutes / 2;
             habitualTask.FakeDateTime = now.AddMinutes(minutesFromNow);
             Assert.True(habitualTask.Overdue);
 
@@ -93,7 +93,7 @@ namespace TaskManagerCore.XunitTests
         public void CheckOverdueHourlyTwice_WithCompleted_WillNotBeOverdue()
         {
             var now = DateTime.Now;
-            var habitualTask = new HabitualTaskDataTestHelperExtension("Habitual task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
+            var habitualTask = new HabitualTaskDataTestHelperExtension("Habitual task description", "", now.AddHours(1), TimeInterval.Hourly);
 
             Assert.False(habitualTask.Overdue);
 
@@ -111,10 +111,10 @@ namespace TaskManagerCore.XunitTests
         {
             var testLimit = 5;
             var now = DateTime.Now;
-            var habitualTask = new HabitualTaskDataTestHelperExtension("Habitual task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
+            var habitualTask = new HabitualTaskDataTestHelperExtension("Habitual task description", "", now.AddHours(1), TimeInterval.Hourly);
             Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue})");
             var minutesFromNow = 30;
-            
+
             habitualTask.FakeDateTime = now.AddMinutes(minutesFromNow);
             Assert.False(habitualTask.Overdue);
 
@@ -141,7 +141,7 @@ namespace TaskManagerCore.XunitTests
 
             for (int i = 1; i <= testLimit; i++)
             {
-                
+
                 habitualTask.FakeDateTime = now.AddMinutes(minutesFromNow);
                 Assert.True(habitualTask.Overdue);
                 habitualTask = habitualTask.WithCompleted(true);

@@ -2,7 +2,7 @@
 using TaskManagerCore.Model;
 using TaskManagerCore.XunitTests.TestHelpers;
 
-namespace TaskManagerCore.XunitTests
+namespace TaskManagerCore.XunitTests.Model
 {
     public class RepeatingTaskDataTests
     {
@@ -31,7 +31,7 @@ namespace TaskManagerCore.XunitTests
             {
                 // Complete task before due time
                 Debug.WriteLine($"Comparing task due date: {repeatingTask.DueDate} against current fake date: {repeatingTask.FakeDateTime}");
-                
+
                 Assert.False(repeatingTask.Overdue);
                 repeatingTask = repeatingTask.WithCompleted(true);
 
@@ -66,14 +66,14 @@ namespace TaskManagerCore.XunitTests
             }
 
             // Check that we have successfully incremented the task 
-            Assert.Equal(testLimit*2, repeatingTask.Repititions);
+            Assert.Equal(testLimit * 2, repeatingTask.Repititions);
         }
 
         [Fact]
         public void CheckOverdueHourlyTwice_WithCompleted_WillNotBeOverdue()
         {
             var now = DateTime.Now;
-            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
+            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), TimeInterval.Hourly);
 
             Assert.False(repeatingTask.Overdue);
 
@@ -90,7 +90,7 @@ namespace TaskManagerCore.XunitTests
         public void CheckOverdueHourly_PassedDueDate_WillBeOverdue()
         {
             var now = DateTime.Now;
-            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
+            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), TimeInterval.Hourly);
 
             Assert.False(repeatingTask.Overdue);
 
@@ -103,13 +103,13 @@ namespace TaskManagerCore.XunitTests
         public void CheckOverdueHourly_WithCompleted_WillNotBeOverdue()
         {
             var now = DateTime.Now;
-            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), Model.TimeInterval.Hourly);
+            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), TimeInterval.Hourly);
 
             Assert.False(repeatingTask.Overdue);
 
             repeatingTask = repeatingTask.WithCompleted(true);
             repeatingTask.FakeDateTime = now.AddMinutes(61); // 1 min past old due date
-            
+
             Assert.False(repeatingTask.Overdue);
         }
 
@@ -117,7 +117,7 @@ namespace TaskManagerCore.XunitTests
         public void CheckOverdueDaily_WithCompleted_WillNotBeOverdue()
         {
             var now = DateTime.Now;
-            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), Model.TimeInterval.Daily);
+            var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), TimeInterval.Daily);
 
             Assert.False(repeatingTask.Overdue);
 
@@ -131,7 +131,7 @@ namespace TaskManagerCore.XunitTests
 
             Assert.False(repeatingTask.Overdue);
 
-            repeatingTask.FakeDateTime = now.AddHours(12); 
+            repeatingTask.FakeDateTime = now.AddHours(12);
 
             Assert.False(repeatingTask.Overdue);
 
