@@ -9,7 +9,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         public Func<List<TaskFolder>>? OnFindAll { get; set; }
         public Func<string, TaskFolder?>? OnFindById { get; set; }
         public Func<List<string>, List<TaskFolder>>? OnFindByIds { get; set; }
-        public Func<TaskFolder, string?>? OnSave { get; set; }
+        public Func<TaskFolder, string>? OnSave { get; set; }
 
         public bool Delete(string id)
         {
@@ -31,7 +31,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             return OnFindByIds != null ? OnFindByIds(ids) : throw new NotImplementedException("Did not provide a function for testing");
         }
 
-        public string? Save(TaskFolder o)
+        public string Save(TaskFolder o)
         {
             return OnSave != null ? OnSave(o) : throw new NotImplementedException("Did not provide a function for testing");
         }
