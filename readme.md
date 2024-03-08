@@ -1,5 +1,9 @@
 # C# OOP Assignment 3: Inheritance
 
+## Tests
+- TaskManagerCore.XunitTests Package contains Unit tests for the relevant classes
+- TaskManagerConsoleApp package contains an 'integration' test
+
 ## Concepts explored
 - Domain Driven Design (kind of); Service/Controller layer -> Infrastructure layer -> Domain/Model layer.  Separation through interfaces that could be improved with CDI/IoC. 
 - Repository + DAO combination that would allow better disconnection after IoC is implemented
@@ -19,3 +23,5 @@
 -- The Total Count of Incomplete tasks in the folder has been shifted up the hierarchy and is currently handled at the controller level. (Interpreting the brief, it seems like the calculation is supposed to exist in the Folder class, however this would add some weight to what is currently a lightweight class.
 - Implement static database; to be switched out for real database
 -- Started out with static holders, have switched around a bit to explore some various ideas/structures around the infrastructure/persistence layer.
+
+![Test Listing](https://github.com/johnau/ap-oop-asgmnt3-inheritance/blob/master/images/test_listing.png?raw=true)
