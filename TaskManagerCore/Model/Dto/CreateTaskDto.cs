@@ -1,8 +1,6 @@
-﻿using System.Formats.Asn1;
-
-namespace TaskManagerCore.Model.Dto
+﻿namespace TaskManagerCore.Model.Dto
 {
-    public class CreateTaskDto
+    public class CreateTaskDto // change these dto's to structs
     {
         public string InFolderId { get; }
 

@@ -136,10 +136,7 @@ namespace TaskManagerCore.Controller
             var savedId = TaskDataRepository.Save(task.WithCompleted(true));
 
             Debug.WriteLine($"Updated Task '{id}' => Completed=True");
-            if (savedId != null) // not good enough
-                return true;
-
-            return false;
+            return savedId != null; // not good enough
         }
 
         /// <summary>
@@ -214,7 +211,6 @@ namespace TaskManagerCore.Controller
                 return TaskFolderRepository.Save(taskFolder);
             } catch (Exception ex)
             {
-                Debug.WriteLine($"Could not save Task Folder: {ex.Message}");
                 throw new Exception($"Could not save Task Folder: {ex.Message}");
             }
         }
@@ -254,6 +250,69 @@ namespace TaskManagerCore.Controller
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Update modifiable properties Task
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public string UpdateTaskProperty(string id, string property, object value)
+        {
+            var task = TaskDataRepository.FindById(id);
+            if (task == null)
+            {
+                throw new Exception($"Task not found with id: {id}");
+            }
+
+            if (property.ToLower() == "description") 
+                task = task.WithDescription((string)value);
+            else if (property.ToLower() == "notes") 
+                task = task.WithNotes((string)value);
+            else if (property.ToLower() == "duedate" || property.ToLower() == "due_date") 
+                task = task.WithDueDate((DateTime)value);
+            else throw new Exception($"Unrecognized property: {property}");
+            
+            try
+            {
+                return TaskDataRepository.Save(task);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not save Task: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Update modifiable properties Folder
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public string UpdateFolderProperty(string id, string property, object value)
+        {
+            var folder = TaskFolderRepository.FindById(id);
+            if (folder == null)
+            {
+                throw new Exception($"Folder not found with id: {id}");
+            }
+
+            if (property.ToLower() == "name")
+                folder = folder.WithName((string)value);
+
+            try
+            {
+                return TaskFolderRepository.Save(folder);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not save Folder: {ex.Message}");
+            }
         }
     }
 }

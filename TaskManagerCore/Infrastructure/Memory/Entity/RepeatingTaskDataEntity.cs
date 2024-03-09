@@ -11,7 +11,10 @@ namespace TaskManagerCore.Infrastructure.Memory.Entity
         //public DateTime StartFrom { get; set; }  // retain the start date?
         public RepeatingTaskDataEntity(string? id = "") 
             : base(id)
-        { 
+        {
+            DueDate = DateTime.MinValue;
+            RepeatingInterval = TimeInterval.None;
+            Repititions = 0;
         }
     }
 }

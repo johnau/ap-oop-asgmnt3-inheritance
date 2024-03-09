@@ -7,6 +7,7 @@
         public HabitualTaskDataEntity(string? id = "")
             : base(id)
         {
+            Streak = 0;
         }
     }
 }

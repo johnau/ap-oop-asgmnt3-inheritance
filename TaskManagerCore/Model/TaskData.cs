@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-
-namespace TaskManagerCore.Model
+﻿namespace TaskManagerCore.Model
 {
     /// <summary>
     /// Immutable class (ie. 'record' after C# 9.0) - should it just be a struct? and should all business logic move up to an accessor/helper class?

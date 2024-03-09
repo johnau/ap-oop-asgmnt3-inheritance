@@ -11,16 +11,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         {
         }
 
-        //public List<TaskFolderEntity> FindAll()
-        //{
-        //    return new List<TaskFolderEntity>(_data.Values);
-        //}
-
-        //public TaskFolderEntity? FindById(string id)
-        //{
-        //    return _data[id];
-        //}
-
         public override string Save(TaskFolderEntity entity)
         {
             foreach (var folder in Cache)
@@ -42,7 +32,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             Debug.WriteLine($"Updating Folder: {entity.Id}");
 
             // assume entity is present and Adding did not fail for some other reason
-            //var existing = Cache[entity.Id];
             if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Folder");
             if (existing == null) throw new Exception("Missing Folder");
             existing.Name = entity.Name;
@@ -50,18 +39,5 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 
             return existing.Id;
         }
-
-        //public bool Delete(string id)
-        //{
-        //    if (_data.ContainsKey(id))
-        //    {
-        //        Debug.WriteLine($"Deleting TaskFolder: {id}");
-        //        return _data.Remove(id);
-        //    }
-
-        //    Debug.WriteLine($"Can't remove TaskFolder with Id={id}. It does not exist");
-        //    return false;
-        //}
-
     }
 }

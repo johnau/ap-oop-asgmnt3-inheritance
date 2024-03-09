@@ -3,7 +3,7 @@
 namespace TaskManagerCore.Model
 {
     /// <summary>
-    /// Immutable class (ie. 'record' after C# 9.0)
+    /// Immutable class (use 'record' after C# 9.0?) Or make this a struct and shift the logic to an accessor...
     /// 
     /// As per requirements:
     /// - The Id does not have a publicly accessible setter (populated at construction and then passed through builder methods internally)
