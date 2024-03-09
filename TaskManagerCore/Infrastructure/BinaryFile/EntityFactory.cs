@@ -5,6 +5,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
 {
     /// <summary>
     /// Split this out into seperate factories?
+    /// 
+    /// Handles Model -> Entity conversion
+    /// Should be made responsible for all casts between different class types
     /// </summary>
     internal class EntityFactory : IEntityFactory
     {

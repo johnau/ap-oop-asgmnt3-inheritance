@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Reflection.PortableExecutable;
-using TaskManagerCore.Infrastructure.BinaryFile.Entity;
+﻿using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers.Helper;
 using TaskManagerCore.Model;
 
@@ -8,6 +6,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 {
     internal class TaskDataFileReader : BinaryFileReader<TaskDataEntity>
     {
+        // TODO: switch this out - use TaskDataEntitys
         internal struct DataStruct
         {
             public DataStruct() { }
@@ -67,6 +66,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             if (currentData == null)
                 throw new Exception("Call HasNext() first");
 
+            //TODO: Another place to refactor these casts and object creations to a central factory
             if (currentData.Value.ClassName.Equals(TaskDataClassName, StringComparison.Ordinal))
             {
                 return new TaskDataEntity(currentData.Value.Id)
@@ -108,17 +108,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 
         static bool IsTerminator(DataStruct data)
         {
-            if (data.Id.Equals(TaskDataTerminator.IdTerminator)
+            return (data.Id.Equals(TaskDataTerminator.IdTerminator)
                 && data.ClassName.Equals(TaskDataTerminator.ClassNameTerminator)
                 && data.Description.Equals(TaskDataTerminator.DescriptionTerminator)
                 && data.Notes.Equals(TaskDataTerminator.NotesTerminator)
-                && data.Completed == TaskDataTerminator.CompletedTerminator
-                )
-            {
-                return true;
-            }
-
-            return false;
+                && data.Completed == TaskDataTerminator.CompletedTerminator);
         }
 
     }

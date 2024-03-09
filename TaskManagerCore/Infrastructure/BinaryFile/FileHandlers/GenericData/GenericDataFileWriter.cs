@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers.GenericData
 {
+    /// <summary>
+    /// TODO: Finish
+    /// </summary>
     internal class GenericDataFileWriter : GenericBinaryFileAccessor
     {
         protected GenericDataFileWriter(Dictionary<string, Entry> dataStructure, string filename = "data", string? rootPath = null)

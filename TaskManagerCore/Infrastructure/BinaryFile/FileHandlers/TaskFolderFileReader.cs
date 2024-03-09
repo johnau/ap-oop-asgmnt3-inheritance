@@ -5,6 +5,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 {
     internal class TaskFolderFileReader : BinaryFileReader<TaskFolderEntity>
     {
+        // TODO: switch this out for the task folder entity
         internal struct DataStruct
         {
             public DataStruct() { }

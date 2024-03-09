@@ -4,12 +4,8 @@
     {
         public GetTaskDto Map(TaskData o)
         {
-            // Note:
-            // `is` operator will return true for all types in the hierarchy
-            // .GetType() == typeof(clazz) will only return true for exact class match
-            // as such, the hierarchy must be checked in reverse order.
-            // This is OK for this small linear hierarchy, but if expanded in two dimensions, GetType() == typeof()
-            // will be more robust without a doubt.
+            // testing out using `is` rather than the type check with GetType() and typeof()
+            // Order is important with `is` due to matching all inherited
 
             //if (o.GetType() == typeof(HabitualTaskData))
             if (o is HabitualTaskData habitual)

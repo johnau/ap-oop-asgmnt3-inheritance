@@ -30,15 +30,15 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             // stack the values
             if (entity is RepeatingTaskDataEntity repeating)
             {
+                className = repeating.GetType().Name;
                 dueDate = repeating.DueDate;
                 interval = (int)repeating.RepeatingInterval;
                 reptitions = repeating.Repititions;
-                className = repeating.GetType().Name;
             }
             if (entity is HabitualTaskDataEntity habitual)
             {
-                streak = habitual.Streak;
                 className = habitual.GetType().Name;
+                streak = habitual.Streak;
             }
 
             // write the values as a byte array

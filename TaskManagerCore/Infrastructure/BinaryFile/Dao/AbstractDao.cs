@@ -11,13 +11,14 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal abstract class AbstractDao<T> : ICrudRepository<T, string>
-        where T : EntityBase
+        where T : EntityBase, IComparable<T>, ITextSearchable
     {
         readonly BinaryFileReader<T> Reader;
         readonly BinaryFileWriter<T> Writer;
 
         //readonly Dictionary<string, T> Cache;
         protected readonly SubscribeableCache<T> Cache;
+        //protected readonly IndexedSubscribeableCache<T> Cache;
 
         protected AbstractDao(BinaryFileReader<T> reader, BinaryFileWriter<T> writer)
         {
@@ -25,6 +26,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             Writer = writer;
             //Cache = new Dictionary<string, T>();
             Cache = new SubscribeableCache<T>();
+            //Cache = new IndexedSubscribeableCache<T>(ComparisonMethods);
             LoadData();
             Cache.Subscribe(async (data) =>
             {
@@ -33,6 +35,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                 await Writer.WriteValuesAsync();
             });
         }
+
+        protected abstract Dictionary<string, Comparison<T>> ComparisonMethods { get; }
 
         void LoadData()
         {

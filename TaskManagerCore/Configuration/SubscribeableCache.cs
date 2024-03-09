@@ -1,5 +1,4 @@
-﻿
-namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
+﻿namespace TaskManagerCore.Configuration
 {
     /// <summary>
     /// Wraps Dictionary to provide subscription
@@ -15,11 +14,13 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             UPDATE,
         }
 
-        readonly Dictionary<string, T> Cache = new Dictionary<string, T>();
-        readonly Dictionary<string, Func<Dictionary<string, T>, Task>> subscribers;
+        protected readonly Dictionary<string, T> Cache;
+        protected readonly Dictionary<string, Func<Dictionary<string, T>, Task>> Subscribers;
 
-        public SubscribeableCache() {
-            subscribers = new Dictionary<string, Func<Dictionary<string, T>, Task>>();
+        public SubscribeableCache()
+        {
+            Cache = new Dictionary<string, T>();
+            Subscribers = new Dictionary<string, Func<Dictionary<string, T>, Task>>();
         }
 
         public Dictionary<string, T>.ValueCollection Values => Cache.Values;
@@ -29,7 +30,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 
         public bool TryAdd(string id, T item)
         {
-            if (Cache.TryAdd(id, item)) {
+            if (Cache.TryAdd(id, item))
+            {
                 NotifySubscribers(Action.ADD);
                 return true;
             }
@@ -49,11 +51,24 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             return false;
         }
 
-        public bool Update(string id, T item)
+        public bool Flush()
+        {
+            NotifySubscribers(Action.UPDATE);
+            return true;
+        }
+
+        /// <summary>
+        /// Try to avoid using this method
+        /// To be removed
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        internal bool ForceReplace(string id, T item)
         {
             if (Cache.TryGetValue(id, out T? existing))
             {
-                Cache[id] = item;
+                Cache[id] = item; // lazy - should be updating existing
                 NotifySubscribers(Action.UPDATE);
                 return true;
             }
@@ -64,12 +79,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         public void Subscribe(Func<Dictionary<string, T>, Task> subscriber)
         {
             var id = Guid.NewGuid().ToString();
-            subscribers.TryAdd(id, subscriber);
+            Subscribers.TryAdd(id, subscriber);
         }
 
         void NotifySubscribers(Action action)
         {
-            foreach (var item in subscribers)
+            foreach (var item in Subscribers)
             {
                 var func = item.Value;
                 func.Invoke(new Dictionary<string, T>(Cache));

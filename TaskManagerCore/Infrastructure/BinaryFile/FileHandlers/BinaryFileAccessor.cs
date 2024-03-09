@@ -16,6 +16,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         protected readonly string _filenameBase;
         protected readonly string _rootPath;
 
+        // Testing out Semaphores, however this lock does not prevent concurrent access to the file...
+        // It does slow things down a little though, but the overhead of the lock is probably not worth it.
         protected SemaphoreSlim accessSemaphore = new SemaphoreSlim(1, 1);
 
         protected BinaryFileAccessor(string filename = "data", string? rootPath = null)

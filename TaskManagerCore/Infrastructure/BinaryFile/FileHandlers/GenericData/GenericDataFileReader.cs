@@ -8,6 +8,9 @@ using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers.Helper;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers.GenericData
 {
+    /// <summary>
+    /// TODO: Finish
+    /// </summary>
     internal class GenericDataFileReader : GenericBinaryFileAccessor
     {
         protected Dictionary<string, Entry> CurrentData;
