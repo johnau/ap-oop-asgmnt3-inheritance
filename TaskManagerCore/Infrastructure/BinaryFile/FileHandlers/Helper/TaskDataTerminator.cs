@@ -1,5 +1,4 @@
-﻿
-namespace TaskManagerCore.Infrastructure.BinaryFile.Helper
+﻿namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers.Helper
 {
     internal struct TaskDataTerminator
     {

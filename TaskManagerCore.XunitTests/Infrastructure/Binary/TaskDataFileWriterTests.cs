@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
+using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Model;
 
 namespace TaskManagerCore.XunitTests.Infrastructure.Binary

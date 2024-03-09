@@ -1,34 +1,20 @@
 ﻿using System.Diagnostics;
 using System.Text;
 
-namespace TaskManagerCore.Infrastructure.BinaryFile
+namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 {
     /// <summary>
     /// Need to make an async version of this class
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal abstract class BinaryFileWriter<T>
+    internal abstract class BinaryFileWriter<T> : BinaryFileAccessor
     {
-        protected const string _extension = ".bin";
-        protected readonly string _filenameBase;
-        protected readonly string _rootPath;
-
         protected List<T> WritePendingList;
 
         public BinaryFileWriter(string filename = "data", string? rootPath = null)
+            : base(filename, rootPath)
         {
-            if (rootPath == null) _rootPath = Path.GetTempPath();
-            else _rootPath = rootPath;
-
-            _filenameBase = filename;
-            WritePendingList = new List<T>(); 
-        }
-
-        string GenerateFilePath()
-        {
-            // handle using a new file after current file exceeds certain size
-            var filename = _filenameBase + _extension;
-            return Path.Combine(_rootPath, filename);
+            WritePendingList = new List<T>();
         }
 
         public void AddObjectsToWrite(List<T> items)
@@ -52,15 +38,15 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
         {
             var filePath = GenerateFilePath();
             Debug.WriteLine($"Filepath={filePath}");
-            using (var stream = File.Open(filePath, FileMode.OpenOrCreate))
-            //using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+
+            using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+            //using (var stream = File.Open(filePath, FileMode.OpenOrCreate))
             using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
             {
                 foreach (var item in WritePendingList)
                 {
                     WriteObject(writer, item);
                 }
-
                 WriteTerminatorObject(writer);
             }
 
@@ -68,6 +54,19 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             WritePendingList.Clear();
 
             return filePath;
+        }
+
+        public async Task<string> WriteValuesAsync()
+        {
+            await accessSemaphore.WaitAsync();
+            try
+            {
+                return WriteValues();
+            }
+            finally
+            {
+                accessSemaphore.Release();
+            }
         }
     }
 }

@@ -1,27 +1,27 @@
 ﻿using System.IO;
 using System.Reflection.PortableExecutable;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
-using TaskManagerCore.Infrastructure.BinaryFile.Helper;
+using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers.Helper;
 using TaskManagerCore.Model;
 
-namespace TaskManagerCore.Infrastructure.BinaryFile
+namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 {
-    internal struct DataStruct
-    {
-        public DataStruct() { }
-        public string Id { get; set; } = string.Empty;
-        public string ClassName { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Notes { get; set; } = string.Empty;
-        public bool Completed { get; set; } = false;
-        public long DueDate { get; set; } = 0L;
-        public int Interval { get; set; } = 0;
-        public int Repetitions { get; set; } = 0;
-        public int Streak { get; set; } = 0;
-    }
-
     internal class TaskDataFileReader : BinaryFileReader<TaskDataEntity>
     {
+        internal struct DataStruct
+        {
+            public DataStruct() { }
+            public string Id { get; set; } = string.Empty;
+            public string ClassName { get; set; } = string.Empty;
+            public string Description { get; set; } = string.Empty;
+            public string Notes { get; set; } = string.Empty;
+            public bool Completed { get; set; } = false;
+            public long DueDate { get; set; } = 0L;
+            public int Interval { get; set; } = 0;
+            public int Repetitions { get; set; } = 0;
+            public int Streak { get; set; } = 0;
+        }
+
         readonly string TaskDataClassName = typeof(TaskDataEntity).Name;
         readonly string RepeatingTaskDataClassName = typeof(RepeatingTaskDataEntity).Name;
         readonly string HabitualTaskDataClassName = typeof(HabitualTaskDataEntity).Name;
@@ -32,7 +32,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             : base(filename, rootPath)
         { }
 
-        public override bool HasNext(BinaryReader reader)
+        protected override bool HasNext(BinaryReader reader)
         {
             var data = new DataStruct();
             data.ClassName = reader.ReadString();
@@ -41,7 +41,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             data.Notes = reader.ReadString();
             data.Completed = reader.ReadBoolean();
             data.DueDate = reader.ReadInt64();
-            
+
             byte[] xDataBytes = reader.ReadBytes(sizeof(int) * 3);
 
             using (MemoryStream stream = new MemoryStream(xDataBytes))
@@ -62,9 +62,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return true;
         }
 
-        public override TaskDataEntity ReadData(BinaryReader reader)
+        protected override TaskDataEntity ReadData(BinaryReader reader)
         {
-            if (currentData == null) 
+            if (currentData == null)
                 throw new Exception("Call HasNext() first");
 
             if (currentData.Value.ClassName.Equals(TaskDataClassName, StringComparison.Ordinal))
@@ -76,7 +76,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
                     Completed = currentData.Value.Completed,
                     DueDate = currentData.Value.DueDate > 0 ? new DateTime(currentData.Value.DueDate) : null,
                 };
-            } 
+            }
             else if (currentData.Value.ClassName.Equals(RepeatingTaskDataClassName, StringComparison.Ordinal))
             {
                 return new RepeatingTaskDataEntity(currentData.Value.Id)
@@ -88,7 +88,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
                     RepeatingInterval = (TimeInterval)currentData.Value.Interval,
                     Repititions = currentData.Value.Repetitions,
                 };
-            } 
+            }
             else if (currentData.Value.ClassName.Equals(HabitualTaskDataClassName, StringComparison.Ordinal))
             {
                 return new HabitualTaskDataEntity(currentData.Value.Id)
@@ -108,7 +108,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
 
         static bool IsTerminator(DataStruct data)
         {
-            if (data.Id.Equals(TaskDataTerminator.IdTerminator) 
+            if (data.Id.Equals(TaskDataTerminator.IdTerminator)
                 && data.ClassName.Equals(TaskDataTerminator.ClassNameTerminator)
                 && data.Description.Equals(TaskDataTerminator.DescriptionTerminator)
                 && data.Notes.Equals(TaskDataTerminator.NotesTerminator)

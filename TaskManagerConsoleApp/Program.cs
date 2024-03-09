@@ -1,6 +1,10 @@
-﻿using TaskManagerCore.Controller;
-using TaskManagerCore.Infrastructure.Memory;
-using TaskManagerCore.Infrastructure.Memory.Dao;
+﻿using System.Diagnostics;
+using TaskManagerCore.Controller;
+//using TaskManagerCore.Infrastructure.Memory;
+//using TaskManagerCore.Infrastructure.Memory.Dao;
+using TaskManagerCore.Infrastructure.BinaryFile;
+using TaskManagerCore.Infrastructure.BinaryFile.Dao;
+using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Dto;
 
@@ -13,17 +17,47 @@ namespace TaskManagerConsoleApp
             PrintTitle();
 
             // construct application
+            var taskDataFileName = "taskmanager-task-data";
+            var folderDataFileName = "taskmanager-folder-data";
+            var taskWriter = new TaskDataFileWriter(taskDataFileName);
+            var taskReader = new TaskDataFileReader(taskDataFileName);
+            var folderWriter = new TaskFolderFileWriter(folderDataFileName);
+            var folderReader = new TaskFolderFileReader(folderDataFileName);
+
             var entityFactory = new EntityFactory(); // exposed internals to TaskManagerConsoleApp namespace
-            var taskDao = new TaskDataDao();
+            //var taskDao = new TaskDataDao();                                  // Use this for the Memory namespace class (part1 of task)
+            var taskDao = new TaskDataDao(taskReader, taskWriter);              // Use this for the BinaryFile namespace class (part2 of task)
             var taskRepo = new TaskDataRepository(taskDao, entityFactory);
-            var folderDao = new TaskFolderDao();
+            //var folderDao = new TaskFolderDao();                              // Use this for the Memory namespace class (part1 of task)
+            var folderDao = new TaskFolderDao(folderReader, folderWriter);      // Use this for the BinaryFile namespace class (part2 of task)
             var fodlerRepo = new TaskFolderRepository(folderDao, entityFactory);
             var controller = new TaskController(taskRepo, fodlerRepo);
 
-            RunTests(controller);
+            try
+            {
+                PopulateDummyData(controller); // populate some dummy tasks and folders to the "database"
+            } catch (Exception ex)
+            {
+                Console.WriteLine("Database is already populated - not running PopulateDummyData() method");
+            }
+            
+            PrintTasksAndFolders(controller, "Loaded Application");
+
+            ChangeData(controller);
+
+            PrintTasksAndFolders(controller, "Updated Data");
         }
 
-        static void RunTests(TaskController controller)
+        static void ChangeData(TaskController controller)
+        {
+            var allTasks = controller.GetTasks();
+            foreach (var item in allTasks)
+            {
+                controller.CompleteTask(item.Id);
+            }
+        }
+
+        static void PopulateDummyData(TaskController controller)
         {
             // tests
 

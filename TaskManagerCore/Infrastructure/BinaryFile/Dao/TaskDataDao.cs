@@ -1,12 +1,15 @@
 ﻿using System.Diagnostics;
-using TaskManagerCore.Infrastructure.Memory.Entity;
+using TaskManagerCore.Infrastructure.BinaryFile.Entity;
+using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 
-namespace TaskManagerCore.Infrastructure.Memory.Dao
+namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {
-    //public class TaskDataDao : ICrudRepository<TaskDataEntity, string>
-    public class TaskDataDao : AbstractDao<TaskDataEntity>
+    internal class TaskDataDao : AbstractDao<TaskDataEntity>
     {
-        public TaskDataDao() { }
+        public TaskDataDao(BinaryFileReader<TaskDataEntity> reader, BinaryFileWriter<TaskDataEntity> writer) 
+            : base(reader, writer)
+        {
+        }
 
         /// <summary>
         /// Handles Save and Update
@@ -19,7 +22,7 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
 
             if (entity is HabitualTaskDataEntity habitualEntity)
             {
-                if (Cache.TryAdd(entity.Id, habitualEntity)) 
+                if (Cache.TryAdd(entity.Id, habitualEntity))
                     return entity.Id;
             }
             else if (entity is RepeatingTaskDataEntity repeatingEntity)
@@ -34,10 +37,11 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
             }
 
             // Update existing task
-
             Debug.WriteLine($"Updating Task: {entity.Id} {entity.GetType()}");
 
-            var existing = Cache[entity.Id];
+            //var existing = Cache[entity.Id];
+            if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Task");
+            if (existing == null) throw new Exception("Missing Task");
             existing.Description = entity.Description;
             existing.Notes = entity.Notes;
             existing.Completed = entity.Completed;
@@ -47,21 +51,22 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
 
             if (entity is RepeatingTaskDataEntity repeating) // update params if is repeating
             {
-                var _existing = ((RepeatingTaskDataEntity)existing);
-                var _entity = repeating;
-                _existing.DueDate = _entity.DueDate;
-                _existing.RepeatingInterval = _entity.RepeatingInterval;
-                _existing.Repititions = _entity.Repititions;
+                var _existing = (RepeatingTaskDataEntity)existing;
+                _existing.DueDate = repeating.DueDate;
+                _existing.RepeatingInterval = repeating.RepeatingInterval;
+                _existing.Repititions = repeating.Repititions;
+                existing = _existing;
             }
             if (entity is HabitualTaskDataEntity habitual) // update params again if also habitual
             {
-                var _existing = ((HabitualTaskDataEntity)existing);
-                var _entity = habitual;
-                _existing.Streak = _entity.Streak;
+                var _existing = (HabitualTaskDataEntity)existing;
+                _existing.Streak = habitual.Streak;
+                existing = _existing;
             }
+
+            Cache.Update(entity.Id, existing); // This is ugly, but needed to force the call on NotifySubscribers...
 
             return existing.Id;
         }
     }
 }
-

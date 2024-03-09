@@ -1,33 +1,60 @@
-﻿using TaskManagerCore.Model;
+﻿using TaskManagerCore.Infrastructure.BinaryFile.Dao;
+using TaskManagerCore.Model;
 using TaskManagerCore.Model.Repository;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile
 {
     internal class TaskFolderRepository : ITaskFolderRepository
     {
-        public bool Delete(string id)
+        readonly TaskFolderDao Dao;
+        readonly IEntityFactory EntityFactory;
+        internal TaskFolderRepository(TaskFolderDao dao, IEntityFactory entityFactory)
         {
-            throw new NotImplementedException();
+            Dao = dao;
+            EntityFactory = entityFactory;
         }
 
         public List<TaskFolder> FindAll()
         {
-            throw new NotImplementedException();
-        }
-
-        public TaskFolder? FindById(string id)
-        {
-            throw new NotImplementedException();
+            var all = Dao.FindAll();
+            List<TaskFolder> folders = new List<TaskFolder>();
+            foreach (var folder in all)
+            {
+                folders.Add(EntityFactory.ToModel(folder));
+            }
+            return folders;
         }
 
         public List<TaskFolder> FindByIds(List<string> ids)
         {
-            throw new NotImplementedException();
+            var matching = Dao.FindByIds(ids);
+            List<TaskFolder> folders = new List<TaskFolder>();
+            foreach (var folder in matching)
+            {
+                folders.Add(EntityFactory.ToModel(folder));
+            }
+            return folders;
+        }
+
+        public TaskFolder? FindById(string id)
+        {
+            var one = Dao.FindById(id);
+            if (one != null)
+            {
+                return EntityFactory.ToModel(one);
+            }
+
+            return null;
         }
 
         public string Save(TaskFolder o)
         {
-            throw new NotImplementedException();
+            return Dao.Save(EntityFactory.FromModel(o));
+        }
+
+        public bool Delete(string id)
+        {
+            return Dao.Delete(id);
         }
     }
 }

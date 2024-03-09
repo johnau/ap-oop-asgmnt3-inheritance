@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
-using TaskManagerCore.Configuration;
-using TaskManagerCore.Infrastructure.Memory.Entity;
+using TaskManagerCore.Infrastructure.BinaryFile.Entity;
+using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 
-namespace TaskManagerCore.Infrastructure.Memory.Dao
+namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {
-    //public class TaskFolderDao : ICrudRepository<TaskFolderEntity, string>
-    public class TaskFolderDao : AbstractDao<TaskFolderEntity>
+    internal class TaskFolderDao : AbstractDao<TaskFolderEntity>
     {
-        public TaskFolderDao()
+        public TaskFolderDao(BinaryFileReader<TaskFolderEntity> reader, BinaryFileWriter<TaskFolderEntity> writer) 
+            : base(reader, writer)
         {
         }
 
@@ -42,9 +42,11 @@ namespace TaskManagerCore.Infrastructure.Memory.Dao
             Debug.WriteLine($"Updating Folder: {entity.Id}");
 
             // assume entity is present and Adding did not fail for some other reason
-            var existing = Cache[entity.Id];
+            //var existing = Cache[entity.Id];
+            if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Folder");
+            if (existing == null) throw new Exception("Missing Folder");
             existing.Name = entity.Name;
-            existing.TaskIds = entity.TaskIds; 
+            existing.TaskIds = entity.TaskIds;
 
             return existing.Id;
         }
