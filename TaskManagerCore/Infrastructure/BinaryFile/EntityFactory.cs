@@ -1,11 +1,15 @@
-﻿using TaskManagerCore.Infrastructure.Memory.Entity;
+﻿using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Model;
 
-namespace TaskManagerCore.Infrastructure.Memory
+namespace TaskManagerCore.Infrastructure.BinaryFile
 {
+    /// <summary>
+    /// Split this out into seperate factories?
+    /// </summary>
     internal class EntityFactory : IEntityFactory
     {
-        internal EntityFactory() { 
+        internal EntityFactory()
+        {
         }
 
         public TaskFolderEntity FromModel(TaskFolder taskFolder)
@@ -91,39 +95,19 @@ namespace TaskManagerCore.Infrastructure.Memory
             return new TaskFolder(id, name, taskIds);
         }
 
-        public TaskData ToModel(TaskDataEntity taskDataEntity)
+        public TaskData ToModel(TaskDataEntity entity)
         {
-            if (taskDataEntity is HabitualTaskDataEntity)
+            if (entity is HabitualTaskDataEntity h)
             {
-                var id = taskDataEntity.Id;
-                var description = taskDataEntity.Description;
-                var notes = taskDataEntity.Notes;
-                var completed = taskDataEntity.Completed;
-                var dueDate = ((HabitualTaskDataEntity)taskDataEntity).DueDate;
-                var interval = ((HabitualTaskDataEntity)taskDataEntity).RepeatingInterval;
-                var repititions = ((HabitualTaskDataEntity)taskDataEntity).Repititions;
-                var streak = ((HabitualTaskDataEntity)taskDataEntity).Streak;
-                return new HabitualTaskData(id, description, notes, completed, dueDate, interval, repititions, streak);
+                return new HabitualTaskData(h.Id, h.Description, h.Notes, h.Completed, h.DueDate, h.RepeatingInterval, h.Repititions, h.Streak);
             }
-            else if (taskDataEntity is RepeatingTaskDataEntity)
+            else if (entity is RepeatingTaskDataEntity r)
             {
-                var id = taskDataEntity.Id;
-                var description = taskDataEntity.Description;
-                var notes = taskDataEntity.Notes;
-                var completed = taskDataEntity.Completed;
-                var dueDate = ((RepeatingTaskDataEntity)taskDataEntity).DueDate;
-                var interval = ((RepeatingTaskDataEntity)taskDataEntity).RepeatingInterval;
-                var repititions = ((RepeatingTaskDataEntity)taskDataEntity).Repititions;
-                return new RepeatingTaskData(id, description, notes, completed, dueDate, interval, repititions);
+                return new RepeatingTaskData(r.Id, r.Description, r.Notes, r.Completed, r.DueDate, r.RepeatingInterval, r.Repititions);
             }
             else
             {
-                var id = taskDataEntity.Id;
-                var description = taskDataEntity.Description;
-                var notes = taskDataEntity.Notes;
-                var completed = taskDataEntity.Completed;
-                var dueDate = taskDataEntity.DueDate;
-                return new TaskData(id, description, notes, completed, dueDate);
+                return new TaskData(entity.Id, entity.Description, entity.Notes, entity.Completed, entity.DueDate);
             }
         }
 

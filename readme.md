@@ -1,4 +1,10 @@
-# C# OOP Assignment 3: Inheritance
+# C# OOP Assignment 3: Task Manager: Inheritance (branch "master")
+# C# OOP Assignment 4: Task Manager: Binary Files (branch "part2")
+
+## Part2 - Binary Files
+- Structure used for the InMemoryStore (Memory namespace) has been copied to the BinaryFiles namespace - In practise, it would be one or the other for these "persistence" implementations, hence the duplication of the whole hierarchy.
+- A Subscribeable wrapper around a Dictionary is used for the cache instead of just a Dictionary - this allows the BinaryFileWriter classes to respond to updates to the cache by writing the updates.
+- File data is read one time, at load.  Data is accessed from the Cache from this point.  Some implementation to limit the cache would be nice, keeping just recently accessed data in the cache.
 
 ## Tests
 - TaskManagerCore.XunitTests Package contains Unit tests for the relevant classes
