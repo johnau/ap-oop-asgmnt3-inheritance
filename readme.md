@@ -1,6 +1,6 @@
 # C# OOP Assignment 3: Task Manager: Inheritance (branch "master")
 # C# OOP Assignment 4: Task Manager: Binary Files (branch "part2")
-# C# OOP Assignment 5: Task Manager: Binary Files (branch "part3")
+# C# OOP Assignment 5: Task Manager: Indexing (branch "part3")
 
 ## Part2 - Binary Files
 - Structure used for the InMemoryStore (Memory namespace) has been copied to the BinaryFiles namespace - In practise, it would be one or the other for these "persistence" implementations, hence the duplication of the whole hierarchy.
