@@ -52,7 +52,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             writer.Write(completed);
             writer.Write(dueDate != null ? dueDate.Value.Ticks : 0L);
             writer.Write(bytes);
-            Debug.WriteLine($"Wrote Class:{className}, id={entity.Id}, Desc={entity.Description}, Notes={entity.Notes}, Completed={entity.Completed}, DueDate={entity.DueDate}, XDataBytes={bytes}");
+            Debug.WriteLine($"[BinaryFile]: Wrote Class:{className}, id={entity.Id}, Desc={entity.Description}, Notes={entity.Notes}, Completed={entity.Completed}, DueDate={entity.DueDate}, XDataBytes={BitConverter.ToString(bytes).Replace("-", "")}");
         }
 
         protected override void WriteTerminatorObject(BinaryWriter writer)

@@ -61,6 +61,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             {
                 // messy - temporary variables wasting memory?
                 var _existing = (RepeatingTaskDataEntity)existing;
+                _existing.Completed = false;
                 _existing.DueDate = repeating.DueDate;
                 _existing.RepeatingInterval = repeating.RepeatingInterval;
                 _existing.Repititions = repeating.Repititions;
@@ -73,7 +74,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                 existing = _existing;
             }
 
-            Cache.Flush(); // Hacky fix for now to notify subscribers about changes
+            Cache.Flush(); // Hacky fix for now to notify subscribers about changes (Extremely jank fix)
             //Cache.ForceReplace(entity.Id, existing); // This is ugly, but needed to force the call on NotifySubscribers...
 
             return existing.Id;

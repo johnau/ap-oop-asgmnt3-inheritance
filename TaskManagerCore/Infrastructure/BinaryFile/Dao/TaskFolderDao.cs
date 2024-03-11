@@ -8,8 +8,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
     {
         public TaskFolderDao(BinaryFileReader<TaskFolderEntity> reader, BinaryFileWriter<TaskFolderEntity> writer) 
             : base(reader, writer)
-        {
-        }
+        { }
+
+        protected override Dictionary<string, Comparison<TaskFolderEntity>> ComparisonMethods => throw new NotImplementedException();
 
         public override string Save(TaskFolderEntity entity)
         {
@@ -31,11 +32,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 
             Debug.WriteLine($"Updating Folder: {entity.Id}");
 
-            // assume entity is present and Adding did not fail for some other reason
             if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Folder");
             if (existing == null) throw new Exception("Missing Folder");
             existing.Name = entity.Name;
-            existing.TaskIds = entity.TaskIds;
+            existing.TaskIds = entity.TaskIds; // these task ids are not getting written properly here
+
+            Cache.Flush(); // Hacky fix for now to notify subscribers about changes
 
             return existing.Id;
         }

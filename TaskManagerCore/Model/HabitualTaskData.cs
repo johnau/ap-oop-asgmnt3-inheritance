@@ -22,26 +22,12 @@
         /// <returns></returns>
         public override HabitualTaskData WithCompleted(bool value)
         {
-            if (value == false)
-            {
-                return this;
-            }
+            if (value == false) return this;
 
             var _ = base.WithCompleted(value); // use the repeating task method to increment DueDate and Repititions
-
             var newStreak = ComparisonTime() <= DueDate ? Streak + 1 : 0;
-
+            
             return new HabitualTaskData(_.Id, _.Description, _.Notes, _.Overdue, _.DueDate, _.RepeatingInterval, _.Repititions, newStreak);
-
-            ////var nextDueDate = NextDueDate();
-            //// Increment Streak if completed within the due time.
-            //if (comparisonTime <= DueDate)
-            //{
-            //    return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, Streak + 1);
-            //}
-
-            //// Reset the streak to zero if we have completed it outside of the due date.
-            //return new HabitualTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1, 0);
         }
     }
 }

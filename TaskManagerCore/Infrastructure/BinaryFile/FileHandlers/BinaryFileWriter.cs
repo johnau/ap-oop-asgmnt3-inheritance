@@ -37,7 +37,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         public string WriteValues()
         {
             var filePath = GenerateFilePath();
-            Debug.WriteLine($"Filepath={filePath}");
+            //Debug.WriteLine($"Filepath={filePath}");
 
             using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
             //using (var stream = File.Open(filePath, FileMode.OpenOrCreate))

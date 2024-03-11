@@ -48,7 +48,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                     Cache.TryAdd(item.Id, item);
                 }
                 Debug.WriteLine($"Loaded data: {persistentData.Count}");
-            } catch (Exception ex)
+            } catch (Exception)
             {
                 Debug.WriteLine("There is no data to load");
             }

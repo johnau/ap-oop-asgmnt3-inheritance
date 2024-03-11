@@ -1,4 +1,5 @@
-﻿using TaskManagerCore.Infrastructure.BinaryFile.Entity;
+﻿using System.Diagnostics;
+using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers.Helper;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
@@ -13,8 +14,10 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         {
             writer.Write(entity.Id);
             writer.Write(entity.Name);
+            Debug.WriteLine($"Task Id Count: {entity.TaskIds.Count}");
             var concatString = string.Join(Delimiter, entity.TaskIds);
             writer.Write(concatString);
+            Debug.WriteLine($"[BinaryFile]: Wrote Folder: id={entity.Id}, Name={entity.Name}, Ids={concatString}");
         }
 
         protected override void WriteTerminatorObject(BinaryWriter writer)

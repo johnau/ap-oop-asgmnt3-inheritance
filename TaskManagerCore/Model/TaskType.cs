@@ -2,8 +2,8 @@
 {
     public enum TaskType
     {
-        SINGLE,
-        REPEATING,
-        REPEATING_STREAK,
+        SINGLE = 1,
+        REPEATING = 2,
+        REPEATING_STREAK = 3,
     }
 }
