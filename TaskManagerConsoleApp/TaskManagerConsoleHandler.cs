@@ -665,13 +665,14 @@ namespace TaskManagerConsoleApp
 
                 RenderLine($"Enter {description}: (or `c` to cancel)");
                 var userInput = GetUserInputLine();
+                Debug.WriteLine("User input: " + userInput);
                 if (userInput == null || userInput == string.Empty)
                 {
                     if (canBeEmpty) return string.Empty;
                     error = "Did not provide a value, try again....";
                     continue;
                 }
-                if (userInput.ToLower()[0] == 'c')
+                if (userInput.Length == 1 && userInput.ToLower()[0] == 'c')
                 {
                     return null;
                 }
@@ -728,9 +729,9 @@ namespace TaskManagerConsoleApp
 
             var i = 0;
             var lines = new List<string>();
-            
+
+            var comCount = choices.Count;
             var commands = new Dictionary<string, string>();
-            var comCount = commands.Count;
             var hasGoBackCommand = false;
             var hasRefreshCommand = false;
             foreach (var item in choices)
