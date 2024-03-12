@@ -886,6 +886,7 @@ namespace TaskManagerConsoleApp
         {
             var margin = 10;
             var m = new string(' ', margin);
+            var rowStart = m + "|";
             RenderTitle($"{title}", titleColor);
 
             RenderRowDivider(UIData.TaskPropertiesColumnLayout, margin);
@@ -899,6 +900,7 @@ namespace TaskManagerConsoleApp
             {
                 var name = property.Key;
                 var value = property.Value;
+
                 if (name.Equals("id", StringComparison.OrdinalIgnoreCase) 
                     || name.Equals(UIData.PropertyName_Index, StringComparison.OrdinalIgnoreCase)
                     || name.Equals(UIData.PropertyName_TaskType, StringComparison.OrdinalIgnoreCase)) continue; // dont render the id, type, index to the user
@@ -910,24 +912,54 @@ namespace TaskManagerConsoleApp
                     color = value != null && (long)value > 0L && new DateTime((long)value) >= DateTime.Now ? ConsoleColor.White : ConsoleColor.DarkGray;
                     value = value == null || (long)value <= 0L ? "None" : new DateTime((long)value).ToString(UIData.DateFormatString);
                 }
+
+                var e = MultiLine(value + "", valueColWidth);
+                var count = 1;
+                while (e.MoveNext()) // iterate lines of the value
+                {
+                    var curr = e.Current;
+                    Debug.WriteLine($"Current: {curr}");
+                    var row = rowStart;
+
+                    // render left col
+                    var p1 = Math.Max(0, nameColWidth - name.Length);
+                    var p1_L = Math.Max(0, p1 / 2);
+                    var p1_R = Math.Max(0, p1 - p1_L);
+                    if (count > 1) name = new string(' ', name.Length);
+                    row += CellStr(name, p1_L, p1_R);
+
+                    // render right col
+                    var p2 = Math.Max(0, valueColWidth - curr.Length);
+                    var p2_L = Math.Max(0, p2 / 2);
+                    var p2_R = Math.Max(0, p2 - p2_L);
+                    row += CellStr(curr + "", p2_L, p2_R);
+                    RenderLine(row, color);
+                    count++;
+                }
                 
-                var row = m + "|";
-
-                var p1 = Math.Max(0, nameColWidth - name.Length);
-                var p1_L = Math.Max(0, p1 / 2);
-                var p1_R = Math.Max(0, p1 - p1_L);
-                row += CellStr(name, p1_L, p1_R);
-
-                var p2 = Math.Max(0, valueColWidth - (value+"").Length);
-                var p2_L = Math.Max(0, p2 / 2);
-                var p2_R = Math.Max(0, p2 - p2_L);
-                row += CellStr(value + "", p2_L, p2_R);
-                RenderLine(row, color);
-
                 RenderRowDivider(UIData.TaskPropertiesColumnLayout, margin);
             }
 
             Console.WriteLine(); // spacer after table
+        }
+
+        IEnumerator<string> MultiLine(string str, int maxWidth)
+        {
+            var c = 0;
+            if (str.Length <= maxWidth)
+            {
+                yield return str;
+                c = str.Length;
+            }
+            while (c < str.Length)
+            {
+                var next = c + maxWidth;
+                if (next > str.Length) next = str.Length;
+                var line = str.Substring(c, next - c);
+                c = next;
+                yield return line;
+            }
+            
         }
 
         void RenderTitleBar(ConsoleColor bg = ConsoleColor.Green)
