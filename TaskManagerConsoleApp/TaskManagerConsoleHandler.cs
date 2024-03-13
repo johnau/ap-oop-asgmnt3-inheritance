@@ -206,7 +206,7 @@ namespace TaskManagerConsoleApp
                 RenderBlank();
                 RenderTitleBar(ConsoleColor.Green);
                 RenderTitle($"'{folderName}' > Create New Task...", ConsoleColor.Green);
-            };
+            }; display();
             
             var existingTaskDescriptions = tasks
                     .Where(task => task.ContainsKey(UIData.PropertyName_Description) && task[UIData.PropertyName_Description] is string)
@@ -808,6 +808,15 @@ namespace TaskManagerConsoleApp
         /// <param name="folderData"></param>
         void RenderFoldersTable(List<Dictionary<string, object>> folderData, string title = "Task Folders Listing", ConsoleColor color = ConsoleColor.White, ConsoleColor titleColor = ConsoleColor.Green)
         {
+            folderData.Sort((a, b) => { 
+                if (a.TryGetValue(UIData.PropertyName_Name, out var _nameA) && _nameA is string nameA
+                && b.TryGetValue(UIData.PropertyName_Name, out var _nameB) && _nameB is string nameB)
+                {
+                    return (nameA).CompareTo(nameB);
+                }
+                return 0; // ignore if nameA or nameB only is available
+            });
+
             var margin = 2;
             var m = new string(' ', margin);
             RenderTitle(title, titleColor);
@@ -826,9 +835,7 @@ namespace TaskManagerConsoleApp
                     value = TruncateStr(value+"", col.Value);
                     if (col.Key == UIData.PropertyName_Index) value = index;
                     var padding = Math.Max(0, col.Value - (value + "").Length);
-                    //var hp1 = Math.Max(0, padding / 2);
-                    //var hp2 = Math.Max(0, padding - hp1);
-                    row += CellStr(value + "", padding/2, padding/2+padding%2);
+                    row += CellStr(value + "", padding);
                     Debug.WriteLine($"@ Column #{col.Key}");
                 }
                 Debug.WriteLine($"Writing folder #{folderProperties[UIData.PropertyName_Name]} row: {row}");
@@ -845,6 +852,15 @@ namespace TaskManagerConsoleApp
         /// <param name="taskData"></param>
         void RenderTasksTable(List<Dictionary<string, object>> taskData, string title = "Tasks Listing", ConsoleColor color = ConsoleColor.White, ConsoleColor titleColor = ConsoleColor.Green)
         {
+            taskData.Sort((a, b) => { // provide other sorting through menu options (sort by completed + sort by due date) don't bother with overdue, change overdue to an asterisk on the index or something,
+                if (a.TryGetValue(UIData.PropertyName_Description, out var _descA) && _descA is string descA
+                && b.TryGetValue(UIData.PropertyName_Description, out var _descB) && _descB is string descB)
+                {
+                    return (descA).CompareTo(descB);
+                }
+                return 0;
+            });
+
             var margin = 2;
             var m = new string(' ', margin);
             RenderTitle(title, titleColor);
@@ -871,8 +887,6 @@ namespace TaskManagerConsoleApp
                     value = TruncateStr(value+"", col.Value);
                     if (col.Key == UIData.PropertyName_Index) value = index;
                     var padding = Math.Max(0, col.Value - (value + "").Length);
-                    //var hp1 = Math.Max(0, padding / 2);
-                    //var hp2 = Math.Max(0, padding - hp1);
                     row += CellStr(value + "", padding/2, padding/2+padding%2);
                     Debug.WriteLine($"@ Column #{col.Key}");
                 }
