@@ -48,7 +48,7 @@ namespace TaskManagerCore.Configuration
     internal class IndexedSubscribeableCache<T> : SubscribeableCache<T> 
         where T : IComparable<T>, ITextSearchable
     {
-        //List<T> MasterList; 
+        List<T> MasterList;
         Dictionary<string, List<T>> SortedLists;
         //Dictionary<string, Dictionary<string, T>> SortedDictionaries;
 
@@ -58,20 +58,20 @@ namespace TaskManagerCore.Configuration
             : base()
         {
             ReSortAll(); // no point - this is empyt at construction 100% of the time
-            //MasterList = new List<T>(Cache.Values); // is this needed? master list is the cache dictionary
+            MasterList = new List<T>(Cache.Values); // is this needed? master list is the cache dictionary
             SortedLists = new Dictionary<string, List<T>>();
-            SortedDictionaries = new Dictionary<string, Dictionary<string, T>>();
+            //SortedDictionaries = new Dictionary<string, Dictionary<string, T>>();
 
             // use provided sort functions to generate sorted lists
             foreach (var sort in sortFunctions)
             {
-                var dict = new Dictionary<string, T>(Cache);
-                dict.OrderBy(_ => new ComparisonToComparerWrapper<T>(sort.Value));
-                SortedDictionaries.Add(sort.Key, dict);
-            
-                //var list = new List<T>(MasterList);
-                //list.Sort(sort.Value);
-                //SortedLists.Add(sort.Key, list);
+                //var dict = new Dictionary<string, T>(Cache);
+                //dict.OrderBy(_ => new ComparisonToComparerWrapper<T>(sort.Value));
+                //SortedDictionaries.Add(sort.Key, dict);
+
+                var list = new List<T>(MasterList);
+                list.Sort(sort.Value);
+                SortedLists.Add(sort.Key, list);
             }
         }
 
@@ -148,11 +148,11 @@ namespace TaskManagerCore.Configuration
 
         public List<T> SortedBy(string sorting)
         {
-            //if (!SortedLists.TryGetValue(sorting, out var sortedList))
-            if (!SortedDictionaries.TryGetValue(sorting, out var sortedList))
+            if (!SortedLists.TryGetValue(sorting, out var sortedList))
+                //if (!SortedDictionaries.TryGetValue(sorting, out var sortedList))
                 throw new Exception($"Sorting not found: {sorting}");
 
-            return new List<T>(sortedList.Values);
+            return new List<T>(sortedList);
         }
 
         /// <summary>
