@@ -11,6 +11,11 @@ namespace TaskManagerConsoleApp
     /// Ends up more messing around than doing it properly
     /// Methods prefixed with "Display_" are views
     /// Methods prefixed with "Render" are components
+    /// 
+    /// TODO: 
+    /// - sanitize user inputs (", \, etc)
+    /// - break all of this apart into components (page, table, menu, menuitem, action, etc) (or just an existing console framework like a sane person)
+    /// - implement cell coloring to the tables
     /// </summary>
     internal class TaskManagerConsoleHandler
     {
@@ -57,6 +62,7 @@ namespace TaskManagerConsoleApp
         }
 
         string CellStr(string value, int p1, int p2) => $"{new string(' ', p1)}{value}{new string(' ', p2)}|";
+        string CellStr(string value, int padding) => $"{new string(' ', padding/2)}{value}{new string(' ', padding/2+padding%2)}|";
         string TruncateStr(string s, int maxLen) => s.Length <= maxLen ? s : string.Concat(s.AsSpan(0, maxLen-3), "...");
         public void Display_MainMenu()
         {
@@ -820,9 +826,9 @@ namespace TaskManagerConsoleApp
                     value = TruncateStr(value+"", col.Value);
                     if (col.Key == UIData.PropertyName_Index) value = index;
                     var padding = Math.Max(0, col.Value - (value + "").Length);
-                    var hp1 = Math.Max(0, padding / 2);
-                    var hp2 = Math.Max(0, padding - hp1);
-                    row += CellStr(value + "", hp1, hp2);
+                    //var hp1 = Math.Max(0, padding / 2);
+                    //var hp2 = Math.Max(0, padding - hp1);
+                    row += CellStr(value + "", padding/2, padding/2+padding%2);
                     Debug.WriteLine($"@ Column #{col.Key}");
                 }
                 Debug.WriteLine($"Writing folder #{folderProperties[UIData.PropertyName_Name]} row: {row}");
@@ -865,9 +871,9 @@ namespace TaskManagerConsoleApp
                     value = TruncateStr(value+"", col.Value);
                     if (col.Key == UIData.PropertyName_Index) value = index;
                     var padding = Math.Max(0, col.Value - (value + "").Length);
-                    var hp1 = Math.Max(0, padding / 2);
-                    var hp2 = Math.Max(0, padding - hp1);
-                    row += CellStr(value + "", hp1, hp2);
+                    //var hp1 = Math.Max(0, padding / 2);
+                    //var hp2 = Math.Max(0, padding - hp1);
+                    row += CellStr(value + "", padding/2, padding/2+padding%2);
                     Debug.WriteLine($"@ Column #{col.Key}");
                 }
                 Debug.WriteLine($"Writing task #{taskProperties[UIData.PropertyName_Description]} row: {row}");
@@ -923,16 +929,16 @@ namespace TaskManagerConsoleApp
 
                     // render left col
                     var p1 = Math.Max(0, nameColWidth - name.Length);
-                    var p1_L = Math.Max(0, p1 / 2);
-                    var p1_R = Math.Max(0, p1 - p1_L);
+                    //var p1_L = Math.Max(0, p1 / 2);
+                    //var p1_R = Math.Max(0, p1 - p1_L);
                     if (count > 1) name = new string(' ', name.Length);
-                    row += CellStr(name, p1_L, p1_R);
+                    row += CellStr(name, p1/2, p1/2+p1%2);
 
                     // render right col
                     var p2 = Math.Max(0, valueColWidth - curr.Length);
-                    var p2_L = Math.Max(0, p2 / 2);
-                    var p2_R = Math.Max(0, p2 - p2_L);
-                    row += CellStr(curr + "", p2_L, p2_R);
+                    //var p2_L = Math.Max(0, p2 / 2);
+                    //var p2_R = Math.Max(0, p2 - p2_L);
+                    row += CellStr(curr + "", p2/2, p2/2+p2%2);
                     RenderLine(row, color);
                     count++;
                 }
@@ -989,9 +995,9 @@ namespace TaskManagerConsoleApp
             foreach (var col in columnLayout)
             {
                 var padding = Math.Max(0, col.Value - col.Key.Length);
-                var hp1 = Math.Max(0, padding / 2);
-                var hp2 = Math.Max(0, padding - hp1);
-                headerRow += CellStr(TruncateStr(col.Key, col.Value), hp1, hp2);
+                //var hp1 = Math.Max(0, padding / 2);
+                //var hp2 = Math.Max(0, padding - hp1);
+                headerRow += CellStr(TruncateStr(col.Key, col.Value), padding/2, padding/2+padding%2);
             }
             RenderLine(headerRow, ConsoleColor.DarkGray);
         }
