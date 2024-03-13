@@ -1,9 +1,9 @@
 ﻿namespace TaskManagerCore.Configuration
 {
     /// <summary>
-    /// Wraps Dictionary to provide subscription
-    /// It is not done very safely.
-    /// Should just extend the dictionary class? - Will this be frustrating because all methods will be exposed.
+    /// Wraps Dictionary to provide subscription (extending or implementing exposes too many methods)
+    /// TODO: Some unsafe-ish things going on need to be fixed at some point
+    /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class SubscribeableCache<T>

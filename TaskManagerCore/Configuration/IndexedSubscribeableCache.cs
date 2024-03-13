@@ -31,6 +31,18 @@ namespace TaskManagerCore.Configuration
     /// Override add, remove, etc methods - need to trigger re-sorts on these events
     /// Need to ensure that control over editing this list is maintained?? Or would that be another class extending this one.... "ImmutableIndexedSubscribeableCache<T>"
     /// 
+    /// 13-March-2024
+    /// ---------
+    /// Started to think about it the wrong way.  
+    /// - It should NOT extend the Dictionary object, or implement the IDictionary interface (delete those few classes)
+    /// ...... don't want to have to override every collection, enumerable, dictionary method (can't have exposed methods that don't notify)
+    /// - It should be lists, not dictionaries, dictionaries are not ordered, sortableDictionary doesn't provide the exact functionality
+    /// ...... lists are convenient for this application as indexes
+    /// - These indexes will be primarily used for sorting - if we introduce pagination, or result limits, then these lists might be important 
+    /// ...... for returning the right results, at that point the Lists can be converted to dicts with ids as key, so that the rest of the 
+    /// ...... application does not need to change to handle different type of results.
+    /// 
+    /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class IndexedSubscribeableCache<T> : SubscribeableCache<T> 
@@ -38,7 +50,7 @@ namespace TaskManagerCore.Configuration
     {
         //List<T> MasterList; 
         Dictionary<string, List<T>> SortedLists;
-        Dictionary<string, Dictionary<string, T>> SortedDictionaries;
+        //Dictionary<string, Dictionary<string, T>> SortedDictionaries;
 
         //new readonly Dictionary<string, T> Cache; // override Cache
         //Dictionary<string, Dictionary<string, T>> SortedIndexes;
