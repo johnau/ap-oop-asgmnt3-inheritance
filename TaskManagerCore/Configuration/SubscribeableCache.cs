@@ -3,18 +3,12 @@
     /// <summary>
     /// Wraps Dictionary to provide subscription
     /// It is not done very safely.
+    /// Should just extend the dictionary class? - Will this be frustrating because all methods will be exposed.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class SubscribeableCache<T>
     {
-        enum Action
-        {
-            ADD,
-            REMOVE,
-            UPDATE,
-        }
-
-        protected readonly Dictionary<string, T> Cache;
+        protected readonly Dictionary<string, T> Cache; // remvoed protected for a sec, testing something, need to put it back ,we wont change the cache
         protected readonly Dictionary<string, Func<Dictionary<string, T>, Task>> Subscribers;
 
         public SubscribeableCache()
@@ -28,32 +22,32 @@
         public bool TryGetValue(string key, out T? value) => Cache.TryGetValue(key, out value);
         public bool ContainsKey(string key) => Cache.ContainsKey(key);
 
-        public bool TryAdd(string id, T item)
+        public virtual bool TryAdd(string id, T item)
         {
             if (Cache.TryAdd(id, item))
             {
-                NotifySubscribers(Action.ADD);
+                NotifySubscribers(NotifiedAction.ADD);
                 return true;
             }
 
             return false;
         }
 
-        public bool Remove(string id)
+        public virtual bool Remove(string id)
         {
             var removed = Cache.Remove(id);
             if (removed)
             {
-                NotifySubscribers(Action.REMOVE);
+                NotifySubscribers(NotifiedAction.REMOVE);
                 return true;
             }
 
             return false;
         }
 
-        public bool Flush()
+        public virtual bool Flush()
         {
-            NotifySubscribers(Action.UPDATE);
+            NotifySubscribers(NotifiedAction.UPDATE);
             return true;
         }
 
@@ -64,12 +58,12 @@
         /// <param name="id"></param>
         /// <param name="item"></param>
         /// <returns></returns>
-        internal bool ForceReplace(string id, T item)
+        internal virtual bool ForceReplace(string id, T item)
         {
             if (Cache.TryGetValue(id, out T? existing))
             {
                 Cache[id] = item; // lazy - should be updating existing
-                NotifySubscribers(Action.UPDATE);
+                NotifySubscribers(NotifiedAction.UPDATE);
                 return true;
             }
 
@@ -82,7 +76,7 @@
             Subscribers.TryAdd(id, subscriber);
         }
 
-        void NotifySubscribers(Action action)
+        void NotifySubscribers(NotifiedAction action)
         {
             foreach (var item in Subscribers)
             {

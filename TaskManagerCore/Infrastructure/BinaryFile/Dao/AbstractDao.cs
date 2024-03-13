@@ -17,16 +17,19 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         readonly BinaryFileWriter<T> Writer;
 
         //readonly Dictionary<string, T> Cache;
-        protected readonly SubscribeableCache<T> Cache;
-        //protected readonly IndexedSubscribeableCache<T> Cache;
+        //protected readonly SubscribeableCache<T> Cache; // leave the dictionary cache for now
+
+        //protected readonly SubscribeableListCache<T> Cache;
+        protected readonly IndexedSubscribeableCache<T> Cache;
 
         protected AbstractDao(BinaryFileReader<T> reader, BinaryFileWriter<T> writer)
         {
             Reader = reader;
             Writer = writer;
             //Cache = new Dictionary<string, T>();
-            Cache = new SubscribeableCache<T>();
-            //Cache = new IndexedSubscribeableCache<T>(ComparisonMethods);
+            //Cache = new SubscribeableCache<T>();
+            //Cache = new SubscribeableListCache<T>();
+            Cache = new IndexedSubscribeableCache<T>(ComparisonMethods);
             LoadData();
             Cache.Subscribe(async (data) =>
             {

@@ -36,23 +36,70 @@ namespace TaskManagerCore.Configuration
     internal class IndexedSubscribeableCache<T> : SubscribeableCache<T> 
         where T : IComparable<T>, ITextSearchable
     {
-        List<T> MasterList; // if we don't use lists
+        //List<T> MasterList; 
         Dictionary<string, List<T>> SortedLists;
+        Dictionary<string, Dictionary<string, T>> SortedDictionaries;
+
         //new readonly Dictionary<string, T> Cache; // override Cache
         //Dictionary<string, Dictionary<string, T>> SortedIndexes;
         public IndexedSubscribeableCache(Dictionary<string, Comparison<T>> sortFunctions)
             : base()
         {
-            MasterList = new List<T>(Cache.Values);
+            ReSortAll(); // no point - this is empyt at construction 100% of the time
+            //MasterList = new List<T>(Cache.Values); // is this needed? master list is the cache dictionary
             SortedLists = new Dictionary<string, List<T>>();
+            SortedDictionaries = new Dictionary<string, Dictionary<string, T>>();
 
             // use provided sort functions to generate sorted lists
             foreach (var sort in sortFunctions)
             {
-                var list = new List<T>(MasterList);
-                list.Sort(sort.Value);
-                SortedLists.Add(sort.Key, list);
+                var dict = new Dictionary<string, T>(Cache);
+                dict.OrderBy(_ => new ComparisonToComparerWrapper<T>(sort.Value));
+                SortedDictionaries.Add(sort.Key, dict);
+            
+                //var list = new List<T>(MasterList);
+                //list.Sort(sort.Value);
+                //SortedLists.Add(sort.Key, list);
             }
+        }
+
+        void ReSortAll()
+        {
+            // not going to sort cache
+            // these index lists are purely for search, the sorted data will not leave this package....
+            //var tmp = Cache.ToList();
+            //tmp.Sort((p1, p2) => p1.Value.CompareTo(p2.Value));
+            //Cache = tmp.ToDictionary();
+        }
+
+        public override bool TryAdd(string id, T item)
+        {
+            
+            var result = base.TryAdd(id, item);
+            ReSortAll();
+            return result;
+        }
+
+        public override bool Remove(string id)
+        {
+            
+            var result = base.Remove(id);
+            ReSortAll();
+            return result;
+        }
+
+        public override bool Flush()
+        {
+            var result = base.Flush();
+            ReSortAll();
+            return result;
+        }
+
+        internal override bool ForceReplace(string id, T item)
+        {
+            var result = base.ForceReplace(id, item);
+            ReSortAll();
+            return result;
         }
 
         //public IndexedSubscribeableCache(Dictionary<string, Comparison<T>> sortFunctions)
@@ -80,7 +127,7 @@ namespace TaskManagerCore.Configuration
 
             for (int i = 0; i < sortedList.Count; i++)
             {
-                if (sortedList[i].GetTextStringForSearch().StartsWith(searchString))
+                if (sortedList[i].GetTextStringForSearch().Contains(searchString))
                 {
                     yield return sortedList[i];
                 }
@@ -89,10 +136,11 @@ namespace TaskManagerCore.Configuration
 
         public List<T> SortedBy(string sorting)
         {
-            if (!SortedLists.TryGetValue(sorting, out var sortedList))
+            //if (!SortedLists.TryGetValue(sorting, out var sortedList))
+            if (!SortedDictionaries.TryGetValue(sorting, out var sortedList))
                 throw new Exception($"Sorting not found: {sorting}");
 
-            return sortedList;
+            return new List<T>(sortedList.Values);
         }
 
         /// <summary>
@@ -102,8 +150,9 @@ namespace TaskManagerCore.Configuration
         /// <returns></returns>
         public T BinarySearch(T item)
         {
-            var index = MasterList.BinarySearch(item);
-            return MasterList[index];
+            var list = new List<T>(Cache.Values);
+            var index = list.BinarySearch(item);
+            return list[index];
         }
     }
 }

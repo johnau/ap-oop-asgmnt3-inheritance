@@ -24,8 +24,13 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
         {
             if (other == null) return 1;
 
+            //return string.Compare(Description, other.Description, StringComparison.OrdinalIgnoreCase);
+
             int compareCompleted = Completed.CompareTo(other.Completed);
             if (compareCompleted != 0) return compareCompleted;
+
+            int compareDescription = string.Compare(Description, other.Description, StringComparison.OrdinalIgnoreCase);
+            if (compareDescription != 0) return compareDescription;
 
             if (DueDate.HasValue && other.DueDate.HasValue)
             {
@@ -34,9 +39,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             }
             else if (DueDate.HasValue) return 1;
             else if (other.DueDate.HasValue) return -1;
-
-            int compareDescription = string.Compare(Description, other.Description, StringComparison.OrdinalIgnoreCase);
-            if (compareDescription != 0) return compareDescription;
 
             return string.Compare(Notes, other.Notes, StringComparison.OrdinalIgnoreCase);
         }

@@ -10,7 +10,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             : base(reader, writer)
         { }
 
-        protected override Dictionary<string, Comparison<TaskFolderEntity>> ComparisonMethods => throw new NotImplementedException();
+        protected override Dictionary<string, Comparison<TaskFolderEntity>> ComparisonMethods => [];
 
         public override string Save(TaskFolderEntity entity)
         {

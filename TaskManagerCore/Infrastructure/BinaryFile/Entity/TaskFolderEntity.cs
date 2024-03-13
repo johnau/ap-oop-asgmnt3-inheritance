@@ -16,12 +16,14 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 
         public int CompareTo(TaskFolderEntity? other)
         {
-            throw new NotImplementedException();
+            if (other == null) return 1;
+
+            return string.Compare(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         public string GetTextStringForSearch()
         {
-            throw new NotImplementedException();
+            return Name;
         }
     }
 }
