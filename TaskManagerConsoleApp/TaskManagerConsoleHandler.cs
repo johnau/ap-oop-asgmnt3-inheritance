@@ -64,6 +64,9 @@ namespace TaskManagerConsoleApp
         string CellStr(string value, int p1, int p2) => $"{new string(' ', p1)}{value}{new string(' ', p2)}|";
         string CellStr(string value, int padding) => $"{new string(' ', padding/2)}{value}{new string(' ', padding/2+padding%2)}|";
         string TruncateStr(string s, int maxLen) => s.Length <= maxLen ? s : string.Concat(s.AsSpan(0, maxLen-3), "...");
+        string BooleanShort(bool b) => b ? "Y" : "N";
+        string BooleanBad(bool b) => b ? "X" : "";
+        string BooleanLong(bool b) => b ? "Yes" : "No";
         public void Display_MainMenu()
         {
             RenderTitleBar();
@@ -884,10 +887,11 @@ namespace TaskManagerConsoleApp
                         else
                             value = "None";
                     }
-                    value = TruncateStr(value+"", col.Value);
+                    if (col.Key.Equals(UIData.PropertyName_Overdue)) value = BooleanBad((bool)value);
                     if (col.Key == UIData.PropertyName_Index) value = index;
+                    value = TruncateStr(value + "", col.Value);
                     var padding = Math.Max(0, col.Value - (value + "").Length);
-                    row += CellStr(value + "", padding/2, padding/2+padding%2);
+                    row += CellStr(value + "", padding);
                     Debug.WriteLine($"@ Column #{col.Key}");
                 }
                 Debug.WriteLine($"Writing task #{taskProperties[UIData.PropertyName_Description]} row: {row}");
@@ -1009,9 +1013,7 @@ namespace TaskManagerConsoleApp
             foreach (var col in columnLayout)
             {
                 var padding = Math.Max(0, col.Value - col.Key.Length);
-                //var hp1 = Math.Max(0, padding / 2);
-                //var hp2 = Math.Max(0, padding - hp1);
-                headerRow += CellStr(TruncateStr(col.Key, col.Value), padding/2, padding/2+padding%2);
+                headerRow += CellStr(TruncateStr(col.Key, col.Value), padding);
             }
             RenderLine(headerRow, ConsoleColor.DarkGray);
         }

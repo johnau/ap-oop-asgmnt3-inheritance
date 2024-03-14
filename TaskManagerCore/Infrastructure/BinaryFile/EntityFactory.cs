@@ -24,6 +24,16 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             };
         }
 
+        public List<TaskFolderEntity> FromModel(List<TaskFolder> taskFolders)
+        {
+            var list = new List<TaskFolderEntity>();
+            foreach (var item in taskFolders)
+            {
+                list.Add(FromModel(item));
+            }
+            return list;
+        }
+
         public TaskDataEntity FromModel(TaskData taskData)
         {
             if (taskData is HabitualTaskData habitual)
@@ -63,6 +73,80 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             }
         }
 
+        public List<TaskDataEntity> FromModel(List<TaskData> taskDatas)
+        {
+            var list = new List<TaskDataEntity>();
+            foreach (var item in taskDatas)
+            {
+                list.Add(FromModel(item));
+            }
+            return list;
+        }
+
+        public TaskFolder ToModel(TaskFolderEntity taskFolder)
+        {
+            var id = taskFolder.Id;
+            var name = taskFolder.Name;
+            var taskIds = new List<string>(taskFolder.TaskIds); // is this the best place to take a copy?
+            return new TaskFolder(id, name, taskIds);
+        }
+
+        public List<TaskFolder> ToModel(List<TaskFolderEntity> taskFolders)
+        {
+            var list = new List<TaskFolder>();
+            foreach (var item in taskFolders)
+            {
+                list.Add(ToModel(item));
+            }
+            return list;
+        }
+
+        public TaskData ToModel(TaskDataEntity entity)
+        {
+            if (entity is HabitualTaskDataEntity h)
+            {
+                return new HabitualTaskData(h.Id, h.Description, h.Notes, h.Completed, h.DueDate, h.RepeatingInterval, h.Repititions, h.Streak);
+            }
+            else if (entity is RepeatingTaskDataEntity r)
+            {
+                return new RepeatingTaskData(r.Id, r.Description, r.Notes, r.Completed, r.DueDate, r.RepeatingInterval, r.Repititions);
+            }
+            else
+            {
+                return new TaskData(entity.Id, entity.Description, entity.Notes, entity.Completed, entity.DueDate);
+            }
+        }
+
+        public List<TaskData> ToModel(List<TaskDataEntity> taskDatas)
+        {
+            var list = new List<TaskData>();
+            foreach (var item in taskDatas)
+            {
+                list.Add(ToModel(item));
+            }
+            return list;
+        }
+
+        public List<TaskData> ToModel(List<RepeatingTaskDataEntity> repeatingTaskDatas)
+        {
+            var list = new List<TaskData>();
+            foreach (var item in repeatingTaskDatas)
+            {
+                list.Add(ToModel(item));
+            }
+            return list;
+        }
+
+        public List<TaskData> ToModel(List<HabitualTaskDataEntity> habitualTaskDatas)
+        {
+            var list = new List<TaskData>();
+            foreach (var item in habitualTaskDatas)
+            {
+                list.Add(ToModel(item));
+            }
+            return list;
+        }
+
         //public RepeatingTaskDataEntity FromModel(RepeatingTaskData taskData)
         //{
         //    return new RepeatingTaskDataEntity(taskData.Id) // generates a new ID here
@@ -89,30 +173,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
         //        Streak = taskData.Streak,
         //    };
         //}
-
-        public TaskFolder ToModel(TaskFolderEntity taskFolder)
-        {
-            var id = taskFolder.Id;
-            var name = taskFolder.Name;
-            var taskIds = new List<string>(taskFolder.TaskIds); // is this the best place to take a copy?
-            return new TaskFolder(id, name, taskIds);
-        }
-
-        public TaskData ToModel(TaskDataEntity entity)
-        {
-            if (entity is HabitualTaskDataEntity h)
-            {
-                return new HabitualTaskData(h.Id, h.Description, h.Notes, h.Completed, h.DueDate, h.RepeatingInterval, h.Repititions, h.Streak);
-            }
-            else if (entity is RepeatingTaskDataEntity r)
-            {
-                return new RepeatingTaskData(r.Id, r.Description, r.Notes, r.Completed, r.DueDate, r.RepeatingInterval, r.Repititions);
-            }
-            else
-            {
-                return new TaskData(entity.Id, entity.Description, entity.Notes, entity.Completed, entity.DueDate);
-            }
-        }
 
         //public RepeatingTaskData ToModel(RepeatingTaskDataEntity taskData)
         //{

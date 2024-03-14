@@ -63,7 +63,8 @@
             if (Cache.TryGetValue(id, out T? existing))
             {
                 Cache[id] = item; // lazy - should be updating existing
-                NotifySubscribers(NotifiedAction.UPDATE);
+                NotifySubscribers(NotifiedAction.REMOVE); // safer to fire both than `UPDATE`
+                NotifySubscribers(NotifiedAction.ADD);
                 return true;
             }
 
@@ -76,7 +77,7 @@
             Subscribers.TryAdd(id, subscriber);
         }
 
-        void NotifySubscribers(NotifiedAction action)
+        protected virtual void NotifySubscribers(NotifiedAction action, string? id = null)
         {
             foreach (var item in Subscribers)
             {

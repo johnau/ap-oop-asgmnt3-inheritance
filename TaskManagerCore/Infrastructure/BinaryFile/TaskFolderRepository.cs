@@ -17,34 +17,21 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
         public List<TaskFolder> FindAll()
         {
             var all = Dao.FindAll();
-            List<TaskFolder> folders = new List<TaskFolder>();
-            foreach (var folder in all)
-            {
-                folders.Add(EntityFactory.ToModel(folder));
-            }
-            return folders;
+            return EntityFactory.ToModel(all);
         }
 
         public List<TaskFolder> FindByIds(List<string> ids)
         {
             var matching = Dao.FindByIds(ids);
-            List<TaskFolder> folders = new List<TaskFolder>();
-            foreach (var folder in matching)
-            {
-                folders.Add(EntityFactory.ToModel(folder));
-            }
-            return folders;
+            return EntityFactory.ToModel(matching);
         }
 
         public TaskFolder? FindById(string id)
         {
             var one = Dao.FindById(id);
-            if (one != null)
-            {
-                return EntityFactory.ToModel(one);
-            }
-
-            return null;
+            if (one == null) return null;
+            
+            return EntityFactory.ToModel(one);
         }
 
         public string Save(TaskFolder o)
@@ -56,5 +43,34 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
         {
             return Dao.Delete(id);
         }
+
+        #region TaskFolder specific methods
+        public List<TaskFolder> FindByName(string name)
+        {
+            var results = Dao.FindByName(name);
+            return EntityFactory.ToModel(results);
+        }
+
+        public TaskFolder? FindOneByName(string name)
+        {
+            var results = Dao.FindOneByName(name);
+            if (results == null) return null;
+
+            return EntityFactory.ToModel(results);
+        }
+
+        public List<TaskFolder> FindEmpty()
+        {
+            var results = Dao.FindEmpty();
+            return EntityFactory.ToModel(results);
+        }
+
+        public List<TaskFolder> FindNotEmpty()
+        {
+            var results = Dao.FindNotEmpty();
+            return EntityFactory.ToModel(results);
+        }
+
+        #endregion
     }
 }

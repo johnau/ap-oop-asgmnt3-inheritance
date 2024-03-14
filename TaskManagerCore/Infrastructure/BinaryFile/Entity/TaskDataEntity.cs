@@ -2,7 +2,7 @@
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 {
-    internal class TaskDataEntity : EntityBase, IComparable<TaskDataEntity>, ITextSearchable
+    internal class TaskDataEntity : EntityBase, IComparable<TaskDataEntity> , ISearchable
     {
         public string Description { get; set; }
 
@@ -43,11 +43,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             return string.Compare(Notes, other.Notes, StringComparison.OrdinalIgnoreCase);
         }
 
-        public string GetTextStringForSearch()
+        public string ToString_ValuesOnly()
         {
-            return $"{Description}_{Notes}_{Completed}_{DueDate?.ToString("yyyy-MM-dd_HH:mm:ss")}";
+            return $"{Description} {Notes} {Completed} {DueDate?.ToString("yyyy-MM dd_HH:mm tt")}";// use spaces for delimiters here for regex search matching?
         }
 
+        #region static compare methods
         public static int CompareTasksByDueDate(TaskDataEntity t1, TaskDataEntity t2)
         {
             if (t1.DueDate.HasValue && t2.DueDate.HasValue)
@@ -73,5 +74,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
         {
             return string.Compare(t1.Notes, t2.Notes, StringComparison.OrdinalIgnoreCase);
         }
+
+        #endregion
     }
 }

@@ -14,7 +14,7 @@
     /// - Make this class accept a date provider object that can be controlled by the tests (will work but sullies the class with test related code)
     /// - 
     /// </summary>
-    public class TaskData
+    public class TaskData //: ITaskMangeable
     {
         public string Id { get; }
 
@@ -106,5 +106,10 @@
         {
             return DateTime.Now;
         }
+
+        //public string GetTypeString()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

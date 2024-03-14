@@ -2,7 +2,7 @@
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 {
-    internal class TaskFolderEntity : EntityBase, IComparable<TaskFolderEntity>, ITextSearchable
+    internal class TaskFolderEntity : EntityBase, IComparable<TaskFolderEntity>, ISearchable
     {
         public string Name { get; set; }
         public List<string> TaskIds { get; set; } // Uni-directional one-to-many relationship
@@ -21,7 +21,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             return string.Compare(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
-        public string GetTextStringForSearch()
+        public override string ToString()
+        {
+            return $"TaskFolderEntity: [Name={Name}]";
+        }
+
+        public string ToString_ValuesOnly()
         {
             return Name;
         }

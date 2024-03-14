@@ -97,7 +97,7 @@ namespace TaskManagerConsoleApp
             { PropertyName_TaskType, 15 },
             { PropertyName_Notes, 50 },
             { PropertyName_DueDate, 25 },
-            { PropertyName_Overdue, 15 },
+            { PropertyName_Overdue, 3 },
         };
 
         public static Dictionary<string, int> TaskPropertiesColumnLayout = new Dictionary<string, int>() {
