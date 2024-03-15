@@ -70,6 +70,12 @@ namespace TaskManagerCore.Configuration
             ReSortAll(true);
         }
 
+        /// <summary>
+        /// Override and seal NotifySubscribers - although shouldn't be extending any further
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="id"></param>
+        /// <exception cref="ArgumentException"></exception>
         protected sealed override void NotifySubscribers(NotifiedAction action, string? id = null)
         {
             base.NotifySubscribers(action);
@@ -87,6 +93,11 @@ namespace TaskManagerCore.Configuration
             }
         }
 
+        /// <summary>
+        /// Private method to sort all lists,
+        /// If overwrite is set, lists are re-copied from the cache and sorted
+        /// </summary>
+        /// <param name="overwrite"></param>
         void ReSortAll(bool overwrite = false)
         {
             if (overwrite)
@@ -132,6 +143,13 @@ namespace TaskManagerCore.Configuration
             }
         }
 
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
         public sealed override bool TryAdd(string id, T item)
         {
             var result = base.TryAdd(id, item);
@@ -140,7 +158,8 @@ namespace TaskManagerCore.Configuration
         }
 
         /// <summary>
-        /// Remove from Cache by id
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

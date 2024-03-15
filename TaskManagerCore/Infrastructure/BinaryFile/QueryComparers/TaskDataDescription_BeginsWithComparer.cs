@@ -5,7 +5,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
 {
     internal class TaskDataDescription_BeginsWithComparer : QueryComparerBase<TaskDataEntity>
     {
-        protected override bool CompareMethod(TaskDataEntity searchCriteria, TaskDataEntity t)
+        protected override bool Equals(TaskDataEntity searchCriteria, TaskDataEntity t)
         {
             return t.Description.StartsWith(searchCriteria.Description, StringComparison.OrdinalIgnoreCase);
         }

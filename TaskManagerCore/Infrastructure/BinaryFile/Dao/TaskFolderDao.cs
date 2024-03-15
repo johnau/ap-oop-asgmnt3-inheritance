@@ -116,6 +116,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             var searchDescription = new TaskFolderEntity() { TaskIds = new List<string>() { taskId } };
             var more_than = TaskFolderTaskCount_Comparer.Modifier.MORE_THAN;
             var match = revList.BinarySearch(searchDescription, new TaskFolderTaskCount_Comparer(more_than));
+
+            if (match < 0) return null;
+            return revList[match];
         } 
 
         #region Helper methods

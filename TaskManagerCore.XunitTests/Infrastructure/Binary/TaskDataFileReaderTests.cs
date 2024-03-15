@@ -118,6 +118,8 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             Task.Run(() => WriteFileForTests(filename, expecetdTasks));
 
             var reader = new TaskDataFileReader(filename);
+            
+            #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
             Assert.ThrowsAsync<Exception>(async () =>
             {
                 var count = 0;
@@ -139,6 +141,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                     count++;
                 }
             });
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         }
 
         /// <summary>

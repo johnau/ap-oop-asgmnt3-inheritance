@@ -4,7 +4,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
 {
     internal class TaskFolderName_BeginsWithComparer : QueryComparerBase<TaskFolderEntity>
     {
-        protected override bool CompareMethod(TaskFolderEntity searchCriteria, TaskFolderEntity t)
+        protected override bool Equals(TaskFolderEntity searchCriteria, TaskFolderEntity t)
         {
             return t.Name.StartsWith(searchCriteria.Name, StringComparison.OrdinalIgnoreCase);
         }

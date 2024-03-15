@@ -17,7 +17,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
             _modifier = modifier;
         }
 
-        protected override bool CompareMethod(TaskFolderEntity searchCriteria, TaskFolderEntity t)
+        protected override bool Equals(TaskFolderEntity searchCriteria, TaskFolderEntity t)
         {
             switch (_modifier)
             {

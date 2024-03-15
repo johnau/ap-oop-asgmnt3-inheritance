@@ -101,34 +101,41 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// <returns></returns>
         public List<TaskDataEntity> FindByDueDate(DateTime dueDate)
         {
-            //var fwdList = Cache.SortedBy(Sort.DUE_DATE+"");
-            //var revList = Cache.SortedBy(Sort.DUE_DATE + "", true);
             (var fwdList, var revList) = SortedData(Sort.DUE_DATE);
 
             // is this better here, or inside the cache object (Searchable cache implementation)
-            var searchDate = new TaskDataEntity() { DueDate = dueDate };
-            var firstMatch = fwdList.BinarySearch(searchDate, new TaskDataDueDate_DateOnlyComparer());
-            var lastMatch = ~revList.BinarySearch(searchDate, new TaskDataDueDate_DateOnlyComparer());
-            lastMatch += revList.Count;
+            var criteriaStart = new TaskDataEntity() { DueDate = dueDate.Date };
+            var firstMatch = fwdList.BinarySearch(criteriaStart, new TaskDataDueDate_DateOnlyComparer());
+            if (firstMatch < 0)
+            {
+                Debug.WriteLine($"No match, next closest is at {~firstMatch}");
+                firstMatch = ~firstMatch;
+            }
+            
+            var criteriaEnd = new TaskDataEntity() { DueDate = dueDate.AddDays(1).Date };
+            var itemsLeft = fwdList.Count - firstMatch;
+            if (itemsLeft < 0) itemsLeft = ~itemsLeft;
+
+            var matchNextDay = fwdList.BinarySearch(firstMatch, itemsLeft, criteriaEnd, new TaskDataDueDate_DateOnlyComparer());
+            if (matchNextDay < 0)
+            {
+                matchNextDay = ~matchNextDay;
+            }
+
+            // the reverse list can surely work, but using just the forward list for now
+            //var _lastMatch = revList.BinarySearch(criteriaObject, new TaskDataDueDate_DateOnlyComparer(-1)) - 1;
+            //if (_lastMatch < 0)
+            //{
+            //    Debug.WriteLine($"No match, next closest is at {~_lastMatch}");
+            //}
+            //var lastMatch = fwdList.Count + ~_lastMatch;
+            //var lastMatch = fwdList.Count - _lastMatch - 1;
             // Note to self: ^ Bitwise Not operator, index is flipped to negative number - 1.
             // ie. value of 2 00000010 is flipped to 11111101 which is -3 (since 00000000 is 0, and 11111111 is -1, etc)
             // Which as a list index, counts backwards from end, however we adjust for the loop, or is there a fancy way to 
             // do that in the loop...
 
-            return SelectFromList(fwdList, firstMatch, lastMatch);
-
-            //var subList = new List<TaskDataEntity>();
-            //for (int i = firstMatch; i <= lastMatch; i++)
-            //{
-            //    subList.Add(fwdList[i]);
-            //}
-
-            //return subList;
-
-            // With LINQ
-            //return list
-            //        .Where(task => task.DueDate.HasValue && task.DueDate.Value.Date == dueDate.Date)
-            //        .ToList();
+            return SelectFromList(fwdList, firstMatch, matchNextDay - 1);
         }
 
         public List<TaskDataEntity> FindByDescription(string description)
@@ -173,8 +180,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         //    var firstMatch = fwdList.BinarySearch(searchDescription, new TaskDataDescription_Comparer());
         //    //var lastMatch = ~revList.BinarySearch(searchDescription, new TaskDataDescription_Comparer());
         //    //lastMatch += revList.Count;
-
-            
 
         //    //return list
         //    //        .FirstOrDefault(task => task.Description.Equals(description, StringComparison.OrdinalIgnoreCase));
@@ -226,6 +231,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         private static List<TaskDataEntity> SelectFromList(List<TaskDataEntity> list, int startIndex, int endIndex)
         {
             var subList = new List<TaskDataEntity>();
+            if (startIndex < 0 || endIndex < 0) return subList;
+            if (startIndex >= list.Count || endIndex >= list.Count) return subList;
+
             for (int i = startIndex; i <= endIndex; i++)
             {
                 subList.Add(list[i]);

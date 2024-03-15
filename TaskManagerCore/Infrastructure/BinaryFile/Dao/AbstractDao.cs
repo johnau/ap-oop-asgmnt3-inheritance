@@ -31,12 +31,20 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             //Cache = new SubscribeableListCache<T>();
             Cache = new SortableSubscribeableCache<T>(ComparisonMethods);
             LoadData();
-            Cache.Subscribe(async (data) =>
-            {
-                Debug.WriteLine($"Data has been updated notification! {data.Count}");
-                Writer.AddObjectsToWrite(new List<T>(data.Values));
-                await Writer.WriteValuesAsync();
-            });
+            
+            Cache.Subscribe(WriteUpdateData); // Subscribe to cache with BinaryFile Write method
+        }
+
+        /// <summary>
+        /// Write updated data
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        async Task WriteUpdateData(Dictionary<string, T> data)
+        {
+            Debug.WriteLine($"Updated data will be written! ({data.Count} items)");
+            Writer.AddObjectsToWrite(new List<T>(data.Values));
+            await Writer.WriteValuesAsync();
         }
 
         protected abstract Dictionary<string, Comparison<T>> ComparisonMethods { get; }

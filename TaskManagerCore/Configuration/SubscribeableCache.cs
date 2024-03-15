@@ -17,11 +17,46 @@
             Subscribers = new Dictionary<string, Func<Dictionary<string, T>, Task>>();
         }
 
+        #region Methods to replicate behavior of Dictionary class that this Cache replaces
+        // Note: Not sure if there is an interface/interfaces that could be implemented here
+
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
         public Dictionary<string, T>.ValueCollection Values => Cache.Values;
+        
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, T>.Enumerator GetEnumerator() => Cache.GetEnumerator();
+        
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public bool TryGetValue(string key, out T? value) => Cache.TryGetValue(key, out value);
+        
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public bool ContainsKey(string key) => Cache.ContainsKey(key);
 
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
         public virtual bool TryAdd(string id, T item)
         {
             if (Cache.TryAdd(id, item))
@@ -33,6 +68,12 @@
             return false;
         }
 
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual bool Remove(string id)
         {
             var removed = Cache.Remove(id);
@@ -44,7 +85,11 @@
 
             return false;
         }
+        #endregion
 
+        /// <summary>
+        /// Triggers an Update of the Cache
+        /// </summary>
         public virtual void MarkDirty()
         {
             NotifySubscribers(NotifiedAction.UPDATE);
@@ -70,12 +115,21 @@
             return false;
         }
 
+        /// <summary>
+        /// Add a subscriber Func to the Cache
+        /// </summary>
+        /// <param name="subscriber"></param>
         public void Subscribe(Func<Dictionary<string, T>, Task> subscriber)
         {
             var id = Guid.NewGuid().ToString();
             Subscribers.TryAdd(id, subscriber);
         }
 
+        /// <summary>
+        /// Calls all subscriber Funcs
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="id"></param>
         protected virtual void NotifySubscribers(NotifiedAction action, string? id = null)
         {
             foreach (var item in Subscribers)
