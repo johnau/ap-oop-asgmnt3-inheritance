@@ -111,28 +111,40 @@ namespace TaskManagerCore.Configuration
                 //var dict = new Dictionary<string, T>(Cache);
                 //dict.OrderBy(_ => new ComparisonToComparerWrapper<T>(sort.Value));
                 //SortedDictionaries.Add(sort.Key, dict);
-                if (overwrite || !SortedLists.TryGetValue(sort.Key, out var originalOrder))
+
+                if (overwrite 
+                    || !SortedLists.TryGetValue(sort.Key, out var originalOrder)
+                    || !ReversedSortedLists.TryGetValue(sort.Key, out var reversedOrder))
                 {
                     var list = new List<T>(Cache.Values);//(MasterList); no longer using masterlist
                     list.Sort(sort.Value);
                     SortedLists.Remove(sort.Key);
                     SortedLists.Add(sort.Key, list);
+
+                    var list_rev = new List<T>(list);
+                    list_rev.Reverse();
+                    ReversedSortedLists.Remove(sort.Key);
+                    ReversedSortedLists.Add(sort.Key, list_rev);
                 } else
                 {
                     originalOrder.Sort(sort.Value);
+
+                    reversedOrder.Sort(sort.Value); // inefficient?
+                    reversedOrder.Reverse();
                 }
 
-                if (overwrite || !ReversedSortedLists.TryGetValue(sort.Key, out var reversedOrder))
-                {
-                    var list = new List<T>(Cache.Values);//(MasterList); no longer using masterlist
-                    list.Sort(sort.Value);
-                    ReversedSortedLists.Remove(sort.Key);
-                    ReversedSortedLists.Add(sort.Key, list);
-                }
-                else
-                {
-                    reversedOrder.Sort(sort.Value);
-                }
+                //if (overwrite || !ReversedSortedLists.TryGetValue(sort.Key, out var reversedOrder))
+                //{
+                //    var list = new List<T>(Cache.Values);//(MasterList); no longer using masterlist
+                //    list.Sort(sort.Value);
+                //    ReversedSortedLists.Remove(sort.Key);
+                //    ReversedSortedLists.Add(sort.Key, list);
+                //}
+                //else
+                //{
+                //    //reversedOrder.Sort(sort.Value);
+                //    reversedOrder.Reverse();
+                //}
             }
 
             //not sorting the cache in place

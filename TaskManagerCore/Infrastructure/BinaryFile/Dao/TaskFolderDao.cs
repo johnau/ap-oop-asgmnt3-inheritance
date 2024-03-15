@@ -39,7 +39,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Folder");
             if (existing == null) throw new Exception("Missing Folder");
             existing.Name = entity.Name;
-            existing.TaskIds = entity.TaskIds; // these task ids are not getting written properly here
+            existing.TaskIds = entity.TaskIds;
 
             Cache.Flush(); // Hacky fix for now to notify subscribers about changes
 
@@ -50,17 +50,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         {
             (var fwdList, var revList) = SortedData(Sort.NAME);
 
-            var searchDescription = new TaskFolderEntity() { Name = name };
-            var firstMatch = fwdList.BinarySearch(searchDescription, new TaskFolderName_BeginsWithComparer());
-            var lastMatch = ~revList.BinarySearch(searchDescription, new TaskFolderName_BeginsWithComparer());
+            var criteriaObject = new TaskFolderEntity() { Name = name };
+            var firstMatch = fwdList.BinarySearch(criteriaObject, new TaskFolderName_BeginsWithComparer());
+            var lastMatch = ~revList.BinarySearch(criteriaObject, new TaskFolderName_BeginsWithComparer());
             lastMatch += revList.Count;
 
             return SelectFromList(fwdList, firstMatch, lastMatch);
-
-            //var list = Cache.SortedBy(TaskFolderSortingType.NAME+"");
-            //return list
-            //        .Where(folder => folder.Name.StartsWith(name, StringComparison.OrdinalIgnoreCase))
-            //        .ToList();
         }
 
         /// <summary>
@@ -72,52 +67,54 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         {
             var fwdList = Cache.SortedBy(Sort.NAME + "");
 
-            var searchDescription = new TaskFolderEntity() { Name = name };
-            var exactMatchIndex = fwdList.BinarySearch(searchDescription, new TaskFolderName_BeginsWithComparer());
+            var criteriaObject = new TaskFolderEntity() { Name = name };
+            var exactMatchIndex = fwdList.BinarySearch(criteriaObject, new TaskFolderName_BeginsWithComparer());
 
             return fwdList[exactMatchIndex];
-
-            //var list = Cache.SortedBy(TaskFolderSortingType.TASK_COUNT+"");
-            //return list
-            //        .FirstOrDefault(folder => folder.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
         }
 
         public List<TaskFolderEntity> FindEmpty()
         {
             (var fwdList, var revList) = SortedData(Sort.TASK_COUNT);
 
-            var searchDescription = new TaskFolderEntity() { TaskIds = new List<string>() };
-            var firstMatch = fwdList.BinarySearch(searchDescription, new TaskFolderTaskCount_Comparer());
-            var lastMatch = ~revList.BinarySearch(searchDescription, new TaskFolderTaskCount_Comparer());
+            var criteriaObject = new TaskFolderEntity() { TaskIds = new List<string>() };
+            var firstMatch = fwdList.BinarySearch(criteriaObject, new TaskFolderTaskCount_Comparer());
+            var lastMatch = ~revList.BinarySearch(criteriaObject, new TaskFolderTaskCount_Comparer());
             lastMatch += revList.Count;
 
             return SelectFromList(fwdList, firstMatch, lastMatch);
-
-            //var list = Cache.SortedBy(TaskFolderSortingType.TASK_COUNT+"");
-            //return list
-            //        .Where(folder => folder.TaskIds.Count == 0)
-            //        .ToList();
         }
 
+        /// <summary>
+        /// Finds Non-Empty Folders.
+        /// Gets list sorted by task count, finds the first element that has 'more_than' the count of the provided
+        /// list in the search criteria
+        /// </summary>
+        /// <returns></returns>
         public List<TaskFolderEntity> FindNotEmpty()
         {
-            (var fwdList, var revList) = SortedData(Sort.TASK_COUNT);
+            var fwdList = Cache.SortedBy(Sort.TASK_COUNT + "");
 
-            var searchDescription = new TaskFolderEntity() { TaskIds = new List<string>() };
-            var firstMatch = fwdList.BinarySearch(searchDescription, new TaskFolderTaskCount_Comparer(TaskFolderTaskCount_Comparer.Modifier.MORE_THAN));
-            
-            // sorted by task_count, so we don't need to check from the other end
-            //var lastMatch = ~revList.BinarySearch(searchDescription, new TaskFolderTaskCount_Comparer(TaskFolderTaskCount_Comparer.Modifier.MORE_THAN));
-            //lastMatch += revList.Count;
+            var criteriaObject = new TaskFolderEntity() { TaskIds = new List<string>() };
+            var more_than = TaskFolderTaskCount_Comparer.Modifier.MORE_THAN;
+            var firstMatch = fwdList.BinarySearch(criteriaObject, new TaskFolderTaskCount_Comparer(more_than));
 
             return SelectFromList(fwdList, firstMatch, fwdList.Count-1);
-
-            //var list = Cache.SortedBy(TaskFolderSortingType.TASK_COUNT + "");
-            //return list
-            //        .Where(folder => folder.TaskIds.Count > 0)
-            //        .ToList();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="taskId"></param>
+        /// <returns></returns>
+        public TaskFolderEntity? FindParentOfTask(string taskId)
+        {
+            var revList = Cache.SortedBy(Sort.TASK_COUNT + "", reversed: true); // is sort by task count reversed most efficient? ignore searching empties...
+
+            var searchDescription = new TaskFolderEntity() { TaskIds = new List<string>() { taskId } };
+            var more_than = TaskFolderTaskCount_Comparer.Modifier.MORE_THAN;
+            var match = revList.BinarySearch(searchDescription, new TaskFolderTaskCount_Comparer(more_than));
+        } 
 
         #region Helper methods
 
