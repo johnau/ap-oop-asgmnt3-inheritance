@@ -59,8 +59,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             // Update existing task
             Debug.WriteLine($"Updating Task: {entity.Id} {entity.GetType()}");
 
-            
-            // this isn't very nice here, but would need to abstract SubscribeableCache to move it
+            // Handling this here isn't the nicest, but to avoid this there needs to be
+            // a concrete version of the Cache objects, for each type...
             if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Task");
             if (existing == null) throw new Exception("Missing Task");
             existing.Description = entity.Description;
@@ -87,7 +87,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                 existing = _existing;
             }
 
-            Cache.Flush(); // Hacky fix for now to notify subscribers about changes (Extremely jank fix)
+            Cache.MarkDirty(); // Hacky fix for now to notify subscribers about changes (Extremely jank fix)
             //Cache.ForceReplace(entity.Id, existing); // This is ugly, but needed to force the call on NotifySubscribers...
 
             return existing.Id;

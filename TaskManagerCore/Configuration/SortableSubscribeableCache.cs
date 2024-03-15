@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text.RegularExpressions;
-using TaskManagerCore.Infrastructure.BinaryFile.QueryComparers;
-using Order = TaskManagerCore.Configuration.SortOrder;
+﻿using System.Diagnostics;
 namespace TaskManagerCore.Configuration
 {
     /// <summary>
@@ -62,10 +59,6 @@ namespace TaskManagerCore.Configuration
         Dictionary<string, List<T>> ReversedSortedLists;
         private readonly Dictionary<string, Comparison<T>> SortFunctions;
 
-        //Dictionary<string, Dictionary<string, T>> SortedDictionaries;
-
-        //new readonly Dictionary<string, T> Cache; // override Cache
-        //Dictionary<string, Dictionary<string, T>> SortedIndexes;
         public SortableSubscribeableCache(Dictionary<string, Comparison<T>> sortFunctions)
             : base()
         {
@@ -73,12 +66,11 @@ namespace TaskManagerCore.Configuration
             MasterList = new List<T>(Cache.Values); // is this needed? master list is the cache dictionary
             SortedLists = new Dictionary<string, List<T>>();
             ReversedSortedLists = new Dictionary<string, List<T>>();
-            //SortedDictionaries = new Dictionary<string, Dictionary<string, T>>();
 
             ReSortAll(true);
         }
 
-        protected override void NotifySubscribers(NotifiedAction action, string? id = null)
+        protected sealed override void NotifySubscribers(NotifiedAction action, string? id = null)
         {
             base.NotifySubscribers(action);
             switch (action)
@@ -104,82 +96,121 @@ namespace TaskManagerCore.Configuration
             }
             MasterList.Sort();  // Sorting with CompareTo()
 
-            // resort all lists
-            // use provided sort functions to generate sorted lists
             foreach (var sort in SortFunctions)
             {
-                //var dict = new Dictionary<string, T>(Cache);
-                //dict.OrderBy(_ => new ComparisonToComparerWrapper<T>(sort.Value));
-                //SortedDictionaries.Add(sort.Key, dict);
-
-                if (overwrite 
-                    || !SortedLists.TryGetValue(sort.Key, out var originalOrder)
-                    || !ReversedSortedLists.TryGetValue(sort.Key, out var reversedOrder))
+                // generate or resort all lists
+                if (overwrite || !SortedLists.TryGetValue(sort.Key, out var originalOrder))
                 {
-                    var list = new List<T>(Cache.Values);//(MasterList); no longer using masterlist
+                    var list = new List<T>(Cache.Values); // copy, sort, save
                     list.Sort(sort.Value);
-                    SortedLists.Remove(sort.Key);
-                    SortedLists.Add(sort.Key, list);
+                    SortedLists[sort.Key] = list;
 
-                    var list_rev = new List<T>(list);
-                    list_rev.Reverse();
-                    ReversedSortedLists.Remove(sort.Key);
-                    ReversedSortedLists.Add(sort.Key, list_rev);
-                } else
-                {
-                    originalOrder.Sort(sort.Value);
-
-                    reversedOrder.Sort(sort.Value); // inefficient?
-                    reversedOrder.Reverse();
+                    var listRev = new List<T>(list); // same for reverse
+                    listRev.Reverse();
+                    ReversedSortedLists[sort.Key] = listRev;
                 }
+                else
+                {
+                    // manually check if already sorted - save on some swaps
+                    // C# List.Sort(Comparison<T> ...) method incurs overheads for sorting an already/almost
+                    // sorted list.  It will still perform swaps to check order.  (Need to verify 100%)
+                    // but checking the sorting manually could be a performance increase for longer lists...
+                    // This is a task manager though.... so how long are the lists going to get in reality...
+                    if (!originalOrder.IsSortedBy(sort.Value)) 
+                    {
+                        originalOrder.Sort(sort.Value);
 
-                //if (overwrite || !ReversedSortedLists.TryGetValue(sort.Key, out var reversedOrder))
-                //{
-                //    var list = new List<T>(Cache.Values);//(MasterList); no longer using masterlist
-                //    list.Sort(sort.Value);
-                //    ReversedSortedLists.Remove(sort.Key);
-                //    ReversedSortedLists.Add(sort.Key, list);
-                //}
-                //else
-                //{
-                //    //reversedOrder.Sort(sort.Value);
-                //    reversedOrder.Reverse();
-                //}
+                        var reversedOrder = new List<T>(originalOrder);
+                        reversedOrder.Reverse();
+                        ReversedSortedLists[sort.Key] = reversedOrder;
+                    } 
+                    else
+                    {
+                        Debug.WriteLine("List already sorted as expected");
+                    }
+                }
             }
-
-            //not sorting the cache in place
-            //var tmp = Cache.ToList();
-            //tmp.Sort((p1, p2) => p1.Value.CompareTo(p2.Value));
-            //Cache = tmp.ToDictionary();
         }
 
-        public override bool TryAdd(string id, T item)
+        public sealed override bool TryAdd(string id, T item)
         {
             var result = base.TryAdd(id, item);
-            ReSortAll();
+            ReSortAll(true);
             return result;
         }
 
-        public override bool Remove(string id)
+        /// <summary>
+        /// Remove from Cache by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public sealed override bool Remove(string id)
         {
             var result = base.Remove(id);
-            ReSortAll();
+            ReSortAll(true);
             return result;
         }
 
-        public override bool Flush()
+        /// <summary>
+        /// Flush changes to items
+        /// Is Flush the wrong term for what this method does?
+        /// a Flush() method should probably be calling ReSortAll(true) - this method calls ReSortAll(false)
+        /// Should this be CommitChanges() or Dirty() or something like that...?
+        /// </summary>
+        /// <returns></returns>
+        public sealed override void MarkDirty()
         {
-            var result = base.Flush();
+            base.MarkDirty();
             ReSortAll();
-            return result;
         }
 
-        internal override bool ForceReplace(string id, T item)
+        /// <summary>
+        /// This method is not very safe and is not used anymore...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        internal sealed override bool ForceReplace(string id, T item)
         {
             var result = base.ForceReplace(id, item);
-            ReSortAll();
+            ReSortAll(true);
             return result;
         }
+
+        /// <summary>
+        /// Acquire sorted list
+        /// </summary>
+        /// <param name="sorting"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Throws if sorting not found</exception>
+        public List<T> SortedBy(string sorting, bool reversed = false)
+        {
+            if (reversed)
+            {
+                if (!ReversedSortedLists.TryGetValue(sorting, out var reversedSortedList))
+                    throw new Exception($"Sorting not found in Reversed Lists: {sorting}");
+
+                return new List<T>(reversedSortedList);
+            }
+
+            if (!SortedLists.TryGetValue(sorting, out var sortedList))
+                throw new Exception($"Sorting not found in Forward Lists: {sorting}");
+
+            return new List<T>(sortedList);
+        }
+
+        /// <summary>
+        /// Returns index
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public T BinarySearch(T item)
+        {
+            var index = MasterList.BinarySearch(item);
+            return MasterList[index];
+        }
+
+
 
         ///// <summary>
         ///// Does this make sense to exist here?  Just for this method we need to have the requirement on the ISearchable interface...
@@ -210,39 +241,5 @@ namespace TaskManagerCore.Configuration
         //    }
         //}
 
-        /// <summary>
-        /// Acquire sorted list
-        /// </summary>
-        /// <param name="sorting"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception">Throws if sorting not found</exception>
-        public List<T> SortedBy(string sorting, bool reversed = false)
-        {
-            if (reversed)
-            {
-                if (!ReversedSortedLists.TryGetValue(sorting, out var reversedSortedList))
-                    //if (!SortedDictionaries.TryGetValue(sorting, out var sortedList))
-                    throw new Exception($"Sorting not found in Reversed Lists: {sorting}");
-
-                return new List<T>(reversedSortedList);
-            }
-
-            if (!SortedLists.TryGetValue(sorting, out var sortedList))
-                //if (!SortedDictionaries.TryGetValue(sorting, out var sortedList))
-                throw new Exception($"Sorting not found in Forward Lists: {sorting}");
-
-            return new List<T>(sortedList);
-        }
-
-        /// <summary>
-        /// Returns index
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public T BinarySearch(T item)
-        {
-            var index = MasterList.BinarySearch(item);
-            return MasterList[index];
-        }
     }
 }

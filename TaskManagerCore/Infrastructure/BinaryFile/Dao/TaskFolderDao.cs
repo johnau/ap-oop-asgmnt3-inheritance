@@ -36,12 +36,14 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 
             Debug.WriteLine($"Updating Folder: {entity.Id}");
 
+            // Handling this here isn't the nicest, but to avoid this there needs to be
+            // a concrete version of the Cache objects, for each type...
             if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Folder");
             if (existing == null) throw new Exception("Missing Folder");
             existing.Name = entity.Name;
             existing.TaskIds = entity.TaskIds;
 
-            Cache.Flush(); // Hacky fix for now to notify subscribers about changes
+            Cache.MarkDirty(); // Hacky fix for now to notify subscribers about changes
 
             return existing.Id;
         }

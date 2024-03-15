@@ -45,10 +45,9 @@
             return false;
         }
 
-        public virtual bool Flush()
+        public virtual void MarkDirty()
         {
             NotifySubscribers(NotifiedAction.UPDATE);
-            return true;
         }
 
         /// <summary>
