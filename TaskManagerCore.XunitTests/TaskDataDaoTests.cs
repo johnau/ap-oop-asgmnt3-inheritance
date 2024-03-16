@@ -46,7 +46,7 @@ namespace TaskManagerCore.XunitTests
                 var dao = new TaskDataDao(testReader, testWriter);
 
                 var now = DateTime.Now;
-                var daysAndQuantities = PopulateRandomTasksAndReturnQuantityOnEachDay(dao);
+                var daysAndQuantities = PopulateRandomTasksAndReturnQuantityOnEachDay(dao, 20);
 
                 foreach (var day in daysAndQuantities)
                 {
@@ -62,7 +62,7 @@ namespace TaskManagerCore.XunitTests
                 File.Delete(filename);
             };
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 20; i++)
             {
                 Debug.WriteLine($"Test iteration: {i}");
                 test();
@@ -109,7 +109,7 @@ namespace TaskManagerCore.XunitTests
             File.Delete(filename);
         }
 
-        Dictionary<int, int> PopulateRandomTasksAndReturnQuantityOnEachDay(TaskDataDao dao)
+        Dictionary<int, int> PopulateRandomTasksAndReturnQuantityOnEachDay(TaskDataDao dao, int sizeFactor = 10)
         {
             var dict = new Dictionary<int, int>();
 
@@ -122,7 +122,7 @@ namespace TaskManagerCore.XunitTests
             }
 
             var random = new Random();
-            for (int i = 1; i <= 10; i++)
+            for (int i = 1; i <= sizeFactor; i++)
             {
                 int dayIndex = random.Next(0, maxDays+1);
                 Debug.WriteLine($"Day Index: {dayIndex}");

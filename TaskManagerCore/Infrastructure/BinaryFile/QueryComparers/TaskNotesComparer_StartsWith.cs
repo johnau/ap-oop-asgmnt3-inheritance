@@ -2,7 +2,7 @@
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
 {
-    internal class TaskNotesStartsWithComparer : QueryComparerBase<TaskDataEntity>
+    internal class TaskNotesComparer_StartsWith : QueryComparerBase<TaskDataEntity>
     {
         //private readonly bool _flip;
         //private readonly bool _matchStartsWith;

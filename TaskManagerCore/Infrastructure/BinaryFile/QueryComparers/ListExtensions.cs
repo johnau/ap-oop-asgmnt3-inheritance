@@ -13,7 +13,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
         /// <param name="criteria"></param>
         /// <param name="comparer"></param>
         /// <returns></returns>
-        internal static List<TaskDataEntity> DoBinarySearchFindAll(this List<TaskDataEntity> list, 
+        internal static List<TaskDataEntity> BinarySearchFindAll(this List<TaskDataEntity> list, 
                                                                     TaskDataEntity criteria, 
                                                                     IComparer<TaskDataEntity> comparer)
         {

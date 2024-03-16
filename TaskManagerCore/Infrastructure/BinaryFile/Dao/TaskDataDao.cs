@@ -95,10 +95,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// OR
         /// If there is no larger element, a bitwise complement ~ of Count.
         /// ~
-        // Note to self: ^ Bitwise Not operator, index is flipped to negative number - 1.
-        // ie. value of 2 00000010 is flipped to 11111101 which is -3 (since 00000000 is 0, and 11111111 is -1, etc)
-        // Which as a list index, counts backwards from end, however we adjust for the loop, or is there a fancy way to 
-        // do that in the loop...
+        /// Note to self: ^ Bitwise Not operator, index is flipped to negative number - 1.
+        /// ie. value of 2 00000010 is flipped to 11111101 which is -3 (since 00000000 is 0, and 11111111 is -1, etc)
+        /// Which as a list index, counts backwards from end, however we adjust for the loop, or is there a fancy way to 
+        /// do that in the loop...
+        /// 
         /// </summary>
         /// <param name="dueDate"></param>
         /// <returns></returns>
@@ -142,94 +143,115 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         }
 
         /// <summary>
+        /// When using a custom comparison, and when forcing a matched return of 0, the BinarySearch
+        /// method starts to behave not as nicely.  The index matched is essentially random within the
+        /// range of matches.
+        /// ie. in the following list
+        /// 0: Alpha
+        /// 1: Bravo 1
+        /// 2: Bravo 2
+        /// 3: Bravo 3
+        /// 4: Charlie
+        /// 5: Delta 1
+        /// 6: Delta 2
+        /// If we want to match "Bravo", we may get index 1, 2, or 3 as the result. Meaning we must
+        /// look either direction from the match to get the range of matches. (Providing it is still
+        /// matching within a logic in-line with the sort algo)
         /// </summary>
         /// <param name="description"></param>
         /// <returns></returns>
         public List<TaskDataEntity> FindByDescription(string description)
         {
-            //var sortedList = Cache.SortedBy(Sort.DESCRIPTION + "");
-            (var sortedList, var revSortedList) = SortedData(Sort.DESCRIPTION);
+            var sortedList = Cache.SortedBy(Sort.DESCRIPTION + "");
+            //(var sortedList, var revSortedList) = SortedData(Sort.DESCRIPTION);
             // could use the reversed list if description starts after M
-            
-            // Adding a buffer because otherwise doesnt match the first entry...
-            // This is inefficient though, an insert is undeseriable, shifting every element [O(n)]
-            // This being needed and the difference between Notes and Description means I'm missing something.
-            sortedList.Insert(0, new TaskDataEntity(""));
-
             var criteria = new TaskDataEntity() { Description = description };
-            var matches = new List<TaskDataEntity>();
+            return sortedList.BinarySearchFindAll(criteria, new TaskDescriptionComparer_StartsWith());
+
+            //// Adding a buffer because otherwise doesnt match the first entry...
+            //// This is inefficient though, an insert is undeseriable, shifting every element [O(n)]
+            //// This being needed and the difference between Notes and Description means I'm missing something.
+            //sortedList.Insert(0, new TaskDataEntity(""));
+
+            //var criteria = new TaskDataEntity() { Description = description };
+            //var matches = new List<TaskDataEntity>();
             
-            var firstMatch = sortedList.BinarySearch(criteria, new TaskDescriptionStartsWithComparer());
-            if (firstMatch < 0)
-            {
-                return matches; // no matches
-            }
+            //var firstMatch = sortedList.BinarySearch(criteria, new TaskDescriptionStartsWithComparer());
+            //if (firstMatch < 0)
+            //{
+            //    return matches; // no matches
+            //}
                 
-            matches.Add(sortedList[firstMatch]);
+            //matches.Add(sortedList[firstMatch]);
 
-            //var remaining = sortedList.Count - firstMatch;
-            //var firstNonMatch = sortedList.BinarySearch(Math.Min(firstMatch+1, sortedList.Count-1), remaining, criteria, new TaskDescriptionBeginsWithComparer(false));
-            //var lastMatch = firstNonMatch - 1;
+            ////var remaining = sortedList.Count - firstMatch;
+            ////var firstNonMatch = sortedList.BinarySearch(Math.Min(firstMatch+1, sortedList.Count-1), remaining, criteria, new TaskDescriptionBeginsWithComparer(false));
+            ////var lastMatch = firstNonMatch - 1;
 
-            //return SelectFromList(sortedList, firstMatch, lastMatch);
+            ////return SelectFromList(sortedList, firstMatch, lastMatch);
 
-            int current = firstMatch;
-            while (current >= firstMatch && current+1 < sortedList.Count)
-            {
-                current = sortedList.BinarySearch(++current, 1, criteria, new TaskDescriptionStartsWithComparer()); // can probably be made more efficient
-                if (current >= 0)
-                    matches.Add(sortedList[current]);
-            }
-            //Change the comparer so that we can also search for when the description doesnt match
+            //int current = firstMatch;
+            //while (current >= firstMatch && current+1 < sortedList.Count)
+            //{
+            //    current = sortedList.BinarySearch(++current, 1, criteria, new TaskDescriptionStartsWithComparer()); // can probably be made more efficient
+            //    if (current >= 0)
+            //        matches.Add(sortedList[current]);
+            //}
+            ////Change the comparer so that we can also search for when the description doesnt match
 
-            return matches;
+            //return matches;
         }
 
         public List<TaskDataEntity> FindByNotes(string notes)
         {
-            (var sortedList, var revSortedList) = SortedData(Sort.NOTES);
+            var sortedList = Cache.SortedBy(Sort.NOTES + "");
+            //(var sortedList, var revSortedList) = SortedData(Sort.NOTES);
 
             var criteria = new TaskDataEntity() { Notes = notes };
-            var matches = new List<TaskDataEntity>();
+            return sortedList.BinarySearchFindAll(criteria, new TaskNotesComparer_StartsWith());
+            //var matches = new List<TaskDataEntity>();
 
-            // Why does the BinarySearch return the last element with the below search.
-            // Above, Description is search in the same way but the first element is found
-            // Both Description and Notes are effectively the same, both strings with no constraints
-            // Both are sorted the same way (string.Compare(IgnoreCase)), handle same way, etc
-            // Both comparers are set up in the same way
-            // Description matches the start of the range, and the method moves forwards, as expected
-            // Notes matches the end of the range, and the method must move backwards, Why is this?
-            // Can confirm both sortedLists appear as expected.
-            var lastMatchIndex = sortedList.BinarySearch(criteria, new TaskNotesStartsWithComparer());
-            if (lastMatchIndex < 0) // no matches, exit
-            {
-                return new List<TaskDataEntity>();
-            }
-            matches.Add(sortedList[lastMatchIndex]);
+            //// Why does the BinarySearch return the last element with the below search.
+            //// Above, Description is search in the same way but the first element is found
+            //// Both Description and Notes are effectively the same, both strings with no constraints
+            //// Both are sorted the same way (string.Compare(IgnoreCase)), handle same way, etc
+            //// Both comparers are set up in the same way
+            //// Description matches the start of the range, and the method moves forwards, as expected
+            //// Notes matches the end of the range, and the method must move backwards, Why is this?
+            //// Can confirm both sortedLists appear as expected.
+            //var lastMatchIndex = sortedList.BinarySearch(criteria, new TaskNotesStartsWithComparer());
+            //if (lastMatchIndex < 0) // no matches, exit
+            //{
+            //    return new List<TaskDataEntity>();
+            //}
+            //matches.Add(sortedList[lastMatchIndex]);
 
-            int current = lastMatchIndex;
-            while (current <= lastMatchIndex && current-1 >= 0)
-            {
-                current = sortedList.BinarySearch(--current, 1, criteria, new TaskNotesStartsWithComparer());
-                
-                // No more matches
-                if (current < 0) break; 
+            //int current = lastMatchIndex;
+            //while (current <= lastMatchIndex && current-1 >= 0)
+            //{
+            //    current = sortedList.BinarySearch(--current, 1, criteria, new TaskNotesStartsWithComparer());
 
-                matches.Add(sortedList[current]);
-            }
+            //    // No more matches
+            //    if (current < 0) break; 
 
-            return matches;
+            //    matches.Add(sortedList[current]);
+            //}
+
+            //return matches;
         }
 
         public List<TaskDataEntity> FindByCompleted(bool completed)
         {
-            (var sortedList, var revList) = SortedData(Sort.COMPLETED);
-            var matches = new List< TaskDataEntity>();
+            var sortedList = Cache.SortedBy(Sort.COMPLETED + "");
+            //(var sortedList, var revList) = SortedData(Sort.COMPLETED);
+            //var matches = new List< TaskDataEntity>();
             var criteria = new TaskDataEntity() { Completed = completed };
 
-            var firstMatch = sortedList.BinarySearch(criteria, new TaskCompletedComparer());
+            //var firstMatch = sortedList.BinarySearch(criteria, new TaskCompletedComparer());
 
-            return [];
+            return sortedList.BinarySearchFindAll(criteria, new TaskCompletedComparer());
+
+            //return [];
             //var lastMatch = ~revList.BinarySearch(criteria, new TaskCompletedComparer());
             //lastMatch += revList.Count;
 

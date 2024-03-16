@@ -3,7 +3,7 @@ using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
 {
-    internal class TaskDescriptionStartsWithComparer : QueryComparerBase<TaskDataEntity>
+    internal class TaskDescriptionComparer_StartsWith : QueryComparerBase<TaskDataEntity>
     {
         // none of this flip stuff can work because it's always a random match that is found
         //private readonly bool _flip;
