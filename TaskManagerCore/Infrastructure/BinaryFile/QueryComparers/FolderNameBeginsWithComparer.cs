@@ -2,14 +2,25 @@
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
 {
-    internal class TaskFolderName_BeginsWithComparer : QueryComparerBase<TaskFolderEntity>
+    internal class FolderNameBeginsWithComparer : QueryComparerBase<TaskFolderEntity>
     {
-        protected override bool Equals(TaskFolderEntity searchCriteria, TaskFolderEntity t)
+        protected override int CompareNonNull(TaskFolderEntity x, TaskFolderEntity y)
         {
-            return t.Name.StartsWith(searchCriteria.Name, StringComparison.OrdinalIgnoreCase);
+            var startsWithMatch = x.Name.StartsWith(y.Name, StringComparison.OrdinalIgnoreCase);
+            if (startsWithMatch) return 0;
+            
+            var compared = TaskFolderEntity.CompareTasksByName(x, y);
+            return compared;
         }
     }
 }
+//    {
+//        protected override bool Equals(TaskFolderEntity searchCriteria, TaskFolderEntity t)
+//        {
+//            return t.Name.StartsWith(searchCriteria.Name, StringComparison.OrdinalIgnoreCase);
+//        }
+//    }
+//}
     //internal class TaskFolderName_BeginsWithComparer : IComparer<TaskFolderEntity>
     //{
     //    public int Compare(TaskFolderEntity? searchCriteria, TaskFolderEntity? t)

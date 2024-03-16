@@ -35,6 +35,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             Cache.Subscribe(WriteUpdateData); // Subscribe to cache with BinaryFile Write method
         }
 
+        protected abstract Dictionary<string, Comparison<T>> ComparisonMethods { get; }
+
         /// <summary>
         /// Write updated data
         /// </summary>
@@ -46,8 +48,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             Writer.AddObjectsToWrite(new List<T>(data.Values));
             await Writer.WriteValuesAsync();
         }
-
-        protected abstract Dictionary<string, Comparison<T>> ComparisonMethods { get; }
 
         void LoadData()
         {

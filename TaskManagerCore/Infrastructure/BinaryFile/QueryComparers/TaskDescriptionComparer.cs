@@ -2,14 +2,23 @@
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
 {
-    internal class TaskDataDescription_Comparer : QueryComparerBase<TaskDataEntity>
+    internal class TaskDescriptionComparer : QueryComparerBase<TaskDataEntity>
     {
-        protected override bool Equals(TaskDataEntity searchCriteria, TaskDataEntity t)
+        protected override int CompareNonNull(TaskDataEntity x, TaskDataEntity y)
         {
-            return t.Description.Equals(searchCriteria.Description, StringComparison.OrdinalIgnoreCase);
+            return TaskDataEntity.CompareTasksByDescription(x, y);
         }
     }
 }
+
+
+//    {
+//        protected override bool Equals(TaskDataEntity searchCriteria, TaskDataEntity t)
+//        {
+//            return t.Description.Equals(searchCriteria.Description, StringComparison.OrdinalIgnoreCase);
+//        }
+//    }
+//}
     //internal class TaskDataDescription_Comparer : IComparer<TaskDataEntity>
     //{
     //    public int Compare(TaskDataEntity? searchCriteria, TaskDataEntity? t)

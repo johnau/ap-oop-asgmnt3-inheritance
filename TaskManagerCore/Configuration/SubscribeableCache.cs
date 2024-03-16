@@ -17,8 +17,9 @@
             Subscribers = new Dictionary<string, Func<Dictionary<string, T>, Task>>();
         }
 
-        #region Methods to replicate behavior of Dictionary class that this Cache replaces
-        // Note: Not sure if there is an interface/interfaces that could be implemented here
+        #region Dictionary methods
+        // Providing these methods so that this Cache can be easily substituted where a Dictionary is currently used
+        // If enough are implemented, might as well just implement IDictionary, IEnumerable, etc and override all
 
         /// <summary>
         /// Simulating a method from Dictionary class that was in use, since this class

@@ -49,30 +49,30 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
         }
 
         #region static compare methods
-        public static int CompareTasksByDueDate(TaskDataEntity t1, TaskDataEntity t2)
+        public static int CompareTasksByDueDate(TaskDataEntity x, TaskDataEntity y)
         {
-            if (t1.DueDate.HasValue && t2.DueDate.HasValue)
+            if (x.DueDate.HasValue && y.DueDate.HasValue)
             {
-                return t1.DueDate.Value.CompareTo(t2.DueDate.Value);
+                return x.DueDate.Value.CompareTo(y.DueDate.Value);
             }
-            else if (t1.DueDate.HasValue) return 1;
-            else if (t2.DueDate.HasValue) return -1;
+            else if (x.DueDate.HasValue) return 1;
+            else if (y.DueDate.HasValue) return -1;
 
             return 0;
         }
-        public static int CompareTasksByCompleted(TaskDataEntity t1, TaskDataEntity t2)
+        public static int CompareTasksByCompleted(TaskDataEntity x, TaskDataEntity y)
         {
-            return t1.Completed.CompareTo(t2.Completed);
+            return x.Completed.CompareTo(y.Completed);
         }
 
-        public static int CompareTasksByDescription(TaskDataEntity t1, TaskDataEntity t2)
+        public static int CompareTasksByDescription(TaskDataEntity x, TaskDataEntity y)
         {
-            return string.Compare(t1.Description, t2.Description, StringComparison.OrdinalIgnoreCase);
+            return string.Compare(x.Description, y.Description, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static int CompareTasksByNotes(TaskDataEntity t1, TaskDataEntity t2)
+        public static int CompareTasksByNotes(TaskDataEntity x, TaskDataEntity y)
         {
-            return string.Compare(t1.Notes, t2.Notes, StringComparison.OrdinalIgnoreCase);
+            return string.Compare(x.Notes, y.Notes, StringComparison.OrdinalIgnoreCase);
         }
 
         #endregion

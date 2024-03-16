@@ -31,47 +31,82 @@ namespace TaskManagerCore.XunitTests
 
             var id = dao.Save(entity);
             Assert.NotEqual(string.Empty, id);
+
+            File.Delete(filename);
         }
 
         [Fact]
-        public void FindByDueDate_WithValidDate_WillSucceed_500_times()
+        public void FindByDueDate_WithValidDate_WillMatchMultiple()
         {
-            for (int i = 0; i < 500; i++)
+            var test = () =>
             {
-                FindByDueDate_WithValidDate_WillSucceed();
+                var filename = "test-file-tasks_" + DateTime.Now.Ticks;
+                var testReader = new TaskDataFileReader(filename);
+                var testWriter = new TaskDataFileWriter(filename);
+                var dao = new TaskDataDao(testReader, testWriter);
+
+                var now = DateTime.Now;
+                var daysAndQuantities = PopulateRandomTasksAndReturnQuantityOnEachDay(dao);
+
+                foreach (var day in daysAndQuantities)
+                {
+                    var dayIndex = day.Key;
+                    var expectedTaskQty = day.Value;
+                    Debug.WriteLine($"Expecting {expectedTaskQty} tasks on the {dayIndex} day");
+                    var dateMod = now.AddDays(dayIndex);
+                    var foundTasks = dao.FindByDueDate(dateMod);
+                    Debug.WriteLine($"Expecting {expectedTaskQty} {(expectedTaskQty != foundTasks.Count ? "But" : "And")} got {foundTasks.Count}");
+                    Assert.Equal(expectedTaskQty, foundTasks.Count);
+                }
+
+                File.Delete(filename);
+            };
+
+            for (int i = 0; i < 10; i++)
+            {
+                Debug.WriteLine($"Test iteration: {i}");
+                test();
             }
         }
 
-
-        [Fact]
-        public void FindByDueDate_WithValidDate_WillSucceed()
+        [Theory]
+        [InlineData("This is a test", 4)]
+        [InlineData("Test Task", 3)]
+        [InlineData("zzzz", 1)]
+        [InlineData("this is a test task", 2)]
+        public void FindByDescription_WithDescriptionFragment_WillMatchMultiple(string description, int count)
         {
-            var filename = "test-file-tasks_"+DateTime.Now.Ticks;
+            var filename = "test-file-tasks_2_" + DateTime.Now.Ticks;
             var testReader = new TaskDataFileReader(filename);
             var testWriter = new TaskDataFileWriter(filename);
             var dao = new TaskDataDao(testReader, testWriter);
 
-            var now = DateTime.Now;
-            //PopulateTestTasks(dao, now);
-            var daysAndQuantities = PopulateRandomTasksAndReturnQuantityOnEachDay(dao);
+            PopulateTestTasks(dao);
 
-            foreach (var day in daysAndQuantities)
-            {
-                var dayIndex = day.Key;
-                var expectedTaskQty = day.Value;
-                Debug.WriteLine($"Expecting {expectedTaskQty} tasks on the {dayIndex} day");
-                var dateMod = now.AddDays(dayIndex);
-                var foundTasks = dao.FindByDueDate(dateMod);
-                Debug.WriteLine($"Expecting {expectedTaskQty} {(expectedTaskQty != foundTasks.Count ? "But" : "And")} got {foundTasks.Count}");
-                Assert.Equal(expectedTaskQty, foundTasks.Count);
-            }
+            var results = dao.FindByDescription(description);
+            Assert.Equal(count, results.Count);
 
-            //var tasksToday = dao.FindByDueDate(now);
-            //Assert.Equal(3, tasksToday.Count);
-            //var tasksInTwoDays = dao.FindByDueDate(now.AddDays(2));
-            //Assert.Equal(2, tasksInTwoDays.Count);
-            //var tasksInThreeDays = dao.FindByDueDate(now.AddDays(3));
-            //Assert.Equal(3, tasksInThreeDays.Count);
+            File.Delete(filename);
+        }
+
+        [Theory]
+        [InlineData("notes about test", 3)]
+        [InlineData("Some other notes", 2)]
+        [InlineData("The 7th task", 1)]
+        [InlineData("A task", 1)]
+        public void FindByNotes_WithNotesFragment_WillMatchMultiple(string notes, int count)
+        {
+            var filename = "test-file-tasks_3_" + DateTime.Now.Ticks;
+            var testReader = new TaskDataFileReader(filename);
+            var testWriter = new TaskDataFileWriter(filename);
+            var dao = new TaskDataDao(testReader, testWriter);
+
+            PopulateTestTasks(dao);
+
+            var results = dao.FindByNotes(notes);
+            Assert.Equal(count, results.Count);
+
+            File.Delete(filename);
         }
 
         Dictionary<int, int> PopulateRandomTasksAndReturnQuantityOnEachDay(TaskDataDao dao)
@@ -113,6 +148,90 @@ namespace TaskManagerCore.XunitTests
             return dict;
         }
 
+        /// <summary>
+        /// Changing this method may break some tests, as some theories rely on 
+        /// this test data containing certain numbers of certain values.
+        /// </summary>
+        /// <param name="dao"></param>
+        void PopulateTestTasks(TaskDataDao dao)
+        {
+            var today = DateTime.Now;
+            var twoDaysTime = today.AddDays(2);
+            var threeDaysTime = today.AddDays(3);
+
+            var entity = new TaskDataEntity()
+            {
+                Description = "This is a test task description",
+                Notes = "Notes about test task",
+                Completed = false,
+                DueDate = twoDaysTime,                  //two
+            };
+            dao.Save(entity);
+
+            var entity1 = new TaskDataEntity()
+            {
+                Description = "Test Task 2",
+                Notes = "Notes about test task ...............",
+                Completed = true,
+                DueDate = threeDaysTime,                //three
+            };
+            dao.Save(entity1);
+
+            var entity2 = new TaskDataEntity()
+            {
+                Description = "Test Task 3",
+                Notes = "Some other notes for test task",
+                Completed = false,
+                DueDate = today,                        //zero
+            };
+            dao.Save(entity2);
+
+            var entity3 = new TaskDataEntity()
+            {
+                Description = "This is a test task",
+                Notes = "Test notes",
+                Completed = true,
+                DueDate = today,                        //zero
+            };
+            dao.Save(entity3);
+
+            var entity4 = new TaskDataEntity()
+            {
+                Description = "This is a test...",
+                Notes = "Some other notes for test task",
+                Completed = false,
+                DueDate = threeDaysTime,                //three
+            };
+            dao.Save(entity4);
+
+            var entity5 = new TaskDataEntity()
+            {
+                Description = "Test Task 6",
+                Notes = "Notes about test task",
+                Completed = true,
+                DueDate = twoDaysTime,                  //two
+            };
+            dao.Save(entity5);
+
+            var entity6 = new TaskDataEntity()
+            {
+                Description = "This is a TEST!!!!!!",
+                Notes = "The 7th task added",
+                Completed = true,
+                DueDate = threeDaysTime,                //three
+            };
+            dao.Save(entity6);
+
+            var entity7 = new TaskDataEntity()
+            {
+                Description = "ZZZZ description",
+                Notes = "A task note",
+                Completed = true,
+                DueDate = threeDaysTime,                //three
+            };
+            dao.Save(entity7);
+        }
+
         static string RandomString()
         {
             Random random = new Random();
@@ -132,85 +251,6 @@ namespace TaskManagerCore.XunitTests
         {
             Random random = new Random();
             return random.Next(2) == 0;
-        }
-
-        void PopulateTestTasks(TaskDataDao dao, DateTime now)
-        {
-            var today = now;
-            var twoDaysTime = now.AddDays(2);
-            var threeDaysTime = now.AddDays(3);
-
-            var entity = new TaskDataEntity()
-            {
-                Description = "Test Task 1",
-                Notes = "Notes about test task",
-                Completed = false,
-                DueDate = twoDaysTime,                  //two
-            };
-            dao.Save(entity);
-
-            var entity1 = new TaskDataEntity()
-            {
-                Description = "Test Task 2",
-                Notes = "Notes about test task...............",
-                Completed = true,
-                DueDate = threeDaysTime,                //three
-            };
-            dao.Save(entity1);
-
-            var entity2 = new TaskDataEntity()
-            {
-                Description = "Test Task 3",
-                Notes = "Some other notes about test task",
-                Completed = false,
-                DueDate = today,                        //zero
-            };
-            dao.Save(entity2);
-
-            var entity3 = new TaskDataEntity()
-            {
-                Description = "Test Task 4",
-                Notes = "Test notes",
-                Completed = true,
-                DueDate = today,                        //zero
-            };
-            dao.Save(entity3);
-
-            var entity3A = new TaskDataEntity()
-            {
-                Description = "Test Task 4A",
-                Notes = "Test notes......",
-                Completed = true,
-                DueDate = today,                        //zero
-            };
-            dao.Save(entity3A);
-
-            var entity4 = new TaskDataEntity()
-            {
-                Description = "Test Task 5",
-                Notes = "Some other notes about test task",
-                Completed = false,
-                DueDate = threeDaysTime,                //three
-            };
-            dao.Save(entity4);
-
-            var entity5 = new TaskDataEntity()
-            {
-                Description = "Test Task 6",
-                Notes = "Notes about test task",
-                Completed = true,
-                DueDate = twoDaysTime,                  //two
-            };
-            dao.Save(entity5);
-
-            var entity6 = new TaskDataEntity()
-            {
-                Description = "Test Task 7",
-                Notes = "The 7th task added",
-                Completed = true,
-                DueDate = threeDaysTime,                //three
-            };
-            dao.Save(entity6);
         }
     }
 }

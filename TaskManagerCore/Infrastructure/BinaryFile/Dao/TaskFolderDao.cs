@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics;
 using Sort = TaskManagerCore.Infrastructure.BinaryFile.Dao.Sorting.TaskFolderSortingType;
-using TaskManagerCore.Infrastructure.BinaryFile.Dao.Sorting;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Infrastructure.BinaryFile.QueryComparers;
-using System.Xml.Linq;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {
@@ -14,7 +12,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             : base(reader, writer)
         { }
 
-        protected override Dictionary<string, Comparison<TaskFolderEntity>> ComparisonMethods => [];
+        protected override Dictionary<string, Comparison<TaskFolderEntity>> ComparisonMethods => 
+            new Dictionary<string, Comparison<TaskFolderEntity>>()
+            {
+                //{ "" : new Comparer }
+            };
 
         public override string Save(TaskFolderEntity entity)
         {
@@ -53,8 +55,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             (var fwdList, var revList) = SortedData(Sort.NAME);
 
             var criteriaObject = new TaskFolderEntity() { Name = name };
-            var firstMatch = fwdList.BinarySearch(criteriaObject, new TaskFolderName_BeginsWithComparer());
-            var lastMatch = ~revList.BinarySearch(criteriaObject, new TaskFolderName_BeginsWithComparer());
+            var firstMatch = fwdList.BinarySearch(criteriaObject, new FolderNameBeginsWithComparer());
+            var lastMatch = ~revList.BinarySearch(criteriaObject, new FolderNameBeginsWithComparer());
             lastMatch += revList.Count;
 
             return SelectFromList(fwdList, firstMatch, lastMatch);
@@ -70,7 +72,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             var fwdList = Cache.SortedBy(Sort.NAME + "");
 
             var criteriaObject = new TaskFolderEntity() { Name = name };
-            var exactMatchIndex = fwdList.BinarySearch(criteriaObject, new TaskFolderName_BeginsWithComparer());
+            var exactMatchIndex = fwdList.BinarySearch(criteriaObject, new FolderNameBeginsWithComparer());
 
             return fwdList[exactMatchIndex];
         }
@@ -80,8 +82,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             (var fwdList, var revList) = SortedData(Sort.TASK_COUNT);
 
             var criteriaObject = new TaskFolderEntity() { TaskIds = new List<string>() };
-            var firstMatch = fwdList.BinarySearch(criteriaObject, new TaskFolderTaskCount_Comparer());
-            var lastMatch = ~revList.BinarySearch(criteriaObject, new TaskFolderTaskCount_Comparer());
+            var firstMatch = fwdList.BinarySearch(criteriaObject, new FolderTaskCountComparer());
+            var lastMatch = ~revList.BinarySearch(criteriaObject, new FolderTaskCountComparer());
             lastMatch += revList.Count;
 
             return SelectFromList(fwdList, firstMatch, lastMatch);
@@ -98,8 +100,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             var fwdList = Cache.SortedBy(Sort.TASK_COUNT + "");
 
             var criteriaObject = new TaskFolderEntity() { TaskIds = new List<string>() };
-            var more_than = TaskFolderTaskCount_Comparer.Modifier.MORE_THAN;
-            var firstMatch = fwdList.BinarySearch(criteriaObject, new TaskFolderTaskCount_Comparer(more_than));
+
+            var firstMatch = fwdList.BinarySearch(criteriaObject, new FolderTaskCountComparer());
 
             return SelectFromList(fwdList, firstMatch, fwdList.Count-1);
         }
@@ -114,8 +116,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             var revList = Cache.SortedBy(Sort.TASK_COUNT + "", reversed: true); // is sort by task count reversed most efficient? ignore searching empties...
 
             var searchDescription = new TaskFolderEntity() { TaskIds = new List<string>() { taskId } };
-            var more_than = TaskFolderTaskCount_Comparer.Modifier.MORE_THAN;
-            var match = revList.BinarySearch(searchDescription, new TaskFolderTaskCount_Comparer(more_than));
+
+            var match = revList.BinarySearch(searchDescription, new FolderTaskCountComparer());
 
             if (match < 0) return null;
             return revList[match];

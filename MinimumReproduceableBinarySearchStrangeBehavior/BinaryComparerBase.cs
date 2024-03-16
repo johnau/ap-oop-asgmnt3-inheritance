@@ -1,6 +1,6 @@
-﻿namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
+﻿namespace MinimumReproduceableBinarySearchStrangeBehavior
 {
-    internal abstract class QueryComparerBase<T> : IComparer<T>
+    internal abstract class BinaryComparerBase<T> : IComparer<T>
     {
         public int Compare(T? x, T? y)
         {

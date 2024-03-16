@@ -2,70 +2,24 @@
 namespace TaskManagerCore.Configuration
 {
     /// <summary>
-    /// Notes to consider from provided docs:
-    /// -------------------------------
-    /// Objects are passed to methods by reference. changes affect the original
-    /// Simpler variables like integers and floats are instead passed by copy.  changes do not affect original
-    /// Structs are passed by copy. (Only difference between Objects)
-    /// You should be careful with passing structs.
-    /// Structures and objects can get very large and copying one to give it to a
-    /// method is slower than passing a reference. 
-    /// Usually, structures tend to be small for this reason
-    /// ---------
-    /// Currently, the entity objects are stored in the 'Cache'.  
-    /// References to them are never passed outside of Infrastructure.Persistence package (atm = .BinaryFile for the assignment), they are updated in situ.  
-    /// Entity objects are used as transients/dtos but they are not stored, their values are used and references are discarded.
-    /// Model data is transient, and no references to it are held anywhere, all instances are destroyed after a call to a method.
-    /// Model objects are stateless, and immutable to preserve data/system integrity.  
-    /// *** Have been trying to use Visual Studio debug tools to analyze object creation and lifecycle.....need tutorial
-    /// 
-    /// ----------
-    /// Task Requirements:
-    /// Sorts the tasks by date and re-sorts as required. Test by doing a search for a task on a particular day (and providing a date sorted listing)
-    /// Has an index sorted by name.This will need to be kept up to date and re-sorted as required.Test by doing search for a task by its name.
-    /// 
-    /// Don’t forget that if you add or remove an sort from a list, you will need to do the same in the index as well.
-    /// ----------
-    /// TODO:
-    /// Override add, remove, etc methods - need to trigger re-sorts on these events
-    /// Need to ensure that control over editing this list is maintained?? Or would that be another class extending this one.... "ImmutableIndexedSubscribeableCache<T>"
-    /// 
-    /// 13-March-2024
-    /// ---------
-    /// Started to think about it the wrong way.  
-    /// - It should NOT extend the Dictionary object, or implement the IDictionary interface (delete those few classes)
-    /// ...... don't want to have to override every collection, enumerable, dictionary method (can't have exposed methods that don't notify)
-    /// - It should be lists, not dictionaries, dictionaries are not ordered, sortableDictionary doesn't provide the exact functionality
-    /// ...... lists are convenient for this application as indexes
-    /// - These indexes will be primarily used for sorting - if we introduce pagination, or result limits, then these lists might be important 
-    /// ...... for returning the right segments of results 
-    /// 
-    /// 
-    /// --------
-    /// Need methods for searching each sorting just their property?
-    /// Need to implement updating for the lists based on cache updates - override but still call Notify() method
-    /// 
-    /// 
-    /// Need to store the lists as original and reversed order
-    /// This way for binary searches the same comparer can be used to find the lower and upper bounds
-    /// of the search results.
+    /// Can be used
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class SortableSubscribeableCache<T> : SubscribeableCache<T> 
-        where T : IComparable<T>//, ISearchable // Can do a SearchableSortableSubscribeableCache - lol
+        where T : IComparable<T>
     {
-        List<T> MasterList;
-        Dictionary<string, List<T>> SortedLists;
-        Dictionary<string, List<T>> ReversedSortedLists;
-        private readonly Dictionary<string, Comparison<T>> SortFunctions;
+        private readonly Dictionary<string, Comparison<T>> _sortFunctions;
+        private readonly List<T> _masterList;
+        private readonly Dictionary<string, List<T>> _sortedLists;
+        private readonly Dictionary<string, List<T>> _reversedSortedLists;
 
         public SortableSubscribeableCache(Dictionary<string, Comparison<T>> sortFunctions)
             : base()
         {
-            SortFunctions = sortFunctions;
-            MasterList = new List<T>(Cache.Values); // is this needed? master list is the cache dictionary
-            SortedLists = new Dictionary<string, List<T>>();
-            ReversedSortedLists = new Dictionary<string, List<T>>();
+            _sortFunctions = sortFunctions;
+            _masterList = new List<T>(Cache.Values);
+            _sortedLists = new Dictionary<string, List<T>>();
+            _reversedSortedLists = new Dictionary<string, List<T>>();
 
             ReSortAll(true);
         }
@@ -100,48 +54,81 @@ namespace TaskManagerCore.Configuration
         /// <param name="overwrite"></param>
         void ReSortAll(bool overwrite = false)
         {
-            if (overwrite)
-            {
-                MasterList.Clear();
-                MasterList.AddRange(Cache.Values);
-            }
-            MasterList.Sort();  // Sorting with CompareTo()
+            SortMasterList(overwrite);
 
-            foreach (var sort in SortFunctions)
+            foreach (var sort in _sortFunctions)
             {
-                // generate or resort all lists
-                if (overwrite || !SortedLists.TryGetValue(sort.Key, out var originalOrder))
-                {
-                    var list = new List<T>(Cache.Values); // copy, sort, save
-                    list.Sort(sort.Value);
-                    SortedLists[sort.Key] = list;
-
-                    var listRev = new List<T>(list); // same for reverse
-                    listRev.Reverse();
-                    ReversedSortedLists[sort.Key] = listRev;
-                }
+                if (overwrite || !_sortedLists.TryGetValue(sort.Key, out var existingSortedListed))
+                    RepopulateLists(sort.Key, sort.Value);
                 else
-                {
-                    // manually check if already sorted - save on some swaps
-                    // C# List.Sort(Comparison<T> ...) method incurs overheads for sorting an already/almost
-                    // sorted list.  It will still perform swaps to check order.  (Need to verify 100%)
-                    // but checking the sorting manually could be a performance increase for longer lists...
-                    // This is a task manager though.... so how long are the lists going to get in reality...
-                    if (!originalOrder.IsSortedBy(sort.Value)) 
-                    {
-                        originalOrder.Sort(sort.Value);
-
-                        var reversedOrder = new List<T>(originalOrder);
-                        reversedOrder.Reverse();
-                        ReversedSortedLists[sort.Key] = reversedOrder;
-                    } 
-                    else
-                    {
-                        Debug.WriteLine("List already sorted as expected");
-                    }
-                }
+                    SortListsIfRequired(existingSortedListed, sort.Key, sort.Value);
             }
         }
+
+        /// <summary>
+        /// The Master list is separated as it suits one of the requirements of the assessment.
+        /// Will likely use it to possibly explore an elastic style search across all of the task data.
+        /// </summary>
+        /// <param name="overwrite"></param>
+        void SortMasterList(bool overwrite)
+        {
+            if (overwrite)
+            {
+                _masterList.Clear();
+                _masterList.AddRange(Cache.Values);
+            }
+            // Sorting with CompareTo()
+            _masterList.Sort();
+        }
+
+        /// <summary>
+        /// Creates new sorted lists and overwrites existing
+        /// </summary>
+        /// <param name="sortingName"></param>
+        /// <param name="comparison"></param>
+        void RepopulateLists(string sortingName, Comparison<T> comparison)
+        {
+            // forwards
+            var list = new List<T>(Cache.Values); // copy, sort, save
+            list.Sort(comparison);
+            _sortedLists[sortingName] = list;
+
+            // reverse
+            var listRev = new List<T>(list); // same for reverse
+            listRev.Reverse();
+            _reversedSortedLists[sortingName] = listRev;
+        }
+
+        /// <summary>
+        /// Sorts lists if required
+        /// </summary>
+        /// <param name="original"></param>
+        /// <param name="sortingName"></param>
+        /// <param name="comparison"></param>
+        void SortListsIfRequired(List<T> original, string sortingName, Comparison<T> comparison)
+        {
+            // manually check if already sorted - save on some swaps
+            // C# List.Sort(Comparison<T> ...) method incurs overheads for sorting an already/almost
+            // sorted list.  It will still perform swaps to check order.  (Need to verify 100%)
+            // but checking the sorting manually could be a performance increase for longer lists...
+            // This is a task manager though.... so how long are the lists going to get in reality...
+            if (!original.IsSortedBy(comparison))
+            {
+                original.Sort(comparison);
+
+                var reversedOrder = new List<T>(original);
+                reversedOrder.Reverse();
+                _reversedSortedLists[sortingName] = reversedOrder;
+            }
+            else
+            {
+                Debug.WriteLine("List already sorted as expected");
+            }
+        }
+
+        #region Dictionary methods
+        // Providing these methods so that this Cache can be easily substituted where a Dictionary is currently used
+        // If enough are implemented, might as well just implement IDictionary, IEnumerable, etc and override all
 
         /// <summary>
         /// Simulating a method from Dictionary class that was in use, since this class
@@ -153,22 +140,27 @@ namespace TaskManagerCore.Configuration
         public sealed override bool TryAdd(string id, T item)
         {
             var result = base.TryAdd(id, item);
-            ReSortAll(true);
+            if (result)
+                ReSortAll(true);
+
             return result;
         }
 
-        /// <summary>
-        /// Simulating a method from Dictionary class that was in use, since this class
-        /// has replaced a Dictionary in the DAO objects
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public sealed override bool Remove(string id)
-        {
-            var result = base.Remove(id);
-            ReSortAll(true);
-            return result;
-        }
+        ///// <summary>
+        ///// Simulating a method from Dictionary class that was in use, since this class
+        ///// has replaced a Dictionary in the DAO objects
+        ///// </summary>
+        ///// <param name="id"></param>
+        ///// <returns></returns>
+        //public sealed override bool Remove(string id)
+        //{
+        //    var result = base.Remove(id);
+        //    //if (result)
+        //    //    ReSortAll(true);  // no need to resort on remove?
+        //    return result;
+        //}
+
+        #endregion
 
         /// <summary>
         /// Flush changes to items
@@ -206,30 +198,28 @@ namespace TaskManagerCore.Configuration
         {
             if (reversed)
             {
-                if (!ReversedSortedLists.TryGetValue(sorting, out var reversedSortedList))
+                if (!_reversedSortedLists.TryGetValue(sorting, out var reversedSortedList))
                     throw new Exception($"Sorting not found in Reversed Lists: {sorting}");
 
                 return new List<T>(reversedSortedList);
             }
 
-            if (!SortedLists.TryGetValue(sorting, out var sortedList))
+            if (!_sortedLists.TryGetValue(sorting, out var sortedList))
                 throw new Exception($"Sorting not found in Forward Lists: {sorting}");
 
             return new List<T>(sortedList);
         }
 
         /// <summary>
-        /// Returns index
+        /// Pass on BinarySearch to master list
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
         public T BinarySearch(T item)
         {
-            var index = MasterList.BinarySearch(item);
-            return MasterList[index];
+            var index = _masterList.BinarySearch(item);
+            return _masterList[index];
         }
-
-
 
         ///// <summary>
         ///// Does this make sense to exist here?  Just for this method we need to have the requirement on the ISearchable interface...

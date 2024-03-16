@@ -19,6 +19,23 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             if (other == null) return 1;
 
             return string.Compare(Name, other.Name, StringComparison.OrdinalIgnoreCase);
+
+            // add sorting for task count
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="t1"></param>
+        /// <param name="t2"></param>
+        /// <returns></returns>
+        public static int CompareTasksByName(TaskFolderEntity t1, TaskFolderEntity t2)
+        {
+            return string.Compare(t1.Name, t2.Name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static int CompareTasksByTaskCount(TaskFolderEntity t1, TaskFolderEntity t2)
+        {
+            return t1.TaskIds.Count.CompareTo(t2.TaskIds.Count);
         }
 
         public override string ToString()
