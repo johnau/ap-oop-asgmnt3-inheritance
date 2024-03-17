@@ -1,6 +1,6 @@
 ﻿namespace TaskManagerCore.Configuration
 {
-    public static class ListExtensions
+    public static partial class ListExtensions
     {
         public static bool IsSortedBy<T>(this List<T> list, Comparison<T> comparison)
         {

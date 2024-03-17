@@ -2,6 +2,6 @@
 {
     internal interface ISearchable
     {
-        public string ToString_ValuesOnly();
+        public string ToValuesOnlyString();
     }
 }

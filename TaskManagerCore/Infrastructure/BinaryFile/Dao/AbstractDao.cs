@@ -16,10 +16,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         readonly BinaryFileReader<T> Reader;
         readonly BinaryFileWriter<T> Writer;
 
-        //readonly Dictionary<string, T> Cache;
-        //protected readonly SubscribeableCache<T> Cache; // leave the dictionary cache for now
-
-        //protected readonly SubscribeableListCache<T> Cache;
+        /*
+        readonly Dictionary<string, T> Cache;
+        protected readonly SubscribeableCache<T> Cache; // leave the dictionary cache for now
+        protected readonly SubscribeableListCache<T> Cache;
+        */
         protected readonly SortableSubscribeableCache<T> Cache;
 
         protected AbstractDao(BinaryFileReader<T> reader, BinaryFileWriter<T> writer)
@@ -35,7 +36,17 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             Cache.Subscribe(WriteUpdateData); // Subscribe to cache with BinaryFile Write method
         }
 
+        /// <summary>
+        /// Method that provides methods used for sorting by the Type specified in the concrete Class
+        /// </summary>
         protected abstract Dictionary<string, Comparison<T>> ComparisonMethods { get; }
+
+        /// <summary>
+        /// Save an item to Cache
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public abstract string Save(T entity);
 
         /// <summary>
         /// Write updated data
@@ -49,6 +60,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             await Writer.WriteValuesAsync();
         }
 
+        /// <summary>
+        /// Load data from file
+        /// </summary>
         void LoadData()
         {
             try
@@ -65,11 +79,20 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             }
         }
 
+        /// <summary>
+        /// Get all values from Cache
+        /// </summary>
+        /// <returns></returns>
         public List<T> FindAll()
         {
             return new List<T>(Cache.Values);
         }
 
+        /// <summary>
+        /// Find matches with given list of Ids
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
         public List<T> FindByIds(List<string> ids)
         {
             List<T> matching = new List<T>();
@@ -83,12 +106,23 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             return matching;
         }
 
+        /// <summary>
+        /// Find match with given Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual T? FindById(string id)
         {
             Cache.TryGetValue(id, out T? entity);
             return entity;
         }
 
+        /// <summary>
+        /// Delete an item from Cache
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public virtual bool Delete(T entity)
         {
             if (entity == null) throw new ArgumentNullException();
@@ -96,8 +130,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             return Delete(entity.Id);
         }
 
-        public abstract string Save(T entity);
-
+        /// <summary>
+        /// Delete an item from Cache
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual bool Delete(string id)
         {
             if (Cache.ContainsKey(id))
@@ -109,6 +146,5 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             Debug.WriteLine($"Can't remove {typeof(T).Name} with Id={id}. It does not exist");
             return false;
         }
-
     }
 }

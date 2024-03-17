@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Model;
@@ -46,35 +40,8 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             Streak = 2,
         };
 
-        void WriteFileForTests(string filename, int taskCount = 4)
-        {
-            var writer = new TaskDataFileWriter(filename);
-            if (taskCount >= 1) writer.AddObjectToWrite(ExampleTask1);
-            if (taskCount >= 2) writer.AddObjectToWrite(ExampleTask2);
-            if (taskCount >= 3) writer.AddObjectToWrite(ExampleTask3);
-            if (taskCount == 4) writer.AddObjectToWrite(ExampleTask4);
-            if (taskCount > 4) throw new Exception("Not enough tasks");
-            var filePath = writer.WriteValues();
-
-            Assert.True(File.Exists(filePath));
-            Debug.WriteLine($"File written to: {filePath}");
-        }
-
-        async Task WriteFileForTestsAsync(TaskDataFileWriter writer, int taskCount = 4)
-        {
-            if (taskCount >= 1) writer.AddObjectToWrite(ExampleTask1);
-            if (taskCount >= 2) writer.AddObjectToWrite(ExampleTask2);
-            if (taskCount >= 3) writer.AddObjectToWrite(ExampleTask3);
-            if (taskCount == 4) writer.AddObjectToWrite(ExampleTask4);
-            if (taskCount > 4) throw new Exception("Not enough tasks");
-            var filePath = await writer.WriteValuesAsync();
-
-            Assert.True(File.Exists(filePath));
-            Debug.WriteLine($"File written to: {filePath}");
-        }
-
         /// <summary>
-        ///  This method needs to be replaced since it curently relies on the result from the other test
+        /// 
         /// </summary>
         [Fact]
         public void ReadDataFile_2Tasks_ReadSuccess()
@@ -92,7 +59,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
         }
 
         /// <summary>
-        ///  This method needs to be replaced since it curently relies on the result from the other test
+        ///
         /// </summary>
         [Fact]
         public void ReadDataFile_4Tasks_ReadSuccess()
@@ -141,7 +108,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                     count++;
                 }
             });
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+            #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         }
 
         /// <summary>
@@ -168,24 +135,49 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             });
 
             var count = 0;
-            //while (count != expecetdTasks)
-            //{
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        var content = await reader.ReadValuesAsync();
-                        DebugPrintContent(content);
-                        //count = content.Count;
-                        Interlocked.Exchange(ref count, content.Count);
-                    } catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Exception thrown during file read: {ex.Message}");
-                    }
 
-                });
-            //}
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var content = await reader.ReadValuesAsync();
+                    DebugPrintContent(content);
+                    //count = content.Count;
+                    Interlocked.Exchange(ref count, content.Count);
+                } catch (Exception ex)
+                {
+                    Debug.WriteLine($"Exception thrown during file read: {ex.Message}");
+                }
+
+            });
             Debug.WriteLine("Completed, results as expected");
+        }
+
+        void WriteFileForTests(string filename, int taskCount = 4)
+        {
+            var writer = new TaskDataFileWriter(filename);
+            if (taskCount >= 1) writer.AddObjectToWrite(ExampleTask1);
+            if (taskCount >= 2) writer.AddObjectToWrite(ExampleTask2);
+            if (taskCount >= 3) writer.AddObjectToWrite(ExampleTask3);
+            if (taskCount == 4) writer.AddObjectToWrite(ExampleTask4);
+            if (taskCount > 4) throw new Exception("Not enough tasks");
+            var filePath = writer.WriteValues();
+
+            Assert.True(File.Exists(filePath));
+            Debug.WriteLine($"File written to: {filePath}");
+        }
+
+        async Task WriteFileForTestsAsync(TaskDataFileWriter writer, int taskCount = 4)
+        {
+            if (taskCount >= 1) writer.AddObjectToWrite(ExampleTask1);
+            if (taskCount >= 2) writer.AddObjectToWrite(ExampleTask2);
+            if (taskCount >= 3) writer.AddObjectToWrite(ExampleTask3);
+            if (taskCount == 4) writer.AddObjectToWrite(ExampleTask4);
+            if (taskCount > 4) throw new Exception("Not enough tasks");
+            var filePath = await writer.WriteValuesAsync();
+
+            Assert.True(File.Exists(filePath));
+            Debug.WriteLine($"File written to: {filePath}");
         }
 
         static void DebugPrintContent(List<TaskDataEntity> content)

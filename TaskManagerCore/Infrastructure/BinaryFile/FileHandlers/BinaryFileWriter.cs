@@ -17,18 +17,35 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             WritePendingList = new List<T>();
         }
 
+        /// <summary>
+        /// Populate the Write list
+        /// </summary>
+        /// <param name="items"></param>
         public void AddObjectsToWrite(List<T> items)
         {
             WritePendingList.AddRange(items);
         }
 
+        /// <summary>
+        /// Populate the Write list
+        /// </summary>
+        /// <param name="item"></param>
         public void AddObjectToWrite(T item)
         {
             WritePendingList.Add(item);
         }
 
+        /// <summary>
+        /// Abstract method for Concrete implementation of type T for specific write implementation per type
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="item"></param>
         protected abstract void WriteObject(BinaryWriter writer, T item);
 
+        /// <summary>
+        /// Abstract method for Concrete implementation of type T for specific write implementation per type
+        /// </summary>
+        /// <param name="writer"></param>
         protected abstract void WriteTerminatorObject(BinaryWriter writer);
 
         /// <summary>
@@ -36,10 +53,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         /// </summary>
         public string WriteValues()
         {
-            var filePath = GenerateFilePath();
             //Debug.WriteLine($"Filepath={filePath}");
 
-            using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+            using (var stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite, bufferSize: 4096, useAsync: true))
             //using (var stream = File.Open(filePath, FileMode.OpenOrCreate))
             using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
             {
@@ -53,9 +69,13 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             Debug.WriteLine($"Wrote {WritePendingList.Count} items");
             WritePendingList.Clear();
 
-            return filePath;
+            return FilePath;
         }
 
+        /// <summary>
+        /// Async wrapper using Semaphore to prevent concurrent access
+        /// </summary>
+        /// <returns></returns>
         public async Task<string> WriteValuesAsync()
         {
             await accessSemaphore.WaitAsync();

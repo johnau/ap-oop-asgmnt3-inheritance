@@ -1,26 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile.Dao;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
+using TH = TaskManagerCore.XunitTests.TestHelpers.TestHelperFunctions;
 
 namespace TaskManagerCore.XunitTests
 {
     /// <summary>
-    /// TODO....
+    /// Test Task Binary File DAO methods (Writes temp files)
+    /// 
+    /// Tests the Sort and Search requirements for Assessment 5
     /// </summary>
     public class TaskDataDaoTests
     {
+        private const int _testIterations = 20;
+
         [Fact]
         public void Save_WithValidEntity_WillReturnExpected()
         {
-            var filename = "test-file-tasks";
-            var testReader = new TaskDataFileReader(filename);
-            var testWriter = new TaskDataFileWriter(filename);
-            var dao = new TaskDataDao(testReader, testWriter);
+            (var filename, var dao) = SetupTaskDataDao("test-tasks-notes");
 
+            // Create dummy entity, save, and verify
             var entity = new TaskDataEntity() 
             {
                 Description = "Test Task 1",
@@ -30,43 +30,39 @@ namespace TaskManagerCore.XunitTests
             };
 
             var id = dao.Save(entity);
-            Assert.NotEqual(string.Empty, id);
 
-            File.Delete(filename);
+            Assert.NotEqual(string.Empty, id);
+            Assert.Equal(entity.Id, id);
+
+            TH.CleanupAfterTest(filename);
         }
 
         [Fact]
-        public void FindByDueDate_WithValidDate_WillMatchMultiple()
+        public void FindByDueDate_RandomizedTest_WillMatchMultiple()
         {
-            var test = () =>
+            TH.RunTestMultipleTimes(() =>
             {
-                var filename = "test-file-tasks_" + DateTime.Now.Ticks;
-                var testReader = new TaskDataFileReader(filename);
-                var testWriter = new TaskDataFileWriter(filename);
-                var dao = new TaskDataDao(testReader, testWriter);
-
-                var now = DateTime.Now;
-                var daysAndQuantities = PopulateRandomTasksAndReturnQuantityOnEachDay(dao, 20);
+                (var filename, var dao) = SetupTaskDataDao("test-tasks-notes1");
+                var daysAndQuantities = PopulateRandomTestTasks(dao, 20).DaysToTaskCounts;
 
                 foreach (var day in daysAndQuantities)
                 {
                     var dayIndex = day.Key;
                     var expectedTaskQty = day.Value;
+
                     Debug.WriteLine($"Expecting {expectedTaskQty} tasks on the {dayIndex} day");
-                    var dateMod = now.AddDays(dayIndex);
+                    
+                    var dateMod = DateTime.Now.AddDays(dayIndex);
                     var foundTasks = dao.FindByDueDate(dateMod);
+                    
                     Debug.WriteLine($"Expecting {expectedTaskQty} {(expectedTaskQty != foundTasks.Count ? "But" : "And")} got {foundTasks.Count}");
+                    
                     Assert.Equal(expectedTaskQty, foundTasks.Count);
                 }
 
-                File.Delete(filename);
-            };
+                TH.CleanupAfterTest(filename);
 
-            for (int i = 0; i < 20; i++)
-            {
-                Debug.WriteLine($"Test iteration: {i}");
-                test();
-            }
+            }, _testIterations);
         }
 
         [Theory]
@@ -76,17 +72,14 @@ namespace TaskManagerCore.XunitTests
         [InlineData("this is a test task", 2)]
         public void FindByDescription_WithDescriptionFragment_WillMatchMultiple(string description, int count)
         {
-            var filename = "test-file-tasks_2_" + DateTime.Now.Ticks;
-            var testReader = new TaskDataFileReader(filename);
-            var testWriter = new TaskDataFileWriter(filename);
-            var dao = new TaskDataDao(testReader, testWriter);
+            (var filename, var dao) = SetupTaskDataDao("test-tasks-notes2");
 
             PopulateTestTasks(dao);
 
             var results = dao.FindByDescription(description);
             Assert.Equal(count, results.Count);
 
-            File.Delete(filename);
+            TH.CleanupAfterTest(filename);
         }
 
         [Theory]
@@ -96,64 +89,170 @@ namespace TaskManagerCore.XunitTests
         [InlineData("A task", 1)]
         public void FindByNotes_WithNotesFragment_WillMatchMultiple(string notes, int count)
         {
-            var filename = "test-file-tasks_3_" + DateTime.Now.Ticks;
-            var testReader = new TaskDataFileReader(filename);
-            var testWriter = new TaskDataFileWriter(filename);
-            var dao = new TaskDataDao(testReader, testWriter);
-
+            (var filename, var dao) = SetupTaskDataDao("test-tasks-notes3");
             PopulateTestTasks(dao);
 
             var results = dao.FindByNotes(notes);
             Assert.Equal(count, results.Count);
 
-            File.Delete(filename);
+            TH.CleanupAfterTest(filename);
         }
 
-        Dictionary<int, int> PopulateRandomTasksAndReturnQuantityOnEachDay(TaskDataDao dao, int sizeFactor = 10)
+        [Fact]
+        public void FindByDescription_WithRandomizedValues_WillMatchMultiple()
         {
-            var dict = new Dictionary<int, int>();
+            TH.RunTestMultipleTimes(() =>
+            {
+                (var filename, var dao) = SetupTaskDataDao("test-tasks-notes4");
+                var idsToDescriptions = PopulateRandomTestTasks(dao, 20).IdsToDescriptions;
 
-            var today = DateTime.Now;
-            var maxDays = 6;
+                (string descriptionFragment, int count) = TH.MostCommonStartingWords(idsToDescriptions.Values.ToList(), 1);
+
+                var results = dao.FindByDescription(descriptionFragment);
+                Assert.Equal(count, results.Count);
+
+                TH.CleanupAfterTest(filename);
+
+            }, _testIterations);
+        }
+
+        [Fact]
+        public void FindByNotes_WithRandomizedValues_WillMatchMultiple()
+        {
+            TH.RunTestMultipleTimes(() =>
+            {
+                (var filename, var dao) = SetupTaskDataDao("test-tasks-notes4");
+                var idsToNotes = PopulateRandomTestTasks(dao, 20).IdsToNotes;
+
+                (string noteFragment, int count) = TH.MostCommonStartingWords(idsToNotes.Values.ToList(), 2);
+
+                var results = dao.FindByNotes(noteFragment);
+                Assert.Equal(count, results.Count);
+
+                TH.CleanupAfterTest(filename);
             
-            for (int i = 0; i <= maxDays; i++)
+            }, _testIterations);
+        }
+
+        [Fact]
+        public void FindByCompleted_RandomizedTest_WillSucceed()
+        {
+            static void TestMethod(bool b)
             {
-                dict.Add(i, 0);
+                (var filename, var dao) = SetupTaskDataDao("test-tasks-notes5");
+                var completedTaskCounts = PopulateRandomTestTasks(dao, 20).CompletedToTaskCounts;
+
+                var results = dao.FindByCompleted(b);
+                Assert.Equal(completedTaskCounts[b], results.Count);
+
+                TH.CleanupAfterTest(filename);
             }
 
-            var random = new Random();
-            for (int i = 1; i <= sizeFactor; i++)
-            {
-                int dayIndex = random.Next(0, maxDays+1);
-                Debug.WriteLine($"Day Index: {dayIndex}");
-                var date = today.AddDays(dayIndex);
+            TH.RunTestMultipleTimes(() => TestMethod(true), _testIterations);
+            TH.RunTestMultipleTimes(() => TestMethod(false), _testIterations);
+        }
 
-                var entity = new TaskDataEntity()
-                {
-                    Description = $"Test Task ({Guid.NewGuid()})",
-                    Notes = RandomString(),
-                    Completed = RandomBool(),
-                    DueDate = date,                 
-                };
-                dao.Save(entity);
+        #region static test helpers
+        /// <summary>
+        /// Build testing class
+        /// </summary>
+        /// <param name="testName"></param>
+        /// <returns></returns>
+        static (string filename, TaskDataDao dao) SetupTaskDataDao(string testName)
+        {
+            var filename = testName + "_" + DateTime.Now.Ticks;
+            var testReader = new TaskDataFileReader(filename);
+            var testWriter = new TaskDataFileWriter(filename);
+            var dao = new TaskDataDao(testReader, testWriter);
+            return (filename, dao);
+        }
 
-                dict[dayIndex]++;
-                Debug.WriteLine($"Now have {dict[dayIndex]} tasks on day {dayIndex}");
-            }
-            Debug.WriteLine($"Created {dict.Values.Sum()} tasks");
-            foreach ( var t in dict )
-            {
-                Debug.WriteLine($"On day: {t.Key} there are {t.Value} tasks");
-            }
-            return dict;
+        struct PopulatedResults
+        {
+            public Dictionary<int, int> DaysToTaskCounts { get; set; }
+            public Dictionary<bool, int> CompletedToTaskCounts { get; set; }
+            public Dictionary<string, string> IdsToNotes { get; set; }
+            public Dictionary<string, string> IdsToDescriptions { get; set; }
         }
 
         /// <summary>
-        /// Changing this method may break some tests, as some theories rely on 
-        /// this test data containing certain numbers of certain values.
+        /// Create some randomized objects in the database
         /// </summary>
         /// <param name="dao"></param>
-        void PopulateTestTasks(TaskDataDao dao)
+        /// <param name="sizeFactor"></param>
+        /// <returns></returns>
+        static PopulatedResults PopulateRandomTestTasks(TaskDataDao dao, int sizeFactor = 10)
+        {
+            // Result collections
+            var daysTaskCounts = new Dictionary<int, int>();
+            var completedTaskCounts = new Dictionary<bool, int>();
+            var idsToNotes = new Dictionary<string, string>();
+            var idsToDescriptions = new Dictionary<string, string>();
+
+            var today = DateTime.Now;
+            var dayWithNoTasks = 2;
+            var maxDays = 10; // Max days must not be less than dayWithNoTasks
+
+            // Initialize results
+            for (int i = 0; i < maxDays; i++) 
+                daysTaskCounts.Add(i, 0); // Prefill daysTaskCounts with 0's
+
+            completedTaskCounts.Add(true, 0);
+            completedTaskCounts.Add(false, 0);
+            
+            // Create some random Task Entities
+            var random = new Random();
+            for (int i = 1; i <= sizeFactor; i++)
+            {
+                // For random Due Date
+                int dayIndex = random.Next(0, maxDays);
+                if (dayIndex == dayWithNoTasks) dayIndex = 0; // making sure there is a missing day
+
+                // Randomized values for Task properties
+                var description = TH.RandomStringOfWords(2, 5) + $"_{Guid.NewGuid()}";
+                var date = today.AddDays(dayIndex);
+                var completed = TH.RandomBool();
+                var notes = TH.RandomStringOfWords(5, 20);
+                // Create test entity
+                var entity = new TaskDataEntity()
+                {
+                    Description = description,
+                    Notes = notes,
+                    Completed = completed,
+                    DueDate = date,                 
+                };
+                // Store with DAO
+                var id = dao.Save(entity);
+
+                // Store locally for tests
+                daysTaskCounts[dayIndex]++;
+                completedTaskCounts[completed]++;
+                idsToNotes.Add(id, notes);
+                idsToDescriptions.Add(id, description);
+
+                Debug.WriteLine($"Now have {daysTaskCounts[dayIndex]} tasks on day {dayIndex}");
+            }
+
+            // Debug out
+            Debug.WriteLine($"Created {daysTaskCounts.Values.Sum()} tasks");
+            foreach ( var t in daysTaskCounts )
+                Debug.WriteLine($"On day: {t.Key} there are {t.Value} tasks");
+
+            // Populate result object
+            return new PopulatedResults
+            {
+                DaysToTaskCounts = daysTaskCounts,
+                CompletedToTaskCounts = completedTaskCounts,
+                IdsToNotes = idsToNotes,
+                IdsToDescriptions = idsToDescriptions
+            };
+        }
+
+        /// <summary>
+        /// This method has now been replaced by the PopulateRandomTestTasks method
+        /// </summary>
+        /// <param name="dao"></param>
+        static void PopulateTestTasks(TaskDataDao dao)
         {
             var today = DateTime.Now;
             var twoDaysTime = today.AddDays(2);
@@ -231,26 +330,6 @@ namespace TaskManagerCore.XunitTests
             };
             dao.Save(entity7);
         }
-
-        static string RandomString()
-        {
-            Random random = new Random();
-            string characters = "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";
-            int length = random.Next(10, 30); // Desired length of the random string
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < length; i++)
-            {
-                int index = random.Next(characters.Length);
-                sb.Append(characters[index]);
-            }
-
-            return sb.ToString();
-        }
-
-        static bool RandomBool()
-        {
-            Random random = new Random();
-            return random.Next(2) == 0;
-        }
+        #endregion
     }
 }

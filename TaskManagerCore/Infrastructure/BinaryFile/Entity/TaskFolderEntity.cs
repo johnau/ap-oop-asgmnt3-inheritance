@@ -23,29 +23,37 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             // add sorting for task count
         }
 
+        #region Static Compare Methods
         /// <summary>
         /// </summary>
         /// <param name="t1"></param>
         /// <param name="t2"></param>
         /// <returns></returns>
-        public static int CompareTasksByName(TaskFolderEntity t1, TaskFolderEntity t2)
+        public static int CompareFoldersByName(TaskFolderEntity t1, TaskFolderEntity t2)
         {
-            return string.Compare(t1.Name, t2.Name, StringComparison.OrdinalIgnoreCase);
+            return string.Compare(t1.Name.ToLower(), t2.Name.ToLower());
         }
 
-        public static int CompareTasksByTaskCount(TaskFolderEntity t1, TaskFolderEntity t2)
+        public static int CompareFoldersByTaskCount(TaskFolderEntity t1, TaskFolderEntity t2)
         {
             return t1.TaskIds.Count.CompareTo(t2.TaskIds.Count);
         }
+        #endregion
+
+
+
+        public string ToValuesOnlyString()
+        {
+            return Name;
+        }
+
+        #region Static Helper Methods
+        public static TaskFolderEntity BLANK => new TaskFolderEntity();
+        #endregion
 
         public override string ToString()
         {
-            return $"TaskFolderEntity: [Name={Name}]";
-        }
-
-        public string ToString_ValuesOnly()
-        {
-            return Name;
+            return $"TaskFolderEntity: [ID={Id}, Name={Name}, Tasks Count={TaskIds.Count}]";
         }
     }
 }

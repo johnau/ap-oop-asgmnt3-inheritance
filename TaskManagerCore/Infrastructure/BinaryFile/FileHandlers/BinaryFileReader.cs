@@ -5,22 +5,25 @@ using System.Text;
 namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 {
     /// <summary>
-    /// Is it better to keep the files open over the session of the app, and share with FileStream?
-    /// Or is it better to just handle the conflicts...
-    /// What happens when the app crashes with the open filestream?
-    /// Can we corrupt the file or something? Does that make it better to keep opening and closing the file.
+    /// TODO: Make backup of file before writing incase write is interrupted for some reason
+    /// Test read file after write (and during application load and other rquired times), and 
+    /// restore backup if required
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal abstract class BinaryFileReader<T> : BinaryFileAccessor
     {
         protected List<T> ReadList;
-        public List<T> Data => new List<T>(ReadList);
 
         protected BinaryFileReader(string filename = "data", string? rootPath = null)
             : base(filename, rootPath)
         {
             ReadList = new List<T>();
         }
+
+        /// <summary>
+        /// Get a copy of last read data
+        /// </summary>
+        public List<T> Data => new List<T>(ReadList);
 
         /// <summary>
         /// Should return false when the Terminator entity is reached.
@@ -43,46 +46,73 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         /// <exception cref="Exception"></exception>
         public List<T> ReadValues()
         {
-            var filePath = GenerateFilePath();
-            if (!FileExists(filePath))
-                throw new Exception($"An expected file was not found: {filePath}");
+            if (!FileExists(FilePath))
+                throw new Exception($"An expected file was not found: {FilePath}");
 
-            // Retry a few times incase the file is still being written.  100 tries at 100ms = 10000ms = 10s, already too long...
+            // Retry if file is in use, abort on other errors
             var retryAttempts = 100;
-            while (retryAttempts > 0)
+            List<T> fileData;
+            while (!TryReadFile(out fileData, out var abort) && retryAttempts > 0)
             {
-                try
-                {
-                    //using (var stream = File.Open(filePath, FileMode.Open))
-                    //using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize: 4096, useAsync: true))
-                    using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None, bufferSize: 4096, useAsync: true))
-                    using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-                    {
-                        while (HasNext(reader))
-                        {
-                            var entity = ReadData(reader);
-                            ReadList.Add(entity);
-                        }
-                    }
-                    retryAttempts = 0;
-                    return new List<T>(ReadList);
-                }
-                catch (IOException ex) when (IsFileInUse(ex)) // if file is in use we will retry
-                {
-                    retryAttempts--;
-                    Debug.WriteLine("File is in use, waiting 100ms and retrying...");
-                    Thread.Sleep(100);
-                }
-                catch (Exception ex) // catch all other exceptions and fail
-                {
-                    Debug.WriteLine($"An exception was thrown: {ex.Message} whil trying to read the file {filePath}");
-                    throw;
-                }
+                if (abort) break;
+                Thread.Sleep(30);
+                retryAttempts--;
             }
 
-            throw new Exception($"Unable to read from file: {filePath}");
+            if (fileData == null)
+            {
+                throw new Exception($"Unable to read from file: {FilePath}");
+            }
+
+            return fileData;
         }
 
+        /// <summary>
+        /// Try Read file data, returns true on success, and returns a list of objects
+        /// If failed, the abort bool is true if file access was denied for reasons other than
+        /// file in use (ie. does not exist, or permissions)
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="data"></param>
+        /// <param name="abort"></param>
+        /// <returns></returns>
+        bool TryReadFile(out List<T> data, out bool abort)
+        {
+            data = new List<T>();
+            abort = false;
+            try
+            {
+                //using (var stream = File.Open(filePath, FileMode.Open))
+                //using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize: 4096, useAsync: true))
+                using (var stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None, bufferSize: 4096, useAsync: true))
+                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
+                {
+                    while (HasNext(reader))
+                    {
+                        var entity = ReadData(reader);
+                        ReadList.Add(entity);
+                    }
+                }
+                data.AddRange(ReadList);
+                return true;
+            }
+            catch (IOException ex) when (IsFileInUse(ex)) // if file is in use we will retry
+            {
+                Debug.WriteLine("File is in use...");
+                return false;
+            }
+            catch (Exception ex) // catch all other exceptions and fail
+            {
+                Debug.WriteLine($"An exception was thrown: {ex.Message} whil trying to read the file {FilePath}");
+                abort = true;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Async wrapper to read values
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<T>> ReadValuesAsync()
         {
             Debug.WriteLine($"[{DateTime.Now.Ticks}] Wait for semaphore...");
@@ -97,7 +127,5 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
                 accessSemaphore.Release();
             }
         }
-
-
     }
 }

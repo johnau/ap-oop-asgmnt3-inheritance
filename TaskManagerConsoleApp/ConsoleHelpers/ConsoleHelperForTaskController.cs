@@ -78,7 +78,6 @@ namespace TaskManagerConsoleApp.ConsoleHelpers
 
             foreach (var line in asciiArt)
             {
-                var i = 0;
                 foreach (char c in line)
                 {
                     Console.Write(c);

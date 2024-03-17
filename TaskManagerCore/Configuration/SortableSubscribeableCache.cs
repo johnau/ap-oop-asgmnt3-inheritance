@@ -2,7 +2,7 @@
 namespace TaskManagerCore.Configuration
 {
     /// <summary>
-    /// Can be used
+    /// Dictionary with Subscriptions and Sorting
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class SortableSubscribeableCache<T> : SubscribeableCache<T> 

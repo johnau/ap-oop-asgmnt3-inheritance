@@ -3,40 +3,54 @@
 namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 {
     /// <summary>
-    /// Could move the filestream to here, this handles the file throughout the duration of the app lifecycle
-    /// Could also accept a dict of types and values which could be used to ensure that every write and read match.
-    /// -- Is that level of flexibility ever required though? If you are writing and reading a binary file from the same program,
-    /// -- once you have it working you will not change it often.
-    /// -- Instead of making a class that extends BinaryFileWriter<T> and Reader<T>, would it be better to make them accept generic data in a dict...
+    /// Base class to control access for Binary File assignment
     /// </summary>
     internal abstract class BinaryFileAccessor
     {
         protected const string Delimiter = ";;";
-        protected const string _extension = ".bin";
+        protected const string Extension = ".bin";
         protected readonly string _filenameBase;
         protected readonly string _rootPath;
 
-        // Testing out Semaphores, however this lock does not prevent concurrent access to the file...
-        // It does slow things down a little though, but the overhead of the lock is probably not worth it.
+        /// <summary>
+        /// Access semaphore to prevent concurrent access through the BinaryFileAccessor from implementations
+        /// </summary>
         protected SemaphoreSlim accessSemaphore = new SemaphoreSlim(1, 1);
 
         protected BinaryFileAccessor(string filename = "data", string? rootPath = null)
         {
-            if (rootPath == null) _rootPath = Path.GetTempPath();
-            else _rootPath = rootPath;
+            //if (rootPath == null) _rootPath = Path.GetTempPath();
+            if (rootPath == null)
+            {
+                _rootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data_files");
+                if (!Directory.Exists(_rootPath)) 
+                    Directory.CreateDirectory(_rootPath);
+
+                Debug.WriteLine($"Root Path: {_rootPath}");
+            }
+            else
+            {
+                _rootPath = rootPath;
+            } 
 
             _filenameBase = filename;
         }
 
-        protected string GenerateFilePath()
+        /// <summary>
+        /// Generate file path
+        /// </summary>
+        /// <returns></returns>
+        protected string FilePath
         {
-            // handle using a new file after current file exceeds certain size
-            var filename = _filenameBase + _extension;
-            return Path.Combine(_rootPath, filename);
+            get
+            {
+                var filename = _filenameBase + Extension;
+                return Path.Combine(_rootPath, filename);
+            }
         }
 
         /// <summary>
-        /// Multiple attempts check for file
+        /// Multiple attempts check for file in-case it is just being created
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
@@ -52,6 +66,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 
             return false;
         }
+
+        /// <summary>
+        /// Convenience method for FileInUse exception
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <returns></returns>
         protected static bool IsFileInUse(IOException ex)
         {
             // Check if the specific IOException indicates that the file is in use

@@ -33,7 +33,14 @@ namespace TaskManagerCore.XunitTests.TestHelpers
 
         public string Save(TaskData o)
         {
-            return OnSave != null ? OnSave(o) : throw new NotImplementedException("Did not provide a function for testing");
+            if (OnSave == null)
+                throw new NotImplementedException("Did not provide a function for testing");
+
+            var response = OnSave(o);
+            if (response == null)
+                return "";
+
+            return response;
         }
     }
 }

@@ -12,6 +12,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             : base(reader, writer)
         { }
 
+        /// <summary>
+        /// Sorting functions
+        /// </summary>
         protected override Dictionary<string, Comparison<TaskDataEntity>> ComparisonMethods => 
             new Dictionary<string, Comparison<TaskDataEntity>>() 
             {
@@ -86,219 +89,120 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         }
 
         /// <summary>
-        /// Assessed Task 5 Method
-        /// Conducting a binary search for item by due date
+        /// !BinarySearch method to suit requirements of assignment
         /// 
         /// BinarySearch returns a zero-based index of the item matched
         /// OR
         /// A bitwise NOT ~ compliment of the index of the NEXT element that is larger than the item
         /// OR
-        /// If there is no larger element, a bitwise complement ~ of Count.
+        /// If there is no larger element, a bitwise complement (~) of collection.Count.
         /// ~
         /// Note to self: ^ Bitwise Not operator, index is flipped to negative number - 1.
         /// ie. value of 2 00000010 is flipped to 11111101 which is -3 (since 00000000 is 0, and 11111111 is -1, etc)
-        /// Which as a list index, counts backwards from end, however we adjust for the loop, or is there a fancy way to 
-        /// do that in the loop...
+        /// As a list index, a negative number counts back from the end, and the shift of -1 accounts for 0 index
         /// 
         /// </summary>
         /// <param name="dueDate"></param>
-        /// <returns></returns>
+        /// <returns>List of matched TaskDataEntity classes</returns>
         public List<TaskDataEntity> FindByDueDate(DateTime dueDate)
         {
+            // Ascending sort, oldest dates at the beginning
             var sortedList = Cache.SortedBy(Sort.DUE_DATE + "");
-
-            // is this better here, or inside the cache object (Searchable cache implementation)
             var criteriaStart = new TaskDataEntity() { DueDate = dueDate.Date };
+
+            // Match the first date
             var firstMatch = sortedList.BinarySearch(criteriaStart, new TaskDueComparer());
-            if (firstMatch < 0) // handle inexact matches
+            if (firstMatch < 0) // Handle inexact matches
             {
+                // Bitwise Not, inexact matches are 
                 firstMatch = ~firstMatch;
-                if (firstMatch == sortedList.Count)
-                {
-                    Debug.WriteLine($"DateSearch[Lower]: No match, and none in the list are larger");
+                // No matches found, nothing larger in list
+                if (firstMatch == sortedList.Count) 
                     return new List<TaskDataEntity>();
-                }
-                else
-                {
-                    Debug.WriteLine($"DateSearch[Lower]: No exact match, closest larger element is at {firstMatch}");
-                }
             }
 
-            // Match the following day date (and then use the previous list index)
+            // Match the following day date
             var remaining = sortedList.Count - firstMatch;
             var criteriaEnd = new TaskDataEntity() { DueDate = dueDate.AddDays(1).Date };
+
+            // Search from firstMatch for next day date to find end of current day dates
             var matchNextDay = sortedList.BinarySearch(firstMatch, remaining, criteriaEnd, new TaskDueComparer());
-            if (matchNextDay < 0) // handle inexact matches
-            {
-                matchNextDay = ~matchNextDay;
-                if (matchNextDay == sortedList.Count)
-                    Debug.WriteLine($"DateSearch[Upper]: No match, and none in the list are larger");
-                else
-                    Debug.WriteLine($"DateSearch[Upper]: No exact match, closest larger element is at {firstMatch}");
-            }
-
-            // to implement this on the reverse list, we search backwards, flip if required, and subtract from list.Count?
-
-            return SelectFromList(sortedList, firstMatch, matchNextDay - 1);
+            // Bitwise Not if we have negative index, since it will be index of next larger
+            if (matchNextDay < 0) matchNextDay = ~matchNextDay; // next largest as boundary
+            
+            // Return the items from firstMatch to item before next days items
+            return sortedList.GetRange(firstMatch, matchNextDay - firstMatch);
         }
 
         /// <summary>
-        /// When using a custom comparison, and when forcing a matched return of 0, the BinarySearch
-        /// method starts to behave not as nicely.  The index matched is essentially random within the
-        /// range of matches.
-        /// ie. in the following list
-        /// 0: Alpha
-        /// 1: Bravo 1
-        /// 2: Bravo 2
-        /// 3: Bravo 3
-        /// 4: Charlie
-        /// 5: Delta 1
-        /// 6: Delta 2
-        /// If we want to match "Bravo", we may get index 1, 2, or 3 as the result. Meaning we must
-        /// look either direction from the match to get the range of matches. (Providing it is still
-        /// matching within a logic in-line with the sort algo)
+        /// Find Tasks with description that equals or starts with provided description string
         /// </summary>
         /// <param name="description"></param>
-        /// <returns></returns>
+        /// <returns>List of matched TaskDataEntity classes</returns>
         public List<TaskDataEntity> FindByDescription(string description)
         {
+            // Ascending sort, A-Z, 0-9
             var sortedList = Cache.SortedBy(Sort.DESCRIPTION + "");
-            //(var sortedList, var revSortedList) = SortedData(Sort.DESCRIPTION);
-            // could use the reversed list if description starts after M
             var criteria = new TaskDataEntity() { Description = description };
-            return sortedList.BinarySearchFindAll(criteria, new TaskDescriptionComparer_StartsWith());
-
-            //// Adding a buffer because otherwise doesnt match the first entry...
-            //// This is inefficient though, an insert is undeseriable, shifting every element [O(n)]
-            //// This being needed and the difference between Notes and Description means I'm missing something.
-            //sortedList.Insert(0, new TaskDataEntity(""));
-
-            //var criteria = new TaskDataEntity() { Description = description };
-            //var matches = new List<TaskDataEntity>();
             
-            //var firstMatch = sortedList.BinarySearch(criteria, new TaskDescriptionStartsWithComparer());
-            //if (firstMatch < 0)
-            //{
-            //    return matches; // no matches
-            //}
-                
-            //matches.Add(sortedList[firstMatch]);
-
-            ////var remaining = sortedList.Count - firstMatch;
-            ////var firstNonMatch = sortedList.BinarySearch(Math.Min(firstMatch+1, sortedList.Count-1), remaining, criteria, new TaskDescriptionBeginsWithComparer(false));
-            ////var lastMatch = firstNonMatch - 1;
-
-            ////return SelectFromList(sortedList, firstMatch, lastMatch);
-
-            //int current = firstMatch;
-            //while (current >= firstMatch && current+1 < sortedList.Count)
-            //{
-            //    current = sortedList.BinarySearch(++current, 1, criteria, new TaskDescriptionStartsWithComparer()); // can probably be made more efficient
-            //    if (current >= 0)
-            //        matches.Add(sortedList[current]);
-            //}
-            ////Change the comparer so that we can also search for when the description doesnt match
-
-            //return matches;
+            // Use Extension method to get range with irregular comparer
+            return sortedList.BinarySearchMultiple(criteria, new TaskDescriptionComparer_StartsWith());
         }
 
+        /// <summary>
+        /// Find all tasks with Notes that Start With the search string
+        /// </summary>
+        /// <param name="notes"></param>
+        /// <returns>List of matched TaskDataEntity classes</returns>
         public List<TaskDataEntity> FindByNotes(string notes)
         {
+            // Ascending sort, A-Z, 0-9
             var sortedList = Cache.SortedBy(Sort.NOTES + "");
-            //(var sortedList, var revSortedList) = SortedData(Sort.NOTES);
-
             var criteria = new TaskDataEntity() { Notes = notes };
-            return sortedList.BinarySearchFindAll(criteria, new TaskNotesComparer_StartsWith());
-            //var matches = new List<TaskDataEntity>();
 
-            //// Why does the BinarySearch return the last element with the below search.
-            //// Above, Description is search in the same way but the first element is found
-            //// Both Description and Notes are effectively the same, both strings with no constraints
-            //// Both are sorted the same way (string.Compare(IgnoreCase)), handle same way, etc
-            //// Both comparers are set up in the same way
-            //// Description matches the start of the range, and the method moves forwards, as expected
-            //// Notes matches the end of the range, and the method must move backwards, Why is this?
-            //// Can confirm both sortedLists appear as expected.
-            //var lastMatchIndex = sortedList.BinarySearch(criteria, new TaskNotesStartsWithComparer());
-            //if (lastMatchIndex < 0) // no matches, exit
-            //{
-            //    return new List<TaskDataEntity>();
-            //}
-            //matches.Add(sortedList[lastMatchIndex]);
-
-            //int current = lastMatchIndex;
-            //while (current <= lastMatchIndex && current-1 >= 0)
-            //{
-            //    current = sortedList.BinarySearch(--current, 1, criteria, new TaskNotesStartsWithComparer());
-
-            //    // No more matches
-            //    if (current < 0) break; 
-
-            //    matches.Add(sortedList[current]);
-            //}
-
-            //return matches;
+            // Use Extension method to get range with irregular comparer
+            return sortedList.BinarySearchMultiple(criteria, new TaskNotesComparer_StartsWith());
         }
 
+        /// <summary>
+        /// Finds all tasks, either complete or not complete
+        /// </summary>
+        /// <param name="completed"></param>
+        /// <returns>List of matched TaskDataEntity classes</returns>
         public List<TaskDataEntity> FindByCompleted(bool completed)
         {
-            var sortedList = Cache.SortedBy(Sort.COMPLETED + "");
-            //(var sortedList, var revList) = SortedData(Sort.COMPLETED);
-            //var matches = new List< TaskDataEntity>();
+            /* 
+             // This will effectively check every single matching element... and for bool that means too many checks
+             var sortedList = Cache.SortedBy(Sort.COMPLETED+"", !completed);
+             var criteria = new TaskDataEntity() { Completed = completed };
+             return sortedList.BinarySearchMultiple(criteria, new TaskCompletedComparer(completed));
+            */
+
+            // Ascending (false -> true) or Descending sort (true -> false)
+            // + Finding Completed=True, list will start with true
+            // + Finding Completed=False, list will start with false
+            var sortedList = Cache.SortedBy(Sort.COMPLETED + "", completed);
             var criteria = new TaskDataEntity() { Completed = completed };
-
-            //var firstMatch = sortedList.BinarySearch(criteria, new TaskCompletedComparer());
-
-            return sortedList.BinarySearchFindAll(criteria, new TaskCompletedComparer());
-
-            //return [];
-            //var lastMatch = ~revList.BinarySearch(criteria, new TaskCompletedComparer());
-            //lastMatch += revList.Count;
-
-            //return SelectFromList(sortedList, firstMatch, lastMatch);
-
-            //var list = Cache.SortedBy(Sort.COMPLETED + "");
-            //return list
-            //        .Where(task => task.Completed == completed)
-            //        .ToList();
+            // Slightly optimized - will step right, in chunks, until it finds the edge (roughly),
+            // then narrows down the exact edge
+            return sortedList.BinarySearchMultiple(criteria, new TaskCompletedComparer(completed), 0);
         }
 
-        #region Helper methods
 
-        private (List<TaskDataEntity> sorted, List<TaskDataEntity> reversedSorted) SortedData(Sort sort)
+        /*
+        public List<RepeatingTaskDataEntity> FindByInterval(int interval)
         {
-            var sorted = Cache.SortedBy(sort + "");
-            var reversed = Cache.SortedBy(sort + "", reversed: true);
-            return (sorted, reversed);
+            var list = Cache.SortedBy(Sort.INTERVAL + "");
+            return list
+                    .Where(task => task.)
         }
 
-        private static List<TaskDataEntity> SelectFromList(List<TaskDataEntity> list, int startIndex, int endIndex)
+        public List<HabitualTaskDataEntity> FindByHasStreak(bool hasStreak)
         {
-            var subList = new List<TaskDataEntity>();
-            if (startIndex < 0 || endIndex < 0) return subList;
-            if (startIndex >= list.Count || endIndex >= list.Count) return subList;
+            var list = Cache.SortedBy(Sort.STREAK + "");
 
-            for (int i = startIndex; i <= endIndex; i++)
-            {
-                subList.Add(list[i]);
-            }
-            return subList;
+            throw new NotImplementedException();
         }
-
-        #endregion
-
-        //public List<RepeatingTaskDataEntity> FindByInterval(int interval)
-        //{
-        //    var list = Cache.SortedBy(Sort.INTERVAL + "");
-        //    return list
-        //            .Where(task => task.)
-        //}
-
-        //public List<HabitualTaskDataEntity> FindByHasStreak(bool hasStreak)
-        //{
-        //    var list = Cache.SortedBy(Sort.STREAK + "");
-
-        //    throw new NotImplementedException();
-        //}
+        */
     }
 }
