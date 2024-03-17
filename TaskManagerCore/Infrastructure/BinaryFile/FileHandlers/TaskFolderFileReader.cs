@@ -5,9 +5,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 {
     internal class TaskFolderFileReader : BinaryFileReader<TaskFolderEntity>
     {
-        public TaskFolderFileReader(BinaryFileConfig config)
-            : base(config)
-        { }
+        public TaskFolderFileReader(BinaryFileConfig config) : base(config) { }
 
         /// <summary>
         /// Read current object

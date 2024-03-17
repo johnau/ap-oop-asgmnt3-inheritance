@@ -6,9 +6,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 {
     internal class TaskFolderFileWriter : BinaryFileWriter<TaskFolderEntity>
     {
-        public TaskFolderFileWriter(BinaryFileConfig config)
-            : base(config)
-        { }
+        public TaskFolderFileWriter(BinaryFileConfig config) : base(config) { }
 
         /// <summary>
         /// Write current object
