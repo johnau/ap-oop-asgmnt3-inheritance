@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics;
-namespace TaskManagerCore.Configuration.Cache
+
+namespace InMemoryCache
 {
     /// <summary>
     /// Dictionary with Subscriptions and Sorting
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class SortableSubscribeableCache<T> : SubscribeableCache<T>
+    public class SortableSubscribeableCache<T> : SubscribeableCache<T>
         where T : IComparable<T>
     {
         private readonly Dictionary<string, Comparison<T>> _sortFunctions;

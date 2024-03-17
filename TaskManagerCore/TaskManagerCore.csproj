@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BinaryFileHandler\BinaryFileHandler.csproj" />
+    <ProjectReference Include="..\InMemoryCache\InMemoryCache.csproj" />
   </ItemGroup>
 
 </Project>

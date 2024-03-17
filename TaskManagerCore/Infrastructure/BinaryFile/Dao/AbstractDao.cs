@@ -1,4 +1,5 @@
 ﻿using BinaryFileHandler;
+using InMemoryCache;
 using System.Diagnostics;
 using TaskManagerCore.Configuration;
 using TaskManagerCore.Configuration.Cache;
@@ -17,7 +18,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         readonly BinaryFileReader<T> Reader;
         readonly BinaryFileWriter<T> Writer;
 
-         protected readonly SortableSubscribeableCache<T> Cache;
+        protected readonly SortableSubscribeableCache<T> Cache;
 
         protected AbstractDao(BinaryFileReader<T> reader, BinaryFileWriter<T> writer)
         {
@@ -25,8 +26,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             Writer = writer;
             Cache = new SortableSubscribeableCache<T>(ComparisonMethods);
             LoadData();
-            
-            Cache.Subscribe(WriteUpdateData); // Subscribe to cache with BinaryFile Write method
+
+            // Subscribe to Cache updates for BinaryFile Writes
+            Cache.Subscribe(WriteUpdateData); 
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace TaskManagerCore.Configuration.Cache
+﻿namespace InMemoryCache
 {
     /// <summary>
     /// Wraps Dictionary to provide subscription (extending or implementing exposes too many methods)
@@ -6,7 +6,7 @@
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class SubscribeableCache<T>
+    public class SubscribeableCache<T>
     {
         protected readonly Dictionary<string, T> Cache; // remvoed protected for a sec, testing something, need to put it back ,we wont change the cache
         protected readonly Dictionary<string, Func<List<T>, Task>> Subscribers;

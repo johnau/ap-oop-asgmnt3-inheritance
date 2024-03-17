@@ -1,6 +1,9 @@
-﻿namespace TaskManagerCore.Configuration
+﻿namespace InMemoryCache
 {
-    public static partial class ListExtensions
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ExtensionMethods
     {
         public static bool IsSortedBy<T>(this List<T> list, Comparison<T> comparison)
         {
