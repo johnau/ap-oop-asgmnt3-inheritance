@@ -2,7 +2,6 @@
 using InMemoryCache;
 using System.Diagnostics;
 using TaskManagerCore.Configuration;
-using TaskManagerCore.Configuration.Cache;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Dao

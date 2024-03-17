@@ -1,4 +1,4 @@
-﻿using TaskManagerCore.Configuration.Cache;
+﻿using TaskManagerCore.Configuration;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 {

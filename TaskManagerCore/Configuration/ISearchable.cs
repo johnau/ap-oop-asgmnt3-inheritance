@@ -1,4 +1,4 @@
-﻿namespace TaskManagerCore.Configuration.Cache
+﻿namespace TaskManagerCore.Configuration
 {
     internal interface ISearchable
     {
