@@ -9,12 +9,12 @@
     internal class SubscribeableCache<T>
     {
         protected readonly Dictionary<string, T> Cache; // remvoed protected for a sec, testing something, need to put it back ,we wont change the cache
-        protected readonly Dictionary<string, Func<Dictionary<string, T>, Task>> Subscribers;
+        protected readonly Dictionary<string, Func<List<T>, Task>> Subscribers;
 
         public SubscribeableCache()
         {
             Cache = new Dictionary<string, T>();
-            Subscribers = new Dictionary<string, Func<Dictionary<string, T>, Task>>();
+            Subscribers = new Dictionary<string, Func<List<T>, Task>>();
         }
 
         #region Dictionary methods
@@ -120,7 +120,7 @@
         /// Add a subscriber Func to the Cache
         /// </summary>
         /// <param name="subscriber"></param>
-        public void Subscribe(Func<Dictionary<string, T>, Task> subscriber)
+        public void Subscribe(Func<List<T>, Task> subscriber)
         {
             var id = Guid.NewGuid().ToString();
             Subscribers.TryAdd(id, subscriber);
@@ -136,7 +136,7 @@
             foreach (var item in Subscribers)
             {
                 var func = item.Value;
-                func.Invoke(new Dictionary<string, T>(Cache));
+                func.Invoke(new List<T>(Cache.Values));
             }
         }
     }

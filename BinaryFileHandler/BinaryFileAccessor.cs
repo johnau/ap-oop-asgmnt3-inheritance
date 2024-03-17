@@ -40,10 +40,10 @@ namespace BinaryFileHandler
         }
 
         /// <summary>
-        /// Generate file path
+        /// File path of Binary File
         /// </summary>
         /// <returns></returns>
-        protected string FilePath => Path.Combine(_rootPath, _filenameBase + Extension);
+        public string FilePath => Path.Combine(_rootPath, _filenameBase + Extension);
 
         /// <summary>
         /// Multiple attempts check for file in-case it is just being created

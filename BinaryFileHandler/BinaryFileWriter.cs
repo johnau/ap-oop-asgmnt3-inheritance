@@ -39,43 +39,72 @@ namespace BinaryFileHandler
         /// <summary>
         /// Writes all values added to the writer to a binary file
         /// </summary>
-        public string WriteValues()
+        public bool WriteValues(int retriesRemaining = 20)
         {
-            //using (var stream = File.Open(filePath, FileMode.OpenOrCreate))
-            using (var stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
-            {
-                foreach (var item in WritePendingList)
-                {
-                    if (item == null) continue;
-                    writer.Write(item.GetType().Name);
-                    Debug.WriteLine($"Writing object of type: {item.GetType().Name}");
-                    WriteObject(writer, item);
-                }
-                WriteTerminatorObject(writer);
-            }
-
-            Debug.WriteLine($"Wrote {WritePendingList.Count} items");
+            // Copy the list and clear it on Write call
+            var toWrite = new List<T>(WritePendingList);
             WritePendingList.Clear();
 
-            return FilePath;
+            // Catch any I/O errors
+            try
+            {
+                //using (var stream = File.Open(filePath, FileMode.OpenOrCreate))
+                using (var stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+                using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
+                {
+                    foreach (var item in toWrite)
+                    {
+                        if (item == null) continue;
+                        
+                        // Write class name on first row (first row is either ClassName or Terminator)
+                        writer.Write(item.GetType().Name);
+
+                        Debug.WriteLine($"Writing object of type: {item.GetType().Name}");
+                        WriteObject(writer, item);
+                    }
+
+                    WriteTerminatorObject(writer);
+                }
+
+                Debug.WriteLine($"Wrote {WritePendingList.Count} items");
+                return true;
+            }
+            catch (Exception ex) 
+            {
+                Debug.WriteLine($"Could not write data: {ex.Message}, retrying {retriesRemaining} more times");
+                
+                // Try again if there are retries remaining.
+                if (retriesRemaining > 1)
+                {
+                    Thread.Sleep(50);
+                    WriteValues(retriesRemaining--);
+                }
+                return false;
+            }
+            finally
+            {
+                // Make sure list is cleared after write
+                WritePendingList.Clear();
+            }
         }
 
         /// <summary>
         /// Async wrapper using Semaphore to prevent concurrent access
         /// </summary>
         /// <returns></returns>
-        public async Task<string> WriteValuesAsync()
+        public Task WriteValuesAsync()
         {
-            await accessSemaphore.WaitAsync();
-            try
-            {
-                return WriteValues();
-            }
-            finally
-            {
-                accessSemaphore.Release();
-            }
+            return Task.Run(async () => { 
+                await accessSemaphore.WaitAsync();
+                try
+                {
+                    WriteValues();
+                }
+                finally
+                {
+                    accessSemaphore.Release();
+                }
+            });
         }
 
         /// <summary>

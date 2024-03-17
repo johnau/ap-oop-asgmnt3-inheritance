@@ -1,5 +1,4 @@
 ﻿using BinaryFileHandler;
-using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers

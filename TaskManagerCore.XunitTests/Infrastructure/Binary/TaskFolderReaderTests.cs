@@ -51,15 +51,15 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             var writer = new TaskFolderFileWriter(conf);
             writer.AddObjectToWrite(folder1);
             writer.AddObjectToWrite(folder2);
-            var filePath = writer.WriteValues();
+            var success = writer.WriteValues();
 
-            Assert.True(File.Exists(filePath));
+            Assert.True(File.Exists(writer.FilePath));
 
-            Debug.WriteLine($"File written to: {filePath}");
+            Debug.WriteLine($"File written to: {writer.FilePath}");
 
             Thread.Sleep(500);
 
-            return filePath;
+            return writer.FilePath;
         }
     }
 }

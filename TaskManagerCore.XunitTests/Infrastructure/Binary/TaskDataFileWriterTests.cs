@@ -30,11 +30,11 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             var writer = new TaskDataFileWriter(conf);
             writer.AddObjectToWrite(task1);
             writer.AddObjectToWrite(task2);
-            var filePath = writer.WriteValues();
+            var success = writer.WriteValues();
 
-            Assert.True(File.Exists(filePath));
+            Assert.True(File.Exists(writer.FilePath));
 
-            Debug.WriteLine($"File written to: {filePath}");
+            Debug.WriteLine($"File written to: {writer.FilePath}");
         }
 
         [Fact]
@@ -79,11 +79,11 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             writer.AddObjectToWrite(task2);
             writer.AddObjectToWrite(task3);
             writer.AddObjectToWrite(task4);
-            var filePath = writer.WriteValues();
+            var success = writer.WriteValues();
 
-            Assert.True(File.Exists(filePath));
+            Assert.True(File.Exists(writer.FilePath));
 
-            Debug.WriteLine($"File written to: {filePath}");
+            Debug.WriteLine($"File written to: {writer.FilePath}");
         }
     }
 }

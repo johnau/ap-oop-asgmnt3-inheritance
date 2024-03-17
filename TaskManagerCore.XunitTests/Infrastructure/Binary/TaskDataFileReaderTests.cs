@@ -195,10 +195,10 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             if (taskCount >= 3) writer.AddObjectToWrite(ExampleTask3);
             if (taskCount == 4) writer.AddObjectToWrite(ExampleTask4);
             if (taskCount > 4) throw new Exception("Not enough tasks");
-            var filePath = writer.WriteValues();
+            var success = writer.WriteValues();
 
-            Assert.True(File.Exists(filePath));
-            Debug.WriteLine($"File written to: {filePath}");
+            Assert.True(File.Exists(writer.FilePath));
+            Debug.WriteLine($"File written to: {writer.FilePath}");
         }
 
         async Task WriteFileForTestsAsync(TaskDataFileWriter writer, int taskCount = 4)
@@ -208,10 +208,10 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             if (taskCount >= 3) writer.AddObjectToWrite(ExampleTask3);
             if (taskCount == 4) writer.AddObjectToWrite(ExampleTask4);
             if (taskCount > 4) throw new Exception("Not enough tasks");
-            var filePath = await writer.WriteValuesAsync();
+            await writer.WriteValuesAsync();
 
-            Assert.True(File.Exists(filePath));
-            Debug.WriteLine($"File written to: {filePath}");
+            Assert.True(File.Exists(writer.FilePath));
+            Debug.WriteLine($"File written to: {writer.FilePath}");
         }
 
         static void DebugPrintContent(List<TaskDataEntity> content)

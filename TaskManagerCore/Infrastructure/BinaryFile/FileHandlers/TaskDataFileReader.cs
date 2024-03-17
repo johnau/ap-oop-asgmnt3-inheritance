@@ -1,5 +1,4 @@
 ﻿using BinaryFileHandler;
-using System.IO;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Model;
 
@@ -18,7 +17,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+        /// <exception cref="ArgumentException"></exception>
         protected override TaskDataEntity ReadObject(BinaryReader reader)
         {
             if (!acceptedClasses.Contains(CurrentClassName))
