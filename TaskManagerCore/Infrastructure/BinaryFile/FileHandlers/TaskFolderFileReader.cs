@@ -13,7 +13,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         /// <param name="reader"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        protected override TaskFolderEntity ReadNext(BinaryReader reader)
+        protected override TaskFolderEntity ReadObject(BinaryReader reader)
         {
             var id = reader.ReadString();
             var name = reader.ReadString();

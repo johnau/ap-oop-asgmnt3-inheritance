@@ -78,7 +78,7 @@ namespace BinaryFileHandler
         /// </summary>
         /// <param name="reader"></param>
         /// <returns>True if reached the end of the file</returns>
-        protected abstract T ReadNext(BinaryReader reader);
+        protected abstract T ReadObject(BinaryReader reader);
 
         /// <summary>
         /// Try Read file data, returns true on success, and returns a list of objects
@@ -102,7 +102,7 @@ namespace BinaryFileHandler
                 {
                     while (HasNext(reader))
                     {
-                        var entity = ReadNext(reader);
+                        var entity = ReadObject(reader);
                         ReadList.Add(entity);
                     }
                 }

@@ -46,11 +46,14 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        async Task WriteUpdateData(Dictionary<string, T> data)
+        Task WriteUpdateData(Dictionary<string, T> data)
         {
-            Debug.WriteLine($"Updated data will be written! ({data.Count} items)");
-            Writer.AddObjectsToWrite(new List<T>(data.Values));
-            await Writer.WriteValuesAsync();
+            Debug.WriteLine($"Writing{data.Count} items");
+            
+            return Task.Run(async () => {
+                Writer.AddObjectsToWrite(new List<T>(data.Values));
+                await Writer.WriteValuesAsync(); 
+            });
         }
 
         /// <summary>

@@ -19,7 +19,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         /// <param name="reader"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        protected override TaskDataEntity ReadNext(BinaryReader reader)
+        protected override TaskDataEntity ReadObject(BinaryReader reader)
         {
             if (!acceptedClasses.Contains(CurrentClassName))
                 throw new ArgumentException("A recognized Class name was not detected");
