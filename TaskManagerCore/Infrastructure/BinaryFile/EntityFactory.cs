@@ -9,13 +9,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
     /// Handles Model -> Entity conversion
     /// Should be made responsible for all casts between different class types
     /// </summary>
-    internal class EntityFactory : IEntityFactory
+    internal static class EntityFactory
     {
-        internal EntityFactory()
-        {
-        }
-
-        public TaskFolderEntity FromModel(TaskFolder taskFolder)
+        public static TaskFolderEntity FromModel(TaskFolder taskFolder)
         {
             return new TaskFolderEntity(taskFolder.Id)
             {
@@ -24,7 +20,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             };
         }
 
-        public List<TaskFolderEntity> FromModel(List<TaskFolder> taskFolders)
+        public static List<TaskFolderEntity> FromModel(List<TaskFolder> taskFolders)
         {
             var list = new List<TaskFolderEntity>();
             foreach (var item in taskFolders)
@@ -34,7 +30,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return list;
         }
 
-        public TaskDataEntity FromModel(TaskData taskData)
+        public static TaskDataEntity FromModel(TaskData taskData)
         {
             if (taskData is HabitualTaskData habitual)
             {
@@ -45,7 +41,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
                     Completed = habitual.Completed,
                     DueDate = habitual.DueDate,
                     RepeatingInterval = habitual.RepeatingInterval,
-                    Repititions = habitual.Repititions,
+                    Repetitions = habitual.Repetitions,
                     Streak = habitual.Streak,
                 };
             }
@@ -58,7 +54,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
                     Completed = repeating.Completed,
                     DueDate = repeating.DueDate,
                     RepeatingInterval = repeating.RepeatingInterval,
-                    Repititions = repeating.Repititions,
+                    Repetitions = repeating.Repetitions,
                 };
             }
             else
@@ -73,7 +69,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             }
         }
 
-        public List<TaskDataEntity> FromModel(List<TaskData> taskDatas)
+        public static List<TaskDataEntity> FromModel(List<TaskData> taskDatas)
         {
             var list = new List<TaskDataEntity>();
             foreach (var item in taskDatas)
@@ -83,7 +79,50 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return list;
         }
 
-        public TaskFolder ToModel(TaskFolderEntity taskFolder)
+        public static TaskDataEntity TaskFromValues(string className, string id, string description, string notes, bool completed, DateTime? dueDate, TimeInterval? interval = null, int? repetitions = null, int? streak = null)
+        {
+            if (className.Equals(typeof(TaskDataEntity).Name, StringComparison.Ordinal))
+            {
+                return new TaskDataEntity(id)
+                {
+                    Description = description,
+                    Notes = notes,
+                    Completed = completed,
+                    DueDate = dueDate,
+                };
+            }
+            else if (className.Equals(typeof(RepeatingTaskDataEntity).Name, StringComparison.Ordinal))
+            {
+                if (dueDate == null || interval == null || repetitions == null) throw new ArgumentNullException("dueDate, interval, repetitions");
+                return new RepeatingTaskDataEntity(id)
+                {
+                    Description = description,
+                    Notes = notes,
+                    Completed = completed,
+                    DueDate = dueDate.Value,
+                    RepeatingInterval = interval.Value,
+                    Repetitions = repetitions.Value,
+                };
+            }
+            else if (className.Equals(typeof(HabitualTaskDataEntity).Name, StringComparison.Ordinal))
+            {
+                if (dueDate == null || interval == null || repetitions == null || streak == null) throw new ArgumentNullException("dueDate, interval, repetitions, streak");
+                return new HabitualTaskDataEntity(id)
+                {
+                    Description = description,
+                    Notes = notes,
+                    Completed = completed,
+                    DueDate = dueDate.Value,
+                    RepeatingInterval = interval.Value,
+                    Repetitions = repetitions.Value,
+                    Streak = streak.Value
+                };
+            }
+
+            throw new ArgumentException($"className was not valid or recognized: {className}", nameof(className));
+        }
+
+        public static TaskFolder ToModel(TaskFolderEntity taskFolder)
         {
             var id = taskFolder.Id;
             var name = taskFolder.Name;
@@ -91,7 +130,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return new TaskFolder(id, name, taskIds);
         }
 
-        public List<TaskFolder> ToModel(List<TaskFolderEntity> taskFolders)
+        public static List<TaskFolder> ToModel(List<TaskFolderEntity> taskFolders)
         {
             var list = new List<TaskFolder>();
             foreach (var item in taskFolders)
@@ -101,15 +140,15 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return list;
         }
 
-        public TaskData ToModel(TaskDataEntity entity)
+        public static TaskData ToModel(TaskDataEntity entity)
         {
             if (entity is HabitualTaskDataEntity h)
             {
-                return new HabitualTaskData(h.Id, h.Description, h.Notes, h.Completed, h.DueDate, h.RepeatingInterval, h.Repititions, h.Streak);
+                return new HabitualTaskData(h.Id, h.Description, h.Notes, h.Completed, h.DueDate, h.RepeatingInterval, h.Repetitions, h.Streak);
             }
             else if (entity is RepeatingTaskDataEntity r)
             {
-                return new RepeatingTaskData(r.Id, r.Description, r.Notes, r.Completed, r.DueDate, r.RepeatingInterval, r.Repititions);
+                return new RepeatingTaskData(r.Id, r.Description, r.Notes, r.Completed, r.DueDate, r.RepeatingInterval, r.Repetitions);
             }
             else
             {
@@ -117,7 +156,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             }
         }
 
-        public List<TaskData> ToModel(List<TaskDataEntity> taskDatas)
+        public static List<TaskData> ToModel(List<TaskDataEntity> taskDatas)
         {
             var list = new List<TaskData>();
             foreach (var item in taskDatas)
@@ -127,7 +166,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return list;
         }
 
-        public List<TaskData> ToModel(List<RepeatingTaskDataEntity> repeatingTaskDatas)
+        public static List<TaskData> ToModel(List<RepeatingTaskDataEntity> repeatingTaskDatas)
         {
             var list = new List<TaskData>();
             foreach (var item in repeatingTaskDatas)
@@ -137,7 +176,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return list;
         }
 
-        public List<TaskData> ToModel(List<HabitualTaskDataEntity> habitualTaskDatas)
+        public static List<TaskData> ToModel(List<HabitualTaskDataEntity> habitualTaskDatas)
         {
             var list = new List<TaskData>();
             foreach (var item in habitualTaskDatas)

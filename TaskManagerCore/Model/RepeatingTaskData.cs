@@ -7,7 +7,7 @@ namespace TaskManagerCore.Model
         public new DateTime DueDate { get; }
         public TimeInterval RepeatingInterval { get; }
         //public DateTime StartFrom { get; }  // could drop StartFrom, use DueDate don't change it's value, but change override the getter to return duedate + interval*repeats...
-        public int Repititions { get; }
+        public int Repetitions { get; }
         
         #region constructors
         public RepeatingTaskData(string description, string notes, DateTime dueDate, TimeInterval interval)
@@ -16,7 +16,7 @@ namespace TaskManagerCore.Model
             DueDate = dueDate; // must re-assign dueDate here since we overwrote the member in the base class
             RepeatingInterval = interval;
             //StartFrom = dueDate;
-            Repititions = 0;
+            Repetitions = 0;
         }
 
         public RepeatingTaskData(string id, string description, string notes, bool completed, DateTime dueDate, TimeInterval interval, int repititions)
@@ -25,7 +25,7 @@ namespace TaskManagerCore.Model
             DueDate = dueDate;
             RepeatingInterval = interval;
             //StartFrom = startFrom;
-            Repititions = repititions;
+            Repetitions = repititions;
         }
         #endregion
 
@@ -56,7 +56,7 @@ namespace TaskManagerCore.Model
             // Increment repititions and due date for the next reptition
             // (Would you want this to go to the next possible due date, or just stick to the intervals. i.e. If a daily task is completed 2 days late, does the next due time become yesterday, or today/tomorrow)
             var nextDueDate = NextDueDate();
-            return new RepeatingTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repititions + 1);
+            return new RepeatingTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repetitions + 1);
         }
 
         internal DateTime NextDueDate()

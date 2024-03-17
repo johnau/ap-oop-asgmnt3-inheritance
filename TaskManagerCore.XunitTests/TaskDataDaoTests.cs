@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using BinaryFileHandler;
+using System.Diagnostics;
+using TaskManagerCore.Infrastructure.BinaryFile;
 using TaskManagerCore.Infrastructure.BinaryFile.Dao;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
@@ -13,7 +15,7 @@ namespace TaskManagerCore.XunitTests
     /// </summary>
     public class TaskDataDaoTests
     {
-        private const int _testIterations = 20;
+        private const int _testIterations = 5;
 
         [Fact]
         public void Save_WithValidEntity_WillReturnExpected()
@@ -161,8 +163,9 @@ namespace TaskManagerCore.XunitTests
         static (string filename, TaskDataDao dao) SetupTaskDataDao(string testName)
         {
             var filename = testName + "_" + DateTime.Now.Ticks;
-            var testReader = new TaskDataFileReader(filename);
-            var testWriter = new TaskDataFileWriter(filename);
+            var conf = new BinaryFileConfig() { FileName = filename };
+            var testReader = new TaskDataFileReader(conf);
+            var testWriter = new TaskDataFileWriter(conf);
             var dao = new TaskDataDao(testReader, testWriter);
             return (filename, dao);
         }

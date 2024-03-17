@@ -7,12 +7,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
     internal class TaskDataRepository : ITaskDataRepository
     {
         readonly TaskDataDao Dao;
-        readonly IEntityFactory EntityFactory;
-
-        public TaskDataRepository(TaskDataDao dao, IEntityFactory entityFactory)
+        public TaskDataRepository(TaskDataDao dao)
         {
             Dao = dao;
-            EntityFactory = entityFactory;
         }
 
         #region ICrudRepository methods

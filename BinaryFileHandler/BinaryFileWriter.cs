@@ -1,38 +1,20 @@
 ﻿using System.Diagnostics;
 using System.Text;
 
-namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
+namespace BinaryFileHandler
 {
     /// <summary>
     /// Need to make an async version of this class
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal abstract class BinaryFileWriter<T> : BinaryFileAccessor
+    public abstract class BinaryFileWriter<T> : BinaryFileAccessor
     {
         protected List<T> WritePendingList;
 
-        public BinaryFileWriter(string filename = "data", string? rootPath = null)
-            : base(filename, rootPath)
+        public BinaryFileWriter(BinaryFileConfig config)
+            : base(config)
         {
             WritePendingList = new List<T>();
-        }
-
-        /// <summary>
-        /// Populate the Write list
-        /// </summary>
-        /// <param name="items"></param>
-        public void AddObjectsToWrite(List<T> items)
-        {
-            WritePendingList.AddRange(items);
-        }
-
-        /// <summary>
-        /// Populate the Write list
-        /// </summary>
-        /// <param name="item"></param>
-        public void AddObjectToWrite(T item)
-        {
-            WritePendingList.Add(item);
         }
 
         /// <summary>
@@ -43,24 +25,31 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         protected abstract void WriteObject(BinaryWriter writer, T item);
 
         /// <summary>
-        /// Abstract method for Concrete implementation of type T for specific write implementation per type
+        /// Populate the Write list
         /// </summary>
-        /// <param name="writer"></param>
-        protected abstract void WriteTerminatorObject(BinaryWriter writer);
+        /// <param name="items"></param>
+        public void AddObjectsToWrite(List<T> items) => WritePendingList.AddRange(items);
+        
+        /// <summary>
+        /// Populate the Write list
+        /// </summary>
+        /// <param name="item"></param>
+        public void AddObjectToWrite(T item) => WritePendingList.Add(item);
 
         /// <summary>
         /// Writes all values added to the writer to a binary file
         /// </summary>
         public string WriteValues()
         {
-            //Debug.WriteLine($"Filepath={filePath}");
-
-            using (var stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite, bufferSize: 4096, useAsync: true))
             //using (var stream = File.Open(filePath, FileMode.OpenOrCreate))
+            using (var stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
             using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
             {
                 foreach (var item in WritePendingList)
                 {
+                    if (item == null) continue;
+                    writer.Write(item.GetType().Name);
+                    Debug.WriteLine($"Writing object of type: {item.GetType().Name}");
                     WriteObject(writer, item);
                 }
                 WriteTerminatorObject(writer);
@@ -87,6 +76,15 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             {
                 accessSemaphore.Release();
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        protected static void WriteTerminatorObject(BinaryWriter writer)
+        {
+            writer.Write(GenericTerminators.StringTerminator);
         }
     }
 }

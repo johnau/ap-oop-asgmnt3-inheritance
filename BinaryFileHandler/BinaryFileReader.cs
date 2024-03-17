@@ -1,8 +1,7 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
 
-namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
+namespace BinaryFileHandler
 {
     /// <summary>
     /// TODO: Make backup of file before writing incase write is interrupted for some reason
@@ -10,14 +9,16 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
     /// restore backup if required
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal abstract class BinaryFileReader<T> : BinaryFileAccessor
+    public abstract class BinaryFileReader<T> : BinaryFileAccessor
     {
         protected List<T> ReadList;
+        protected string CurrentClassName;
 
-        protected BinaryFileReader(string filename = "data", string? rootPath = null)
-            : base(filename, rootPath)
+        protected BinaryFileReader(BinaryFileConfig config)
+            : base(config)
         {
             ReadList = new List<T>();
+            CurrentClassName = "";
         }
 
         /// <summary>
@@ -26,21 +27,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         public List<T> Data => new List<T>(ReadList);
 
         /// <summary>
-        /// Should return false when the Terminator entity is reached.
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <returns></returns>
-        protected abstract bool HasNext(BinaryReader reader);
-
-        /// <summary>
-        /// Can split this out into a HasNext() and Read() pair of methods
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <returns>True if reached the end of the file</returns>
-        protected abstract T ReadData(BinaryReader reader);
-
-        /// <summary>
-        /// Reads values from file using the HasNext() and ReadData() methods provided by the concrete class
+        /// Reads values from file using the HasNext() and ReadNext() methods provided by the concrete class
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
@@ -60,12 +47,38 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             }
 
             if (fileData == null)
-            {
                 throw new Exception($"Unable to read from file: {FilePath}");
-            }
 
             return fileData;
         }
+
+        /// <summary>
+        /// Method to check if the current entry is the Terminator object
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        protected virtual bool HasNext(BinaryReader reader)
+        {
+            var classNameOrTerminator = reader.ReadString();
+            Debug.WriteLine($"Next: {classNameOrTerminator}");
+
+            if (IsTerminator(classNameOrTerminator))
+            {
+                CurrentClassName = string.Empty;
+                return false;
+            }
+
+            // Save the class name for use in the ReadNext method
+            CurrentClassName = classNameOrTerminator;
+            return true;
+        }
+
+        /// <summary>
+        /// Method to read a single entry
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns>True if reached the end of the file</returns>
+        protected abstract T ReadNext(BinaryReader reader);
 
         /// <summary>
         /// Try Read file data, returns true on success, and returns a list of objects
@@ -89,7 +102,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
                 {
                     while (HasNext(reader))
                     {
-                        var entity = ReadData(reader);
+                        var entity = ReadNext(reader);
                         ReadList.Add(entity);
                     }
                 }
@@ -126,6 +139,16 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             {
                 accessSemaphore.Release();
             }
+        }
+
+        /// <summary>
+        /// Check if string is a terminator string
+        /// </summary>
+        /// <param name="checking"></param>
+        /// <returns></returns>
+        protected static bool IsTerminator(string checking)
+        {
+            return checking.Equals(GenericTerminators.StringTerminator);
         }
     }
 }

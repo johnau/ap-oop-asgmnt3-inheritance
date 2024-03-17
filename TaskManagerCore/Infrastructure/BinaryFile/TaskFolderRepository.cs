@@ -7,11 +7,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
     internal class TaskFolderRepository : ITaskFolderRepository
     {
         readonly TaskFolderDao Dao;
-        readonly IEntityFactory EntityFactory;
-        internal TaskFolderRepository(TaskFolderDao dao, IEntityFactory entityFactory)
+        internal TaskFolderRepository(TaskFolderDao dao)
         {
             Dao = dao;
-            EntityFactory = entityFactory;
         }
 
         public List<TaskFolder> FindAll()

@@ -33,14 +33,9 @@ namespace TaskManagerCore.XunitTests.TestHelpers
 
         public string Save(TaskData o)
         {
-            if (OnSave == null)
-                throw new NotImplementedException("Did not provide a function for testing");
-
-            var response = OnSave(o);
-            if (response == null)
-                return "";
-
-            return response;
+            #pragma warning disable CS8603 // Possible null reference return.
+            return OnSave != null ? OnSave(o) : throw new NotImplementedException("Did not provide a function for testing");
+            #pragma warning restore CS8603 // Possible null reference return.
         }
     }
 }

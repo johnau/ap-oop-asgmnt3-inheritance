@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using BinaryFileHandler;
+using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 
@@ -12,7 +13,8 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             var filename = "reader-test_" + DateTime.Now.Ticks;
             var filePath = WriteTestFolders(filename);
 
-            var reader = new TaskFolderFileReader(filename);
+            var conf = new BinaryFileConfig() { FileName = filename };
+            var reader = new TaskFolderFileReader(conf);
             var content = reader.ReadValues();
 
             Assert.Equal(2, content.Count);
@@ -45,7 +47,8 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                 TaskIds = new List<string> { "taskId4", "taskId5", "taskId6", "taskId7" },
             };
 
-            var writer = new TaskFolderFileWriter(filename);
+            var conf = new BinaryFileConfig() { FileName = filename };
+            var writer = new TaskFolderFileWriter(conf);
             writer.AddObjectToWrite(folder1);
             writer.AddObjectToWrite(folder2);
             var filePath = writer.WriteValues();

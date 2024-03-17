@@ -1,4 +1,4 @@
-﻿namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers.Helper
+﻿namespace BinaryFileHandler
 {
     internal class GenericTerminators
     {

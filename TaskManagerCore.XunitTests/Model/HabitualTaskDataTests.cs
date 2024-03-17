@@ -29,7 +29,7 @@ namespace TaskManagerCore.XunitTests.Model
             var habitualTask = new HabitualTaskDataTestHelperExtension("Habitual task description", "", now.AddHours(1), timeInterval); // start with a task due in an hour
             var minutesFromNow = intervalInMinutes + 1; // + 1 minute beyond interval due time (i.e. Overdue by 1 minute)
 
-            Debug.WriteLine($"Habitual Task Due @ {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
+            Debug.WriteLine($"Habitual Task Due @ {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repetitions}");
 
             // Loop #1 - DO NOT CREATE STREAK
             // Task is Completed after it is Overdue - No Streak is started
@@ -45,7 +45,7 @@ namespace TaskManagerCore.XunitTests.Model
                 Assert.False(habitualTask.Overdue);
 
                 minutesFromNow += intervalInMinutes;
-                Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
+                Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repetitions}");
             }
 
             // Should not have a streak at this point
@@ -67,7 +67,7 @@ namespace TaskManagerCore.XunitTests.Model
                 Assert.False(habitualTask.Overdue);
 
                 minutesFromNow += intervalInMinutes;
-                Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
+                Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repetitions}");
             }
 
             // Check we have the expected Streak
@@ -85,7 +85,7 @@ namespace TaskManagerCore.XunitTests.Model
             // Confirm the Streak has been ended
             Assert.Equal(0, habitualTask.Streak);
 
-            Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repititions}");
+            Debug.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue}, current streak is {habitualTask.Streak}), Repitions={habitualTask.Repetitions}");
             Debug.WriteLine("Habitual Task Test Complete");
         }
 

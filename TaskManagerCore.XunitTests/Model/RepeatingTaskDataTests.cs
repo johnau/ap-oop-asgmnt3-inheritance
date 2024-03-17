@@ -24,7 +24,7 @@ namespace TaskManagerCore.XunitTests.Model
             var repeatingTask = new RepeatingTaskDataTestHelperExtension("Repeating task description", "", now.AddHours(1), timeInterval); // start with a task due in an hour
             var minutesFromNow = intervalInMinutes + 1; // 1 minute offset to ensure we start overdue.
 
-            Debug.WriteLine($"Habitual Task Due @ {repeatingTask.DueDate} (is overdue: {repeatingTask.Overdue}), current Repititions={repeatingTask.Repititions}");
+            Debug.WriteLine($"Habitual Task Due @ {repeatingTask.DueDate} (is overdue: {repeatingTask.Overdue}), current Repititions={repeatingTask.Repetitions}");
 
             // Loop - Complete while not overdue
             for (int i = 1; i <= testLimit; i++)
@@ -39,10 +39,10 @@ namespace TaskManagerCore.XunitTests.Model
                 Assert.False(repeatingTask.Overdue);
 
                 minutesFromNow += intervalInMinutes;
-                Debug.WriteLine($"Habitual Task Due @ {repeatingTask.DueDate} (is overdue: {repeatingTask.Overdue}), current Repititions={repeatingTask.Repititions}");
+                Debug.WriteLine($"Habitual Task Due @ {repeatingTask.DueDate} (is overdue: {repeatingTask.Overdue}), current Repititions={repeatingTask.Repetitions}");
             }
 
-            Assert.Equal(testLimit, repeatingTask.Repititions);
+            Assert.Equal(testLimit, repeatingTask.Repetitions);
             Assert.False(repeatingTask.Overdue);
 
             // Start next overloop while overdue
@@ -62,11 +62,11 @@ namespace TaskManagerCore.XunitTests.Model
 
                 minutesFromNow += intervalInMinutes;
                 repeatingTask.FakeDateTime = now.AddMinutes(minutesFromNow);
-                Debug.WriteLine($"Habitual Task Due @ {repeatingTask.DueDate} (is overdue: {repeatingTask.Overdue}), current Repititions={repeatingTask.Repititions}");
+                Debug.WriteLine($"Habitual Task Due @ {repeatingTask.DueDate} (is overdue: {repeatingTask.Overdue}), current Repititions={repeatingTask.Repetitions}");
             }
 
             // Check that we have successfully incremented the task 
-            Assert.Equal(testLimit * 2, repeatingTask.Repititions);
+            Assert.Equal(testLimit * 2, repeatingTask.Repetitions);
         }
 
         [Fact]

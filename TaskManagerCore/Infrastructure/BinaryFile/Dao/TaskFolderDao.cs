@@ -3,6 +3,7 @@ using Sort = TaskManagerCore.Infrastructure.BinaryFile.Dao.Sorting.TaskFolderSor
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Infrastructure.BinaryFile.QueryComparers;
+using BinaryFileHandler;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {

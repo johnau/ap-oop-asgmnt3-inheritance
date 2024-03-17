@@ -27,7 +27,7 @@
             var _ = base.WithCompleted(value); // use the repeating task method to increment DueDate and Repititions
             var newStreak = ComparisonTime() <= DueDate ? Streak + 1 : 0;
             
-            return new HabitualTaskData(_.Id, _.Description, _.Notes, _.Overdue, _.DueDate, _.RepeatingInterval, _.Repititions, newStreak);
+            return new HabitualTaskData(_.Id, _.Description, _.Notes, _.Overdue, _.DueDate, _.RepeatingInterval, _.Repetitions, newStreak);
         }
     }
 }

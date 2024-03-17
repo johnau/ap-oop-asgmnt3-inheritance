@@ -37,7 +37,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         {
             var completed = base.WithCompleted(value);
 
-            return new HabitualTaskDataTestHelperExtension(completed.Id, completed.Description, completed.Notes, false, completed.DueDate, completed.RepeatingInterval, completed.Repititions, completed.Streak) 
+            return new HabitualTaskDataTestHelperExtension(completed.Id, completed.Description, completed.Notes, false, completed.DueDate, completed.RepeatingInterval, completed.Repetitions, completed.Streak) 
             { 
                 FakeDateTime = FakeDateTime
             };

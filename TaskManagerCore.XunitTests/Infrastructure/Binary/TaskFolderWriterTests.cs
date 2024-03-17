@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BinaryFileHandler;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -27,7 +28,8 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                 TaskIds = new List<string> { "taskId4", "taskId5", "taskId6" },
             };
 
-            var writer = new TaskFolderFileWriter("testing-task-folders");
+            var conf = new BinaryFileConfig() { FileName = "testing-task-folders" };
+            var writer = new TaskFolderFileWriter(conf);
             writer.AddObjectToWrite(folder1);
             writer.AddObjectToWrite(folder2);
             var filePath = writer.WriteValues();

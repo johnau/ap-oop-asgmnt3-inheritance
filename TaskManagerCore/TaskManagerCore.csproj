@@ -26,4 +26,8 @@
     <Folder Include="Configuration\Cache\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BinaryFileHandler\BinaryFileHandler.csproj" />
+  </ItemGroup>
+
 </Project>

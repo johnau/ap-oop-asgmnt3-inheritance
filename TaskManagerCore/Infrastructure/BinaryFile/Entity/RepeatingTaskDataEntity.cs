@@ -6,7 +6,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
     {
         public new DateTime DueDate { get; set; }
         public TimeInterval RepeatingInterval { get; set; }
-        public int Repititions { get; set; }
+        public int Repetitions { get; set; }
 
         //public DateTime StartFrom { get; set; }  // retain the start date?
         public RepeatingTaskDataEntity(string? id = "")
@@ -14,7 +14,23 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
         { 
             DueDate = DateTime.MinValue;
             RepeatingInterval = TimeInterval.None;
-            Repititions = 0;
+            Repetitions = 0;
+        }
+
+        public override int CompareTo(TaskDataEntity? other)
+        {
+            var baseResult = base.CompareTo(other);
+
+            if (baseResult == 0 && other is RepeatingTaskDataEntity otherRepeatingTask)
+            {
+                var intervalCompare = ((int)RepeatingInterval).CompareTo((int)otherRepeatingTask.RepeatingInterval);
+                if (intervalCompare != 0) 
+                    return intervalCompare;
+
+                return Repetitions.CompareTo(otherRepeatingTask.Repetitions);
+            }
+
+            return baseResult;
         }
     }
 }

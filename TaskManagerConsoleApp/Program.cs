@@ -2,13 +2,11 @@
 using Ts = TaskManagerConsoleApp.ConsoleHelpers.SimpleBehaviorTests;
 using Conv = TaskManagerConsoleApp.ConsoleHelpers.TaskManagerDtoToGenericConverters;
 using TaskManagerCore.Controller;
-//using TaskManagerCore.Infrastructure.Memory;
-//using TaskManagerCore.Infrastructure.Memory.Dao;
 using TaskManagerCore.Infrastructure.BinaryFile;
 using TaskManagerCore.Infrastructure.BinaryFile.Dao;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
-using TaskManagerCore.Model;
 using TaskManagerCore.Model.Dto;
+using BinaryFileHandler;
 
 namespace TaskManagerConsoleApp
 {
@@ -24,20 +22,24 @@ namespace TaskManagerConsoleApp
             });
 
             // construct application
-            var taskDataFileName = "taskmanager-task-data";
-            var folderDataFileName = "taskmanager-folder-data";
-            var taskWriter = new TaskDataFileWriter(taskDataFileName);
-            var taskReader = new TaskDataFileReader(taskDataFileName);
-            var folderWriter = new TaskFolderFileWriter(folderDataFileName);
-            var folderReader = new TaskFolderFileReader(folderDataFileName);
 
-            var entityFactory = new EntityFactory(); // exposed internals to TaskManagerConsoleApp namespace
+            var taskDataFileName = "taskmanager-task-data";
+            var taskDataFileConf = new BinaryFileConfig() { FileName = taskDataFileName };
+            var folderDataFileName = "taskmanager-folder-data";
+            var folderFileConf = new BinaryFileConfig() { FileName = folderDataFileName };
+
+
+            var taskWriter = new TaskDataFileWriter(taskDataFileConf);
+            var taskReader = new TaskDataFileReader(taskDataFileConf);
+            var folderWriter = new TaskFolderFileWriter(folderFileConf);
+            var folderReader = new TaskFolderFileReader(folderFileConf);
+            
             //var taskDao = new TaskDataDao();                                  // Use this for the Memory namespace class (part1 of task)
             var taskDao = new TaskDataDao(taskReader, taskWriter);              // Use this for the BinaryFile namespace class (part2 of task)
-            var taskRepo = new TaskDataRepository(taskDao, entityFactory);
+            var taskRepo = new TaskDataRepository(taskDao);
             //var folderDao = new TaskFolderDao();                              // Use this for the Memory namespace class (part1 of task)
             var folderDao = new TaskFolderDao(folderReader, folderWriter);      // Use this for the BinaryFile namespace class (part2 of task)
-            var fodlerRepo = new TaskFolderRepository(folderDao, entityFactory);
+            var fodlerRepo = new TaskFolderRepository(folderDao);
             var controller = new TaskController(taskRepo, fodlerRepo);
 
             //RunTests(controller);

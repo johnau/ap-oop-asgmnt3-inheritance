@@ -3,6 +3,7 @@ using Sort = TaskManagerCore.Infrastructure.BinaryFile.Dao.Sorting.TaskSortingTy
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Infrastructure.BinaryFile.QueryComparers;
+using BinaryFileHandler;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {
@@ -71,7 +72,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                 _existing.Completed = false;
                 _existing.DueDate = repeating.DueDate;
                 _existing.RepeatingInterval = repeating.RepeatingInterval;
-                _existing.Repititions = repeating.Repititions;
+                _existing.Repetitions = repeating.Repetitions;
                 existing = _existing;
             }
             if (entity is HabitualTaskDataEntity habitual) // update params again if also habitual

@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 
-namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
+namespace BinaryFileHandler
 {
     /// <summary>
     /// Base class to control access for Binary File assignment
     /// </summary>
-    internal abstract class BinaryFileAccessor
+    public abstract class BinaryFileAccessor
     {
         protected const string Delimiter = ";;";
         protected const string Extension = ".bin";
@@ -17,37 +17,33 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         /// </summary>
         protected SemaphoreSlim accessSemaphore = new SemaphoreSlim(1, 1);
 
-        protected BinaryFileAccessor(string filename = "data", string? rootPath = null)
+        protected BinaryFileAccessor(BinaryFileConfig config)
         {
-            //if (rootPath == null) _rootPath = Path.GetTempPath();
-            if (rootPath == null)
+            if (config.FileName == null || config.FileName == string.Empty)
+                throw new ArgumentNullException("config.FileName");
+
+            _filenameBase = config.FileName;
+
+            if (config.RootPath == null || config.RootPath == string.Empty)
             {
+                // Path.GetTempPath();
                 _rootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data_files");
-                if (!Directory.Exists(_rootPath)) 
+                if (!Directory.Exists(_rootPath))
                     Directory.CreateDirectory(_rootPath);
 
                 Debug.WriteLine($"Root Path: {_rootPath}");
             }
             else
             {
-                _rootPath = rootPath;
-            } 
-
-            _filenameBase = filename;
+                _rootPath = config.RootPath;
+            }
         }
 
         /// <summary>
         /// Generate file path
         /// </summary>
         /// <returns></returns>
-        protected string FilePath
-        {
-            get
-            {
-                var filename = _filenameBase + Extension;
-                return Path.Combine(_rootPath, filename);
-            }
-        }
+        protected string FilePath => Path.Combine(_rootPath, _filenameBase + Extension);
 
         /// <summary>
         /// Multiple attempts check for file in-case it is just being created

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using BinaryFileHandler;
+using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Model;
@@ -27,7 +28,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             Completed = false,
             DueDate = DateTime.Now.AddDays(1),
             RepeatingInterval = TimeInterval.Daily,
-            Repititions = 5,
+            Repetitions = 5,
         };
         HabitualTaskDataEntity ExampleTask4 = new HabitualTaskDataEntity(Guid.NewGuid().ToString())
         {
@@ -36,7 +37,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             Completed = false,
             DueDate = DateTime.Now.AddDays(4),
             RepeatingInterval = TimeInterval.Weekly,
-            Repititions = 5,
+            Repetitions = 5,
             Streak = 2,
         };
 
@@ -50,7 +51,8 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             var filename = $"testing-{expecetdTasks}_task-data_" + DateTime.Now.Ticks;
             WriteFileForTests(filename, expecetdTasks);
 
-            var reader = new TaskDataFileReader(filename);
+            var conf = new BinaryFileConfig() { FileName = filename };
+            var reader = new TaskDataFileReader(conf);
             var content = reader.ReadValues(); 
 
             Assert.Equal(expecetdTasks, content.Count);
@@ -69,12 +71,41 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
 
             WriteFileForTests(filename, expecetdTasks);
 
-            var reader = new TaskDataFileReader(filename);
-            var content = reader.ReadValues(); 
+            var conf = new BinaryFileConfig() { FileName = filename };
+            var reader = new TaskDataFileReader(conf);
+            var tasksRead = reader.ReadValues(); 
 
-            Assert.Equal(expecetdTasks, content.Count);
+            Assert.Equal(expecetdTasks, tasksRead.Count);
 
-            DebugPrintContent(content);
+            var countTask = 0;
+            var countRept = 0;
+            var countHabt = 0;
+            var ex1 = false;
+            var ex2 = false;
+            var ex3 = false;
+            var ex4 = false;
+
+            foreach (var task in tasksRead)
+            {
+                if (task.GetType() == typeof(TaskDataEntity)) countTask++;
+                if (task.GetType() == typeof(RepeatingTaskDataEntity)) countRept++;
+                if (task.GetType() == typeof(HabitualTaskDataEntity)) countHabt++;
+
+                if (ExampleTask1.CompareTo(task) == 0) ex1 = true;
+                if (ExampleTask2.CompareTo(task) == 0) ex2 = true;
+                if (ExampleTask3.CompareTo(task) == 0) ex3 = true;
+                if (ExampleTask4.CompareTo(task) == 0) ex4 = true;
+            }
+
+            Assert.Equal(2, countTask);
+            Assert.Equal(1, countRept);
+            Assert.Equal(1, countHabt);
+            Assert.True(ex1);
+            Assert.True(ex2);
+            Assert.True(ex3);
+            Assert.True(ex4);
+
+            DebugPrintContent(tasksRead);
         }
 
         [Fact]
@@ -84,7 +115,8 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             var filename = "testing-task-data_separate-threads_" + DateTime.Now.Ticks;
             Task.Run(() => WriteFileForTests(filename, expecetdTasks));
 
-            var reader = new TaskDataFileReader(filename);
+            var conf = new BinaryFileConfig() { FileName = filename };
+            var reader = new TaskDataFileReader(conf);
             
             #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
             Assert.ThrowsAsync<Exception>(async () =>
@@ -119,8 +151,9 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
         {
             var filename = "testing-task-data_async_test_" + DateTime.Now.Ticks;
 
-            var reader = new TaskDataFileReader(filename);
-            var writer = new TaskDataFileWriter(filename);
+            var conf = new BinaryFileConfig() { FileName = filename };
+            var reader = new TaskDataFileReader(conf);
+            var writer = new TaskDataFileWriter(conf);
 
             var expecetdTasks = 4;
             
@@ -155,7 +188,8 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
 
         void WriteFileForTests(string filename, int taskCount = 4)
         {
-            var writer = new TaskDataFileWriter(filename);
+            var conf = new BinaryFileConfig() { FileName = filename };
+            var writer = new TaskDataFileWriter(conf);
             if (taskCount >= 1) writer.AddObjectToWrite(ExampleTask1);
             if (taskCount >= 2) writer.AddObjectToWrite(ExampleTask2);
             if (taskCount >= 3) writer.AddObjectToWrite(ExampleTask3);
@@ -186,11 +220,11 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             {
                 if (item is HabitualTaskDataEntity habitual)
                 {
-                    Debug.WriteLine($"ID={habitual.Id}, Desc={habitual.Description}, Notes={habitual.Notes}, Completed={habitual.Completed}, DueDate={habitual.DueDate.ToString()}, Interval={habitual.RepeatingInterval.ToString()}, Repititions={habitual.Repititions}, Streak={habitual.Streak}");
+                    Debug.WriteLine($"ID={habitual.Id}, Desc={habitual.Description}, Notes={habitual.Notes}, Completed={habitual.Completed}, DueDate={habitual.DueDate.ToString()}, Interval={habitual.RepeatingInterval.ToString()}, Repititions={habitual.Repetitions}, Streak={habitual.Streak}");
                 }
                 else if (item is RepeatingTaskDataEntity repeating)
                 {
-                    Debug.WriteLine($"ID={repeating.Id}, Desc={repeating.Description}, Notes={repeating.Notes}, Completed={repeating.Completed}, DueDate={repeating.DueDate.ToString()}, Interval={repeating.RepeatingInterval.ToString()}, Repititions={repeating.Repititions}");
+                    Debug.WriteLine($"ID={repeating.Id}, Desc={repeating.Description}, Notes={repeating.Notes}, Completed={repeating.Completed}, DueDate={repeating.DueDate.ToString()}, Interval={repeating.RepeatingInterval.ToString()}, Repititions={repeating.Repetitions}");
                 }
                 else
                 {

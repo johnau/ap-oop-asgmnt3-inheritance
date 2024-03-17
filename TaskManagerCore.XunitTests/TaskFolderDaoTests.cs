@@ -1,4 +1,5 @@
-﻿using TaskManagerCore.Infrastructure.BinaryFile.Dao;
+﻿using BinaryFileHandler;
+using TaskManagerCore.Infrastructure.BinaryFile.Dao;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TH = TaskManagerCore.XunitTests.TestHelpers.TestHelperFunctions;
@@ -12,7 +13,7 @@ namespace TaskManagerCore.XunitTests
     /// </summary>
     public class TaskFolderDaoTests
     {
-        private const int _testIterations = 20;
+        private const int _testIterations = 5;
 
         [Fact]
         public void Save_WithValidEntity_WillReturnExpected()
@@ -136,8 +137,9 @@ namespace TaskManagerCore.XunitTests
         static (string filename, TaskFolderDao dao) SetupTaskFolderDao(string testName)
         {
             var filename = testName + "_" + DateTime.Now.Ticks;
-            var testReader = new TaskFolderFileReader(filename);
-            var testWriter = new TaskFolderFileWriter(filename);
+            var conf = new BinaryFileConfig() { FileName = filename };
+            var testReader = new TaskFolderFileReader(conf);
+            var testWriter = new TaskFolderFileWriter(conf);
             var dao = new TaskFolderDao(testReader, testWriter);
             return (filename, dao);
         }

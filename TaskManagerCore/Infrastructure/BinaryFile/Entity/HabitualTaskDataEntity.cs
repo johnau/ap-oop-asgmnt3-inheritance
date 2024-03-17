@@ -9,5 +9,17 @@
         {
             Streak = 0;
         }
+
+        public override int CompareTo(TaskDataEntity? other)
+        {
+            var baseResult = base.CompareTo(other);
+
+            if (baseResult == 0 && other is HabitualTaskDataEntity otherHabitualTask)
+            {
+                return Streak.CompareTo(otherHabitualTask.Streak);
+            }
+
+            return baseResult;
+        }
     }
 }

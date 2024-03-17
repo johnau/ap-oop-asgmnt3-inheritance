@@ -1,120 +1,63 @@
-﻿using TaskManagerCore.Infrastructure.BinaryFile.Entity;
-using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers.Helper;
+﻿using BinaryFileHandler;
+using System.IO;
+using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Model;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
 {
     internal class TaskDataFileReader : BinaryFileReader<TaskDataEntity>
     {
-        // TODO: switch this out - use TaskDataEntitys
-        internal struct DataStruct
+        private readonly List<string> acceptedClasses = new List<string>() {typeof(TaskDataEntity).Name,
+                                                                            typeof(RepeatingTaskDataEntity).Name,
+                                                                            typeof(HabitualTaskDataEntity).Name};
+
+        public TaskDataFileReader(BinaryFileConfig config) : base(config) { }
+
+        /// <summary>
+        /// Reads current TaskDataEntity with provided BinaryReader
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        protected override TaskDataEntity ReadNext(BinaryReader reader)
         {
-            public DataStruct() { }
-            public string Id { get; set; } = string.Empty;
-            public string ClassName { get; set; } = string.Empty;
-            public string Description { get; set; } = string.Empty;
-            public string Notes { get; set; } = string.Empty;
-            public bool Completed { get; set; } = false;
-            public long DueDate { get; set; } = 0L;
-            public int Interval { get; set; } = 0;
-            public int Repetitions { get; set; } = 0;
-            public int Streak { get; set; } = 0;
+            if (!acceptedClasses.Contains(CurrentClassName))
+                throw new ArgumentException("A recognized Class name was not detected");
+
+            var id = reader.ReadString();
+            var description = reader.ReadString();
+            var notes = reader.ReadString();
+            var completed = reader.ReadBoolean();
+            var dueDate = reader.ReadInt64();
+            byte[] xDataBytes = reader.ReadBytes(sizeof(int) * 3);
+            int[] xData = ReadIntBytes(xDataBytes);
+            var interval = xData[0];
+            var repetitions = xData[1];
+            var streak = xData[2];
+
+            return EntityFactory.TaskFromValues(CurrentClassName, 
+                                                id, 
+                                                description, 
+                                                notes, 
+                                                completed, 
+                                                new DateTime(dueDate), 
+                                                (TimeInterval)interval, 
+                                                repetitions, 
+                                                streak);
         }
 
-        readonly string TaskDataClassName = typeof(TaskDataEntity).Name;
-        readonly string RepeatingTaskDataClassName = typeof(RepeatingTaskDataEntity).Name;
-        readonly string HabitualTaskDataClassName = typeof(HabitualTaskDataEntity).Name;
-
-        DataStruct? currentData = null;
-
-        public TaskDataFileReader(string filename = "task-data", string? rootPath = null)
-            : base(filename, rootPath)
-        { }
-
-        protected override bool HasNext(BinaryReader reader)
+        private int[] ReadIntBytes(byte[] xDataBytes)
         {
-            var data = new DataStruct();
-            data.ClassName = reader.ReadString();
-            data.Id = reader.ReadString();
-            data.Description = reader.ReadString();
-            data.Notes = reader.ReadString();
-            data.Completed = reader.ReadBoolean();
-            data.DueDate = reader.ReadInt64();
-
-            byte[] xDataBytes = reader.ReadBytes(sizeof(int) * 3);
-
+            int[] ints = new int[3];
+            // Read int bytes from xDataBytes byte[]
             using (MemoryStream stream = new MemoryStream(xDataBytes))
             using (BinaryReader byteReader = new BinaryReader(stream))
             {
-                data.Interval = byteReader.ReadInt32();
-                data.Repetitions = byteReader.ReadInt32();
-                data.Streak = byteReader.ReadInt32();
+                ints[0] = byteReader.ReadInt32();
+                ints[1] = byteReader.ReadInt32();
+                ints[2] = byteReader.ReadInt32();
             }
-
-            if (IsTerminator(data))
-            {
-                currentData = null;
-                return false;
-            }
-
-            currentData = data;
-            return true;
+            return ints;
         }
-
-        protected override TaskDataEntity ReadData(BinaryReader reader)
-        {
-            if (currentData == null)
-                throw new Exception("Call HasNext() first");
-
-            //TODO: Another place to refactor these casts and object creations to a central factory
-            if (currentData.Value.ClassName.Equals(TaskDataClassName, StringComparison.Ordinal))
-            {
-                return new TaskDataEntity(currentData.Value.Id)
-                {
-                    Description = currentData.Value.Description,
-                    Notes = currentData.Value.Notes,
-                    Completed = currentData.Value.Completed,
-                    DueDate = currentData.Value.DueDate > 0 ? new DateTime(currentData.Value.DueDate) : null,
-                };
-            }
-            else if (currentData.Value.ClassName.Equals(RepeatingTaskDataClassName, StringComparison.Ordinal))
-            {
-                return new RepeatingTaskDataEntity(currentData.Value.Id)
-                {
-                    Description = currentData.Value.Description,
-                    Notes = currentData.Value.Notes,
-                    Completed = currentData.Value.Completed,
-                    DueDate = new DateTime(currentData.Value.DueDate),
-                    RepeatingInterval = (TimeInterval)currentData.Value.Interval,
-                    Repititions = currentData.Value.Repetitions,
-                };
-            }
-            else if (currentData.Value.ClassName.Equals(HabitualTaskDataClassName, StringComparison.Ordinal))
-            {
-                return new HabitualTaskDataEntity(currentData.Value.Id)
-                {
-                    Description = currentData.Value.Description,
-                    Notes = currentData.Value.Notes,
-                    Completed = currentData.Value.Completed,
-                    DueDate = new DateTime(currentData.Value.DueDate),
-                    RepeatingInterval = (TimeInterval)currentData.Value.Interval,
-                    Repititions = currentData.Value.Repetitions,
-                    Streak = currentData.Value.Streak
-                };
-            }
-
-            throw new Exception("Unhandled class type");
-        }
-
-        static bool IsTerminator(DataStruct data)
-        {
-            return (data.Id.Equals(TaskDataTerminator.IdTerminator)
-                && data.ClassName.Equals(TaskDataTerminator.ClassNameTerminator)
-                && data.Description.Equals(TaskDataTerminator.DescriptionTerminator)
-                && data.Notes.Equals(TaskDataTerminator.NotesTerminator)
-                && data.Completed == TaskDataTerminator.CompletedTerminator);
-        }
-
     }
-
 }

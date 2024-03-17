@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using System.Xml.Linq;
-using TaskManagerCore.Configuration;
+﻿using TaskManagerCore.Configuration;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 {
@@ -12,7 +10,17 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 
         public bool Completed { get; set; }
 
-        public DateTime? DueDate { get; set; }
+        private DateTime? _dueDate;
+        public DateTime? DueDate {
+            get { return _dueDate; }
+            set 
+            { 
+                if (value.HasValue && value.Value > DateTime.MinValue)
+                    _dueDate = value.Value;
+                else
+                    _dueDate = null;
+            }
+        }
 
         public TaskDataEntity(string? id = "")
             : base(id)
@@ -22,25 +30,27 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             Completed = false;
         }
 
-        public int CompareTo(TaskDataEntity? other)
+        public virtual int CompareTo(TaskDataEntity? other)
         {
             if (other == null) return 1;
 
-            //return string.Compare(Description, other.Description, StringComparison.OrdinalIgnoreCase);
-
-            int compareCompleted = Completed.CompareTo(other.Completed);
+            var compareCompleted = Completed.CompareTo(other.Completed);
             if (compareCompleted != 0) return compareCompleted;
 
-            int compareDescription = string.Compare(Description, other.Description, StringComparison.OrdinalIgnoreCase);
+            var compareDescription = string.Compare(Description, other.Description, StringComparison.OrdinalIgnoreCase);
             if (compareDescription != 0) return compareDescription;
 
-            if (DueDate.HasValue && other.DueDate.HasValue)
+            // This is ugly but is to protect against DueDate being populated with a DateTime(0) object instead of null
+            // ... Have now added protection to the setter, but will leave this here for now.
+            if (DueDate.HasValue && DueDate.Value > DateTime.MinValue
+                && other.DueDate.HasValue && other.DueDate.Value > DateTime.MinValue)
             {
-                int compareDueDate = DueDate.Value.CompareTo(other.DueDate.Value);
+                var compareDueDate = DueDate.Value.CompareTo(other.DueDate.Value);
                 if (compareDueDate != 0) return compareDueDate;
             }
-            else if (DueDate.HasValue) return 1;
-            else if (other.DueDate.HasValue) return -1;
+            else if (DueDate.HasValue && DueDate.Value > DateTime.MinValue) return 1;
+            else if (other.DueDate.HasValue && other.DueDate.Value > DateTime.MinValue) return -1;
+            else return 0;
 
             return string.Compare(Notes, other.Notes, StringComparison.OrdinalIgnoreCase);
         }
