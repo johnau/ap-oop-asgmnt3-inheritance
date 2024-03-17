@@ -137,7 +137,7 @@ namespace TaskManagerCore.XunitTests
         static (string filename, TaskFolderDao dao) SetupTaskFolderDao(string testName)
         {
             var filename = testName + "_" + DateTime.Now.Ticks;
-            var conf = new BinaryFileConfig() { FileName = filename };
+            var conf = new BinaryFileConfig(filename);
             var testReader = new TaskFolderFileReader(conf);
             var testWriter = new TaskFolderFileWriter(conf);
             var dao = new TaskFolderDao(testReader, testWriter);

@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Sort = TaskManagerCore.Infrastructure.BinaryFile.Dao.Sorting.TaskSortingType;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
-using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Infrastructure.BinaryFile.QueryComparers;
 using BinaryFileHandler;
 
@@ -34,7 +33,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// <exception cref="Exception">Throw exception if unique description is violated</exception>
         public override string Save(TaskDataEntity entity)
         {
-            // Try to add new task
+            /* 
+             * Try Add new Task
+             */
             if (entity is HabitualTaskDataEntity habitualEntity) // TODO: move all type checks and casts to a single class in each layer.
             {
                 if (Cache.TryAdd(entity.Id, habitualEntity))
@@ -51,40 +52,40 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                     return entity.Id;
             }
 
-            // Update existing task
+            /* 
+             * Update existing task
+             */
             Debug.WriteLine($"Updating Task: {entity.Id} {entity.GetType()}");
 
-            // Handling this here isn't the nicest, but to avoid this there needs to be
-            // a concrete version of the Cache objects, for each type...
-            if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Task");
-            if (existing == null) throw new Exception("Missing Task");
+            if (!Cache.TryGetValue(entity.Id, out var existing) || existing == null) 
+                throw new Exception("Missing Task");
+
             existing.Description = entity.Description;
             existing.Notes = entity.Notes;
             existing.Completed = entity.Completed;
             existing.DueDate = entity.DueDate;
 
-            //var type = entity.GetType(); // Better to use for more specific type matching? using is needs to be done in specific order in some cases, but below is not one of those cases
-
-            if (entity is RepeatingTaskDataEntity repeating) // update params if is repeating
+            // update params if is repeating
+            // messy - need to clean this up
+            if (entity is RepeatingTaskDataEntity repeating) 
             {
-                // messy - need to clean this up
                 var _existing = (RepeatingTaskDataEntity)existing;
                 _existing.Completed = false;
-                _existing.DueDate = repeating.DueDate;
                 _existing.RepeatingInterval = repeating.RepeatingInterval;
                 _existing.Repetitions = repeating.Repetitions;
                 existing = _existing;
             }
-            if (entity is HabitualTaskDataEntity habitual) // update params again if also habitual
+            // update params again if also habitual
+            // messy - need to clean this up
+            if (entity is HabitualTaskDataEntity habitual)
             {
-                // mess - need to clean this up
                 var _existing = (HabitualTaskDataEntity)existing;
                 _existing.Streak = habitual.Streak;
                 existing = _existing;
             }
 
-            Cache.MarkDirty(); // Hacky fix for now to notify subscribers about changes (Extremely jank fix)
-            //Cache.ForceReplace(entity.Id, existing); // This is ugly, but needed to force the call on NotifySubscribers...
+            // Notify subscribers about changes - not greatest solution having to manually trigger just for this update
+            Cache.MarkDirty(); 
 
             return existing.Id;
         }
@@ -184,6 +185,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             // + Finding Completed=False, list will start with false
             var sortedList = Cache.SortedBy(Sort.COMPLETED + "", completed);
             var criteria = new TaskDataEntity() { Completed = completed };
+
             // Slightly optimized - will step right, in chunks, until it finds the edge (roughly),
             // then narrows down the exact edge
             return sortedList.BinarySearchMultiple(criteria, new TaskCompletedComparer(completed), 0);

@@ -28,7 +28,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                 TaskIds = new List<string> { "taskId4", "taskId5", "taskId6" },
             };
 
-            var conf = new BinaryFileConfig() { FileName = "testing-task-folders" };
+            var conf = new BinaryFileConfig("testing-task-folders");
             var writer = new TaskFolderFileWriter(conf);
             writer.AddObjectToWrite(folder1);
             writer.AddObjectToWrite(folder2);

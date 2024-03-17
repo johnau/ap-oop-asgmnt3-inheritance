@@ -106,10 +106,5 @@
         {
             return DateTime.Now;
         }
-
-        //public string GetTypeString()
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }

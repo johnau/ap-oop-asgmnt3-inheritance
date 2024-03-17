@@ -1,4 +1,4 @@
-﻿namespace TaskManagerCore.Configuration
+﻿namespace TaskManagerCore.Configuration.Cache
 {
     /// <summary>
     /// Wraps Dictionary to provide subscription (extending or implementing exposes too many methods)
@@ -26,14 +26,14 @@
         /// has replaced a Dictionary in the DAO objects
         /// </summary>
         public Dictionary<string, T>.ValueCollection Values => Cache.Values;
-        
+
         /// <summary>
         /// Simulating a method from Dictionary class that was in use, since this class
         /// has replaced a Dictionary in the DAO objects
         /// </summary>
         /// <returns></returns>
         public Dictionary<string, T>.Enumerator GetEnumerator() => Cache.GetEnumerator();
-        
+
         /// <summary>
         /// Simulating a method from Dictionary class that was in use, since this class
         /// has replaced a Dictionary in the DAO objects
@@ -42,7 +42,7 @@
         /// <param name="value"></param>
         /// <returns></returns>
         public bool TryGetValue(string key, out T? value) => Cache.TryGetValue(key, out value);
-        
+
         /// <summary>
         /// Simulating a method from Dictionary class that was in use, since this class
         /// has replaced a Dictionary in the DAO objects

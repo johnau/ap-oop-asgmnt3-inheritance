@@ -23,8 +23,8 @@ namespace TaskManagerConsoleApp
 
             // construct application
 
-            var tasksFileConf = new BinaryFileConfig() { FileName = "taskmanager-task-data" };
-            var folderFileConf = new BinaryFileConfig() { FileName = "taskmanager-folder-data" };
+            var tasksFileConf = new BinaryFileConfig("taskmanager-task-data");
+            var folderFileConf = new BinaryFileConfig("taskmanager-folder-data");
 
 
             var taskWriter = new TaskDataFileWriter(tasksFileConf);

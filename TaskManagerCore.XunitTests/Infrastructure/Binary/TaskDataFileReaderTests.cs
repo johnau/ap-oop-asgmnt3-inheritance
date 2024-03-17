@@ -51,7 +51,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             var filename = $"testing-{expecetdTasks}_task-data_" + DateTime.Now.Ticks;
             WriteFileForTests(filename, expecetdTasks);
 
-            var conf = new BinaryFileConfig() { FileName = filename };
+            var conf = new BinaryFileConfig(filename);
             var reader = new TaskDataFileReader(conf);
             var content = reader.ReadValues(); 
 
@@ -71,7 +71,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
 
             WriteFileForTests(filename, expecetdTasks);
 
-            var conf = new BinaryFileConfig() { FileName = filename };
+            var conf = new BinaryFileConfig(filename);
             var reader = new TaskDataFileReader(conf);
             var tasksRead = reader.ReadValues(); 
 
@@ -115,7 +115,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             var filename = "testing-task-data_separate-threads_" + DateTime.Now.Ticks;
             Task.Run(() => WriteFileForTests(filename, expecetdTasks));
 
-            var conf = new BinaryFileConfig() { FileName = filename };
+            var conf = new BinaryFileConfig(filename);
             var reader = new TaskDataFileReader(conf);
             
             #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -151,7 +151,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
         {
             var filename = "testing-task-data_async_test_" + DateTime.Now.Ticks;
 
-            var conf = new BinaryFileConfig() { FileName = filename };
+            var conf = new BinaryFileConfig(filename);
             var reader = new TaskDataFileReader(conf);
             var writer = new TaskDataFileWriter(conf);
 
@@ -188,7 +188,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
 
         void WriteFileForTests(string filename, int taskCount = 4)
         {
-            var conf = new BinaryFileConfig() { FileName = filename };
+            var conf = new BinaryFileConfig(filename);
             var writer = new TaskDataFileWriter(conf);
             if (taskCount >= 1) writer.AddObjectToWrite(ExampleTask1);
             if (taskCount >= 2) writer.AddObjectToWrite(ExampleTask2);

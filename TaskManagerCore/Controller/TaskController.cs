@@ -10,7 +10,7 @@ namespace TaskManagerCore.Controller
     public partial class TaskController
     {
         [GeneratedRegex(@"^due[_\.]?date$")]
-        private static partial Regex Regex_DueDateProperty_Lower();
+        private static partial Regex Regex_DueDatePropertyNameLowerCase();
 
         private readonly ICrudRepository<TaskData, string> TaskDataRepository;
         private readonly ICrudRepository<TaskFolder, string> TaskFolderRepository;
@@ -71,9 +71,8 @@ namespace TaskManagerCore.Controller
         /// <returns></returns>
         public List<GetTaskDto> GetTasksByIds(List<string> ids)
         {
-            Debug.WriteLine($"Trying to fetch {ids.Count} tasks");
             var tasks = TaskDataRepository.FindByIds(ids);
-            Debug.WriteLine($"Found {tasks.Count} tasks");
+            
             var dtos = new List<GetTaskDto>();
             foreach (var task in tasks)
             {
@@ -127,9 +126,7 @@ namespace TaskManagerCore.Controller
         {
             var folder = TaskFolderRepository.FindById(folderId);
             if (folder == null)
-            {
                 throw new Exception($"Unable to find Folder with Id: {folderId}");
-            }
 
             var idsInFolder = folder.TaskIds;
             var tasksInFolder = TaskDataRepository.FindByIds(idsInFolder);
@@ -153,9 +150,7 @@ namespace TaskManagerCore.Controller
         {
             var task = TaskDataRepository.FindById(id);
             if (task == null)
-            {
                 throw new Exception($"Unable to find Task with Id: {id}");
-            }
 
             var savedId = TaskDataRepository.Save(task.WithCompleted(completed));
 
@@ -206,9 +201,7 @@ namespace TaskManagerCore.Controller
         {
             var folder = TaskFolderRepository.FindById(dto.InFolderId);
             if (folder == null)
-            {
                 throw new Exception($"Could not find Folder: {dto.InFolderId}");
-            }
 
             var task = DtoMapperCreateTask.Map(dto);
             var taskId = TaskDataRepository.Save(task);
@@ -233,7 +226,8 @@ namespace TaskManagerCore.Controller
             try
             {
                 return TaskFolderRepository.Save(taskFolder);
-            } catch (Exception ex)
+            } 
+            catch (Exception ex)
             {
                 throw new Exception($"Could not save Task Folder: {ex.Message}");
             }
@@ -260,16 +254,12 @@ namespace TaskManagerCore.Controller
         {
             var task = TaskDataRepository.FindById(taskId);
             if (task == null)
-            {
                 throw new Exception($"Could not find Task with Id: {taskId}");
-            }
 
             var fromFolder = TaskFolderRepository.FindById(folderIdFrom);
             var toFolder = TaskFolderRepository.FindById(folderIdTo);
             if (fromFolder == null || toFolder == null)
-            {
                 throw new Exception($"Could not find target Folders for move ({folderIdFrom}, {folderIdTo})");
-            }
 
             fromFolder = fromFolder.WithoutTask(taskId);
             toFolder = toFolder.WithTask(taskId);
@@ -279,9 +269,7 @@ namespace TaskManagerCore.Controller
             var savedToFolderId = TaskFolderRepository.Save(toFolder);
 
             if (savedTaskId == null || savedFromFolderId == null || savedToFolderId == null)
-            {
                 return false;
-            }
 
             return true;
         }
@@ -299,24 +287,16 @@ namespace TaskManagerCore.Controller
             property = property.ToLower();
             var task = TaskDataRepository.FindById(id);
             if (task == null)
-            {
                 throw new Exception($"Task not found with id: {id}");
-            }
 
             if (property == "description")
-            {
                 task = task.WithDescription((string)value);
-            }
             else if (property == "notes")
-            {
                 task = task.WithNotes((string)value);
-            }
-            //else if (property.ToLower() == "duedate" || property.ToLower() == "due_date" || property.ToLower() == "due date") 
-            else if (Regex_DueDateProperty_Lower().IsMatch(property)) // due Date
-            {
+            else if (Regex_DueDatePropertyNameLowerCase().IsMatch(property)) // due Date
                 task = task.WithDueDate(new DateTime((long)value));
-            }
-            else throw new Exception($"Unrecognized property: {property}");
+            else 
+                throw new Exception($"Unrecognized property: {property}");
             
             try
             {
@@ -341,9 +321,7 @@ namespace TaskManagerCore.Controller
             property = property.ToLower();
             var folder = TaskFolderRepository.FindById(id);
             if (folder == null)
-            {
                 throw new Exception($"Folder not found with id: {id}");
-            }
 
             if (property == "name")
                 folder = folder.WithName((string)value);

@@ -13,7 +13,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             var filename = "reader-test_" + DateTime.Now.Ticks;
             var filePath = WriteTestFolders(filename);
 
-            var conf = new BinaryFileConfig() { FileName = filename };
+            var conf = new BinaryFileConfig(filename);
             var reader = new TaskFolderFileReader(conf);
             var content = reader.ReadValues();
 
@@ -47,7 +47,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                 TaskIds = new List<string> { "taskId4", "taskId5", "taskId6", "taskId7" },
             };
 
-            var conf = new BinaryFileConfig() { FileName = filename };
+            var conf = new BinaryFileConfig(filename);
             var writer = new TaskFolderFileWriter(conf);
             writer.AddObjectToWrite(folder1);
             writer.AddObjectToWrite(folder2);

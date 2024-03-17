@@ -9,11 +9,11 @@
             if (id != null && id != string.Empty)
             {
                 Id = id;
-                return;
             }
-
-            // Generate new GUID/UUID
-            Id = Guid.NewGuid().ToString();
+            else
+            {
+                Id = Guid.NewGuid().ToString();
+            }
         }
     }
 }

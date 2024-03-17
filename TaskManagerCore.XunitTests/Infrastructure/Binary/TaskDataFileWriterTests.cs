@@ -26,7 +26,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                 DueDate = DateTime.Now.AddDays(1),
             };
 
-            var conf = new BinaryFileConfig() { FileName = "testing-task-data" };
+            var conf = new BinaryFileConfig("testing-task-data");
             var writer = new TaskDataFileWriter(conf);
             writer.AddObjectToWrite(task1);
             writer.AddObjectToWrite(task2);
@@ -73,7 +73,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                 Streak = 2,
             };
 
-            var conf = new BinaryFileConfig() { FileName = "testing-task-data2" };
+            var conf = new BinaryFileConfig("testing-task-data2");
             var writer = new TaskDataFileWriter(conf);
             writer.AddObjectToWrite(task1);
             writer.AddObjectToWrite(task2);

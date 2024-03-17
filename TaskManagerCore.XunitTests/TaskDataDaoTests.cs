@@ -163,7 +163,7 @@ namespace TaskManagerCore.XunitTests
         static (string filename, TaskDataDao dao) SetupTaskDataDao(string testName)
         {
             var filename = testName + "_" + DateTime.Now.Ticks;
-            var conf = new BinaryFileConfig() { FileName = filename };
+            var conf = new BinaryFileConfig(filename);
             var testReader = new TaskDataFileReader(conf);
             var testWriter = new TaskDataFileWriter(conf);
             var dao = new TaskDataDao(testReader, testWriter);

@@ -35,7 +35,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
 
         public string Save(TaskData o)
         {
-            //return Dao.Save(TaskDataEntity.FromModel(o)); // Id gets generated here
             return Dao.Save(EntityFactory.FromModel(o)); // Id gets generated here
         }
 

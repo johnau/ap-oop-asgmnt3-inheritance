@@ -2,7 +2,12 @@
 {
     public struct BinaryFileConfig
     {
-        public string FileName { get; set; }
-        public string RootPath { get; set; }
+        public readonly string FileName { get; }
+        public readonly string RootPath { get; }
+        public BinaryFileConfig(string fileName, string rootPath = "") : this()
+        {
+            FileName = fileName;
+            RootPath = rootPath;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using TaskManagerCore.Configuration;
+﻿using TaskManagerCore.Configuration.Cache;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 {
@@ -23,6 +23,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             // add sorting for task count
         }
 
+        public string ToValuesOnlyString()
+        {
+            return Name;
+        }
+
         #region Static Compare Methods
         /// <summary>
         /// </summary>
@@ -39,13 +44,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             return t1.TaskIds.Count.CompareTo(t2.TaskIds.Count);
         }
         #endregion
-
-
-
-        public string ToValuesOnlyString()
-        {
-            return Name;
-        }
 
         #region Static Helper Methods
         public static TaskFolderEntity BLANK => new TaskFolderEntity();

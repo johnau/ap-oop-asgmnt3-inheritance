@@ -1,8 +1,8 @@
 ﻿using BinaryFileHandler;
 using System.Diagnostics;
 using TaskManagerCore.Configuration;
+using TaskManagerCore.Configuration.Cache;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
-using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {
@@ -17,20 +17,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         readonly BinaryFileReader<T> Reader;
         readonly BinaryFileWriter<T> Writer;
 
-        /*
-        readonly Dictionary<string, T> Cache;
-        protected readonly SubscribeableCache<T> Cache; // leave the dictionary cache for now
-        protected readonly SubscribeableListCache<T> Cache;
-        */
-        protected readonly SortableSubscribeableCache<T> Cache;
+         protected readonly SortableSubscribeableCache<T> Cache;
 
         protected AbstractDao(BinaryFileReader<T> reader, BinaryFileWriter<T> writer)
         {
             Reader = reader;
             Writer = writer;
-            //Cache = new Dictionary<string, T>();
-            //Cache = new SubscribeableCache<T>();
-            //Cache = new SubscribeableListCache<T>();
             Cache = new SortableSubscribeableCache<T>(ComparisonMethods);
             LoadData();
             

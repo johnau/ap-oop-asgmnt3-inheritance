@@ -4,10 +4,7 @@ using TaskManagerCore.Model;
 namespace TaskManagerCore.Infrastructure.BinaryFile
 {
     /// <summary>
-    /// Split this out into seperate factories?
-    /// 
-    /// Handles Model -> Entity conversion
-    /// Should be made responsible for all casts between different class types
+    /// Static EntityFactory for simplicity
     /// </summary>
     internal static class EntityFactory
     {
