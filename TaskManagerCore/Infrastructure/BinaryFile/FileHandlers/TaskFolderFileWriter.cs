@@ -1,5 +1,4 @@
 ﻿using BinaryFileHandler;
-using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
@@ -15,13 +14,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
         /// <param name="entity"></param>
         protected override void WriteObject(BinaryWriter writer, TaskFolderEntity entity)
         {
-            var taskIdsAsString = string.Join(Delimiter, entity.TaskIds);
-
             writer.Write(entity.Id);
             writer.Write(entity.Name);
-            writer.Write(taskIdsAsString);
-
-            Debug.WriteLine($"[BinaryFile]: Wrote Folder: id={entity.Id}, Name={entity.Name}, Ids={taskIdsAsString}");
+            writer.Write(string.Join(Delimiter, entity.TaskIds));
         }
     }
 }

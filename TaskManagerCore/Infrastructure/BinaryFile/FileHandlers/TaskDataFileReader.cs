@@ -29,12 +29,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             var notes = reader.ReadString();
             var completed = reader.ReadBoolean();
             var dueDate = reader.ReadInt64();
-            //byte[] xDataBytes = reader.ReadBytes(sizeof(int) * 3);
-            //int[] xData = ReadIntBytes(xDataBytes);
-            //var interval = xData[0];
-            //var repetitions = xData[1];
-            //var streak = xData[2];
-
             var interval = reader.ReadInt32();
             var repetitions = reader.ReadInt32();
             var streak = reader.ReadInt32();
@@ -44,24 +38,10 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
                                                 description, 
                                                 notes, 
                                                 completed, 
-                                                new DateTime(dueDate), 
+                                                dueDate > 0L ? new DateTime(dueDate) : null, 
                                                 (TimeInterval)interval, 
                                                 repetitions, 
                                                 streak);
         }
-
-        //private int[] ReadIntBytes(byte[] xDataBytes)
-        //{
-        //    int[] ints = new int[3];
-        //    // Read int bytes from xDataBytes byte[]
-        //    using (MemoryStream stream = new MemoryStream(xDataBytes))
-        //    using (BinaryReader byteReader = new BinaryReader(stream))
-        //    {
-        //        ints[0] = byteReader.ReadInt32();
-        //        ints[1] = byteReader.ReadInt32();
-        //        ints[2] = byteReader.ReadInt32();
-        //    }
-        //    return ints;
-        //}
     }
 }

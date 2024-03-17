@@ -144,11 +144,13 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
         {
             if (entity is HabitualTaskDataEntity h)
             {
-                return new HabitualTaskData(h.Id, h.Description, h.Notes, h.Completed, h.DueDate, h.RepeatingInterval, h.Repetitions, h.Streak);
+                var dueDate = h.DueDate.HasValue ? h.DueDate.Value : DateTime.MaxValue;
+                return new HabitualTaskData(h.Id, h.Description, h.Notes, h.Completed, dueDate, h.RepeatingInterval, h.Repetitions, h.Streak);
             }
             else if (entity is RepeatingTaskDataEntity r)
             {
-                return new RepeatingTaskData(r.Id, r.Description, r.Notes, r.Completed, r.DueDate, r.RepeatingInterval, r.Repetitions);
+                var dueDate = r.DueDate.HasValue ? r.DueDate.Value : DateTime.MaxValue;
+                return new RepeatingTaskData(r.Id, r.Description, r.Notes, r.Completed, dueDate, r.RepeatingInterval, r.Repetitions);
             }
             else
             {
