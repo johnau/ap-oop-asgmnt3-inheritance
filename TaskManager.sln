@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManagerCore", "TaskMana
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManagerCore.XunitTests", "TaskManagerCore.XunitTests\TaskManagerCore.XunitTests.csproj", "{7030279E-2EC5-42AB-BD3F-B601905311AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimumReproduceableBinarySearchStrangeBehavior", "MinimumReproduceableBinarySearchStrangeBehavior\MinimumReproduceableBinarySearchStrangeBehavior.csproj", "{DC6D89FF-BBB2-4E80-BB7B-34833719CC1E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryFileHandler", "BinaryFileHandler\BinaryFileHandler.csproj", "{8EDEF166-693C-410A-A9F0-40A41EF41A43}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryCache", "InMemoryCache\InMemoryCache.csproj", "{B7E955D6-092A-4D1A-801E-20FB075A5D1B}"
@@ -33,10 +31,6 @@ Global
 		{7030279E-2EC5-42AB-BD3F-B601905311AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7030279E-2EC5-42AB-BD3F-B601905311AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7030279E-2EC5-42AB-BD3F-B601905311AD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DC6D89FF-BBB2-4E80-BB7B-34833719CC1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DC6D89FF-BBB2-4E80-BB7B-34833719CC1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DC6D89FF-BBB2-4E80-BB7B-34833719CC1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DC6D89FF-BBB2-4E80-BB7B-34833719CC1E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8EDEF166-693C-410A-A9F0-40A41EF41A43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8EDEF166-693C-410A-A9F0-40A41EF41A43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EDEF166-693C-410A-A9F0-40A41EF41A43}.Release|Any CPU.ActiveCfg = Release|Any CPU

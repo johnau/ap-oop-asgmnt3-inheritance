@@ -10,7 +10,7 @@ namespace BinaryFileHandler
     public abstract class BinaryFileWriter<T> : BinaryFileAccessor
     {
         protected List<T> WritePendingList;
-
+        protected bool LastFailed = false;
         public BinaryFileWriter(BinaryFileConfig config)
             : base(config)
         {
@@ -39,23 +39,26 @@ namespace BinaryFileHandler
         /// <summary>
         /// Writes all values added to the writer to a binary file
         /// </summary>
-        public bool WriteValues(int retriesRemaining = 20)
+        public bool WriteValues()
         {
-            // Copy the list and clear it on Write call
-            var toWrite = new List<T>(WritePendingList);
-            WritePendingList.Clear();
+            BackupExistingFile(overwrite: !LastFailed);
+            
+            var toWrite = CopyAndClearPending();
+            
+            return TryWriteFile(toWrite);
+        }
 
-            // Catch any I/O errors
+        public bool TryWriteFile(List<T> toWrite, int retriesRemaining = 20)
+        {
             try
             {
-                //using (var stream = File.Open(filePath, FileMode.OpenOrCreate))
                 using (var stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
                 using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
                 {
                     foreach (var item in toWrite)
                     {
                         if (item == null) continue;
-                        
+
                         // Write class name on first row (first row is either ClassName or Terminator)
                         writer.Write(item.GetType().Name);
 
@@ -67,24 +70,24 @@ namespace BinaryFileHandler
                 }
 
                 Debug.WriteLine($"Wrote {WritePendingList.Count} items");
+                LastFailed = false;
                 return true;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
+                LastFailed = true;
                 Debug.WriteLine($"Could not write data: {ex.Message}, retrying {retriesRemaining} more times");
-                
-                // Try again if there are retries remaining.
+
                 if (retriesRemaining > 1)
                 {
                     Thread.Sleep(50);
-                    WriteValues(retriesRemaining--);
+                    TryWriteFile(toWrite, retriesRemaining--);
                 }
                 return false;
             }
             finally
             {
-                // Make sure list is cleared after write
-                WritePendingList.Clear();
+                WritePendingList.Clear(); // Ensure cleared
             }
         }
 
@@ -114,6 +117,24 @@ namespace BinaryFileHandler
         protected static void WriteTerminatorObject(BinaryWriter writer)
         {
             writer.Write(GenericTerminators.StringTerminator);
+        }
+
+        protected void BackupExistingFile(bool overwrite)
+        {
+            try
+            {
+                File.Copy(FilePath, FilePath + BackupExtension, overwrite);
+            } catch (Exception ex)
+            {
+                Debug.WriteLine($"Unable to create file backup: {ex.Message}");
+            }
+        }
+
+        List<T> CopyAndClearPending()
+        {
+            var copy = new List<T>(WritePendingList);
+            WritePendingList.Clear();
+            return copy;
         }
     }
 }

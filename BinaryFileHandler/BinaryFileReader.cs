@@ -4,14 +4,12 @@ using System.Text;
 namespace BinaryFileHandler
 {
     /// <summary>
-    /// TODO: Make backup of file before writing incase write is interrupted for some reason
-    /// Test read file after write (and during application load and other rquired times), and 
-    /// restore backup if required
+    /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class BinaryFileReader<T> : BinaryFileAccessor
     {
-        protected List<T> ReadList;
+        protected readonly List<T> ReadList;
         protected string CurrentClassName;
 
         protected BinaryFileReader(BinaryFileConfig config)
@@ -20,6 +18,13 @@ namespace BinaryFileHandler
             ReadList = new List<T>();
             CurrentClassName = "";
         }
+
+        /// <summary>
+        /// Method to read a single entry
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns>True if reached the end of the file</returns>
+        protected abstract T ReadObject(BinaryReader reader);
 
         /// <summary>
         /// Get a copy of last read data
@@ -33,11 +38,13 @@ namespace BinaryFileHandler
         /// <exception cref="Exception"></exception>
         public List<T> ReadValues()
         {
+            ReadList.Clear();
+
             if (!FileExists(FilePath))
                 throw new Exception($"An expected file was not found: {FilePath}");
 
             // Retry if file is in use, abort on other errors
-            var retryAttempts = 100;
+            var retryAttempts = 20;
             List<T> fileData;
             while (!TryReadFile(out fileData, out var abort) && retryAttempts > 0)
             {
@@ -46,10 +53,28 @@ namespace BinaryFileHandler
                 retryAttempts--;
             }
 
-            if (fileData == null)
-                throw new Exception($"Unable to read from file: {FilePath}");
-
+            // Store the list so it can be accessed with `Data` property
+            StashFileData(fileData);
             return fileData;
+        }
+
+        /// <summary>
+        /// Async wrapper to read values
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<T>> ReadValuesAsync()
+        {
+            Debug.WriteLine($"[{DateTime.Now.Ticks}] Wait for semaphore...");
+            await accessSemaphore.WaitAsync(5_000);
+            Debug.WriteLine($"[{DateTime.Now.Ticks}] Got semaphore...");
+            try
+            {
+                return ReadValues();
+            }
+            finally
+            {
+                accessSemaphore.Release();
+            }
         }
 
         /// <summary>
@@ -74,13 +99,6 @@ namespace BinaryFileHandler
         }
 
         /// <summary>
-        /// Method to read a single entry
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <returns>True if reached the end of the file</returns>
-        protected abstract T ReadObject(BinaryReader reader);
-
-        /// <summary>
         /// Try Read file data, returns true on success, and returns a list of objects
         /// If failed, the abort bool is true if file access was denied for reasons other than
         /// file in use (ie. does not exist, or permissions)
@@ -95,49 +113,30 @@ namespace BinaryFileHandler
             abort = false;
             try
             {
-                //using (var stream = File.Open(filePath, FileMode.Open))
-                //using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize: 4096, useAsync: true))
                 using (var stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None, bufferSize: 4096, useAsync: true))
                 using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
                 {
                     while (HasNext(reader))
                     {
                         var entity = ReadObject(reader);
-                        ReadList.Add(entity);
+                        data.Add(entity);
                     }
                 }
-                data.AddRange(ReadList);
+
                 return true;
             }
             catch (IOException ex) when (IsFileInUse(ex)) // if file is in use we will retry
             {
-                Debug.WriteLine("File is in use...");
+                Debug.WriteLine($"The file is in use: {FilePath}");
+                
                 return false;
             }
             catch (Exception ex) // catch all other exceptions and fail
             {
                 Debug.WriteLine($"An exception was thrown: {ex.Message} whil trying to read the file {FilePath}");
+                
                 abort = true;
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Async wrapper to read values
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<T>> ReadValuesAsync()
-        {
-            Debug.WriteLine($"[{DateTime.Now.Ticks}] Wait for semaphore...");
-            await accessSemaphore.WaitAsync(5_000);
-            Debug.WriteLine($"[{DateTime.Now.Ticks}] Got semaphore...");
-            try
-            {
-                return ReadValues();
-            }
-            finally
-            {
-                accessSemaphore.Release();
             }
         }
 
@@ -149,6 +148,12 @@ namespace BinaryFileHandler
         protected static bool IsTerminator(string checking)
         {
             return checking.Equals(GenericTerminators.StringTerminator);
+        }
+
+        void StashFileData(List<T> fileData)
+        {
+            ReadList.Clear();
+            ReadList.AddRange(fileData);
         }
     }
 }

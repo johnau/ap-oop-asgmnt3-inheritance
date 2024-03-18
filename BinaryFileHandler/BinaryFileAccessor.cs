@@ -9,8 +9,10 @@ namespace BinaryFileHandler
     {
         protected const string Delimiter = ";;";
         protected const string Extension = ".bin";
+        protected const string BackupExtension = ".bak";
         protected readonly string _filenameBase;
         protected readonly string _rootPath;
+        public string FilePath => Path.Combine(_rootPath, _filenameBase + Extension);
 
         /// <summary>
         /// Access semaphore to prevent concurrent access through the BinaryFileAccessor from implementations
@@ -38,12 +40,6 @@ namespace BinaryFileHandler
                 _rootPath = config.RootPath;
             }
         }
-
-        /// <summary>
-        /// File path of Binary File
-        /// </summary>
-        /// <returns></returns>
-        public string FilePath => Path.Combine(_rootPath, _filenameBase + Extension);
 
         /// <summary>
         /// Multiple attempts check for file in-case it is just being created
