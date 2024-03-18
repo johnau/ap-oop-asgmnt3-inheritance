@@ -1,8 +1,10 @@
-﻿using TaskManagerCore.Configuration;
+﻿using BinaryFileHandler;
+using TaskManagerCore.Configuration;
+using TaskManagerCore.Model;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 {
-    internal class TaskDataEntity : EntityBase, IComparable<TaskDataEntity>, ISearchable
+    internal class TaskDataEntity : EntityBase, IComparable<TaskDataEntity>, ISearchable, IBinaryWritableReadable<TaskDataEntity>
     {
         public string Description { get; set; }
 
@@ -97,5 +99,37 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
         {
             return $"TaskDataEntity: [ID={Id}, Description={Description}, Notes={Notes}, Completed={Completed}, DueDate={DueDate}]";
         }
+
+        #region IBinaryWritableReadable interface methods
+        /*
+         * Not using the BinaryFile lib this way, have implemented
+         */
+        public void WriteObject(BinaryWriter writer, TaskDataEntity obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual TaskDataEntity PopulateThis(BinaryReader reader, string className)
+        {
+            var id = reader.ReadString();
+            var description = reader.ReadString();
+            var notes = reader.ReadString();
+            var completed = reader.ReadBoolean();
+            var dueDate = reader.ReadInt64();
+            var interval = reader.ReadInt32();
+            var repetitions = reader.ReadInt32();
+            var streak = reader.ReadInt32();
+
+            return EntityFactory.TaskFromValues(className,
+                                                id,
+                                                description,
+                                                notes,
+                                                completed,
+                                                dueDate > 0L ? new DateTime(dueDate) : null,
+                                                (TimeInterval)interval,
+                                                repetitions,
+                                                streak);
+        }
+        #endregion
     }
 }

@@ -70,5 +70,15 @@ namespace BinaryFileHandler
             // Check if the specific IOException indicates that the file is in use
             return ex.HResult == -2147024864; // This is the HRESULT for "The process cannot access the file because it is being used by another process."
         }
+
+        /// <summary>
+        /// Check if string is a terminator string
+        /// </summary>
+        /// <param name="checking"></param>
+        /// <returns></returns>
+        protected static bool IsTerminator(string checking)
+        {
+            return checking.Equals(FileTerminator);
+        }
     }
 }

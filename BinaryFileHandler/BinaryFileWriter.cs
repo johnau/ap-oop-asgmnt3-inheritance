@@ -57,7 +57,7 @@ namespace BinaryFileHandler
         /// <param name="toWrite"></param>
         /// <param name="retriesRemaining"></param>
         /// <returns></returns>
-        public bool TryWriteFile(List<T> toWrite, int retriesRemaining = 20)
+        bool TryWriteFile(List<T> toWrite, int retriesRemaining = 20)
         {
             try
             {
@@ -141,7 +141,7 @@ namespace BinaryFileHandler
         /// 
         /// </summary>
         /// <param name="writer"></param>
-        protected static void WriteTerminatorString(BinaryWriter writer)
+        protected void WriteTerminatorString(BinaryWriter writer)
         {
             writer.Write(FileTerminator);
         }

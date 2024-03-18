@@ -3,6 +3,6 @@
     public interface IBinaryWritableReadable<T>
     {
         void WriteObject(BinaryWriter writer, T obj);
-        void PopulateThis(BinaryReader reader);
+        T PopulateThis(BinaryReader reader, string className);
     }
 }
