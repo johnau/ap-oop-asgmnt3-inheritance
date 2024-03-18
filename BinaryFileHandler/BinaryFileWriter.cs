@@ -118,10 +118,11 @@ namespace BinaryFileHandler
             catch (UnauthorizedAccessException ex)
             {
                 Debug.WriteLine($"Access denied: {ex.Message}");
-                LastFailed = true;
-
                 // Change path to temp folder and try again without counting as a retry
                 _rootPath = Path.Combine(Path.GetTempPath(), "bin_dat_" + Guid.NewGuid());
+
+                LastFailed = true;
+                
                 TryWriteFile(toWrite, retriesRemaining);
 
                 return false;

@@ -116,7 +116,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             var firstMatch = sortedList.BinarySearch(criteriaStart, new TaskDueComparer());
             if (firstMatch < 0) // Handle inexact matches
             {
-                // Bitwise Not, inexact matches are 
+                // Bitwise Not, inexact matches are ok to find the boundary of this date comparison
                 firstMatch = ~firstMatch;
                 // No matches found, nothing larger in list
                 if (firstMatch == sortedList.Count) 

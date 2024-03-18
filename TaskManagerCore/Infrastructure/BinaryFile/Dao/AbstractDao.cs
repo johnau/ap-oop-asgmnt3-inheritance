@@ -70,7 +70,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                 Debug.WriteLine($"Loaded data: {persistentData.Count}");
             } catch (Exception)
             {
-                Debug.WriteLine("There is no data to load");
+                Debug.WriteLine("There is no data to load, first use!");
             }
         }
 

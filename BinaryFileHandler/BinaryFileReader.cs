@@ -129,6 +129,7 @@ namespace BinaryFileHandler
             {
                 Debug.WriteLine($"The file is in use: {FilePath}");
 
+                abort = false;
                 return false;
             }
             catch (Exception ex) // catch all other exceptions and fail
