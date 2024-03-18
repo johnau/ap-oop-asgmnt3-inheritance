@@ -7,7 +7,7 @@ namespace BinaryFileHandler
     /// Need to make an async version of this class
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BinaryFileWriter<T> : BinaryFileAccessor
+    public abstract class BinaryFileWriter<T> : BinaryFileAccessor, IBinaryFileWriter<T>
     {
         protected List<T> WritePendingList;
         protected bool LastFailed = false;
@@ -29,7 +29,7 @@ namespace BinaryFileHandler
         /// </summary>
         /// <param name="items"></param>
         public void AddObjectsToWrite(List<T> items) => WritePendingList.AddRange(items);
-        
+
         /// <summary>
         /// Populate the Write list
         /// </summary>
@@ -43,10 +43,10 @@ namespace BinaryFileHandler
         {
             // Don't overwrite if the last write failed to protect the backup copy
             BackupExistingFile(overwrite: !LastFailed);
-            
+
             // Copy pending items and clear the pending list
             var toWrite = CopyAndClearPending();
-            
+
             // Tries with repeats if file is in use
             return TryWriteFile(toWrite);
         }
@@ -75,7 +75,7 @@ namespace BinaryFileHandler
                         WriteObject(writer, item);
                     }
 
-                    WriteTerminatorObject(writer);
+                    WriteTerminatorString(writer);
                 }
 
                 Debug.WriteLine($"Wrote {WritePendingList.Count} items");
@@ -123,7 +123,8 @@ namespace BinaryFileHandler
         /// <returns></returns>
         public Task WriteValuesAsync()
         {
-            return Task.Run(async () => { 
+            return Task.Run(async () =>
+            {
                 await accessSemaphore.WaitAsync();
                 try
                 {
@@ -140,9 +141,9 @@ namespace BinaryFileHandler
         /// 
         /// </summary>
         /// <param name="writer"></param>
-        protected static void WriteTerminatorObject(BinaryWriter writer)
+        protected static void WriteTerminatorString(BinaryWriter writer)
         {
-            writer.Write(GenericTerminators.StringTerminator);
+            writer.Write(FileTerminator);
         }
 
         protected void BackupExistingFile(bool overwrite)
@@ -150,7 +151,8 @@ namespace BinaryFileHandler
             try
             {
                 File.Copy(FilePath, FilePath + BackupExtension, overwrite);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Debug.WriteLine($"Unable to create file backup: {ex.Message}");
             }

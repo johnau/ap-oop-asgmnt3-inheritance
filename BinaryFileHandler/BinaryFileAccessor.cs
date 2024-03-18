@@ -10,6 +10,7 @@ namespace BinaryFileHandler
         protected const string Delimiter = ";;";
         protected const string Extension = ".bin";
         protected const string BackupExtension = ".bak";
+        protected const string FileTerminator = GenericTerminators.StringTerminator;
         protected readonly string _filenameBase;
         protected string _rootPath;
         public string FilePath => Path.Combine(_rootPath, _filenameBase + Extension);

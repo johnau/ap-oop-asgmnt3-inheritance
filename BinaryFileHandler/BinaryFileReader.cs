@@ -7,7 +7,7 @@ namespace BinaryFileHandler
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BinaryFileReader<T> : BinaryFileAccessor
+    public abstract class BinaryFileReader<T> : BinaryFileAccessor, IBinaryFileReader<T>
     {
         protected readonly List<T> ReadList;
         protected string CurrentClassName;
@@ -128,13 +128,13 @@ namespace BinaryFileHandler
             catch (IOException ex) when (FileIsInUse(ex)) // if file is in use we will retry
             {
                 Debug.WriteLine($"The file is in use: {FilePath}");
-                
+
                 return false;
             }
             catch (Exception ex) // catch all other exceptions and fail
             {
                 Debug.WriteLine($"An exception was thrown: {ex.Message} whil trying to read the file {FilePath}");
-                
+
                 abort = true;
                 return false;
             }
@@ -147,7 +147,7 @@ namespace BinaryFileHandler
         /// <returns></returns>
         protected static bool IsTerminator(string checking)
         {
-            return checking.Equals(GenericTerminators.StringTerminator);
+            return checking.Equals(FileTerminator);
         }
 
         void StashFileData(List<T> fileData)
