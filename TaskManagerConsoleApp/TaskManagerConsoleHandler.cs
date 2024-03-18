@@ -302,7 +302,17 @@ namespace TaskManagerConsoleApp
                 { UIData.PropertyName_Interval, taskIntervalInt},
             };
 
-            var newId = CreateTask.Invoke(newTaskData);
+            //var newId = CreateTask.Invoke(newTaskData);
+            string newId;
+            try
+            {
+                newId = CreateTask.Invoke(newTaskData);
+            }
+            catch (Exception ex) when (ex is ArgumentNullException || ex is ArgumentException)
+            {
+                newTaskData[UIData.PropertyName_DueDate] = DateTime.Now.AddDays(1).Ticks;
+                newId = CreateTask.Invoke(newTaskData);
+            }
 
             RenderContinuePrompt($"\nCreated New Task...\n{newId}\nType={taskTypeInt}, \nDesc='{taskDescription}', \nNote='{taskNotes}', \nDueDate='{taskDueDateTicks}', \nInterval='{taskIntervalInt}'\n");
         }
