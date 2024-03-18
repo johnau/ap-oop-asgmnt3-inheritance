@@ -82,11 +82,12 @@ namespace BinaryFileHandler
                 LastFailed = false;
                 return true;
             }
-            catch (IOException ex) when (FileIsInUse(ex)) // if file is in use we will retry
+            catch (IOException ex) when (FileIsInUse(ex))
             {
                 Debug.WriteLine($"File in use: {ex.Message}, retrying {retriesRemaining} more times");
                 LastFailed = true;
-                
+
+                // if file is in use we will retry
                 if (retriesRemaining > 1)
                 {
                     Thread.Sleep(10);
@@ -99,8 +100,8 @@ namespace BinaryFileHandler
                 Debug.WriteLine($"Access denied: {ex.Message}");
                 LastFailed = true;
 
-                // Change path to temp folder and try again
-                _rootPath = Path.Combine(Path.GetTempPath(), "bin_dat_"+Guid.NewGuid());
+                // Change path to temp folder and try again without counting as a retry
+                _rootPath = Path.Combine(Path.GetTempPath(), "bin_dat_" + Guid.NewGuid());
                 TryWriteFile(toWrite, retriesRemaining);
 
                 return false;
