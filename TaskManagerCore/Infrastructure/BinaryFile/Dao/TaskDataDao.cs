@@ -18,9 +18,10 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// <returns></returns>
         public override string Save(TaskDataEntity entity)
         {
-            // Try to add new task
-
-            if (entity is HabitualTaskDataEntity habitualEntity)
+            /* 
+             * Try Add new Task
+             */
+            if (entity is HabitualTaskDataEntity habitualEntity) // TODO: move all type checks and casts to a single class in each layer.
             {
                 if (Cache.TryAdd(entity.Id, habitualEntity))
                     return entity.Id;
@@ -36,35 +37,40 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                     return entity.Id;
             }
 
-            // Update existing task
+            /* 
+             * Update existing task
+             */
             Debug.WriteLine($"Updating Task: {entity.Id} {entity.GetType()}");
 
-            //var existing = Cache[entity.Id];
-            if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Task");
-            if (existing == null) throw new Exception("Missing Task");
+            if (!Cache.TryGetValue(entity.Id, out var existing) || existing == null)
+                throw new Exception("Missing Task");
+
             existing.Description = entity.Description;
             existing.Notes = entity.Notes;
             existing.Completed = entity.Completed;
             existing.DueDate = entity.DueDate;
 
-            //var type = entity.GetType(); // Better to use for more specific type matching?
-
-            if (entity is RepeatingTaskDataEntity repeating) // update params if is repeating
+            // update params if is repeating
+            // messy - need to clean this up
+            if (entity is RepeatingTaskDataEntity repeating)
             {
                 var _existing = (RepeatingTaskDataEntity)existing;
-                _existing.DueDate = repeating.DueDate;
+                _existing.Completed = false;
                 _existing.RepeatingInterval = repeating.RepeatingInterval;
                 _existing.Repetitions = repeating.Repetitions;
                 existing = _existing;
             }
-            if (entity is HabitualTaskDataEntity habitual) // update params again if also habitual
+            // update params again if also habitual
+            // messy - need to clean this up
+            if (entity is HabitualTaskDataEntity habitual)
             {
                 var _existing = (HabitualTaskDataEntity)existing;
                 _existing.Streak = habitual.Streak;
                 existing = _existing;
             }
 
-            Cache.Update(entity.Id, existing); // This is ugly, but needed to force the call on NotifySubscribers...
+            // Notify subscribers about changes - not greatest solution having to manually trigger just for this update
+            Cache.MarkDirty();
 
             return existing.Id;
         }

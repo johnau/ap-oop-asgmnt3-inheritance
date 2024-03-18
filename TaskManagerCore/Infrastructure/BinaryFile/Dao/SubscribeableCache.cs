@@ -2,77 +2,142 @@
 namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {
     /// <summary>
-    /// Wraps Dictionary to provide subscription
-    /// It is not done very safely.
+    /// Wraps Dictionary to provide subscription (extending or implementing exposes too many methods)
+    /// TODO: Some unsafe-ish things going on need to be fixed at some point
+    /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class SubscribeableCache<T>
+    public class SubscribeableCache<T>
     {
-        enum Action
+        protected readonly Dictionary<string, T> Cache; // remvoed protected for a sec, testing something, need to put it back ,we wont change the cache
+        protected readonly Dictionary<string, Func<List<T>, Task>> Subscribers;
+
+        public SubscribeableCache()
         {
-            ADD,
-            REMOVE,
-            UPDATE,
+            Cache = new Dictionary<string, T>();
+            Subscribers = new Dictionary<string, Func<List<T>, Task>>();
         }
 
-        readonly Dictionary<string, T> Cache = new Dictionary<string, T>();
-        readonly Dictionary<string, Func<Dictionary<string, T>, Task>> subscribers;
+        #region Dictionary methods
+        // Providing these methods so that this Cache can be easily substituted where a Dictionary is currently used
+        // If enough are implemented, might as well just implement IDictionary, IEnumerable, etc and override all
 
-        public SubscribeableCache() {
-            subscribers = new Dictionary<string, Func<Dictionary<string, T>, Task>>();
-        }
-
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
         public Dictionary<string, T>.ValueCollection Values => Cache.Values;
+
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, T>.Enumerator GetEnumerator() => Cache.GetEnumerator();
+
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public bool TryGetValue(string key, out T? value) => Cache.TryGetValue(key, out value);
+
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public bool ContainsKey(string key) => Cache.ContainsKey(key);
 
-        public bool TryAdd(string id, T item)
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public virtual bool TryAdd(string id, T item)
         {
-            if (Cache.TryAdd(id, item)) {
-                NotifySubscribers(Action.ADD);
+            if (Cache.TryAdd(id, item))
+            {
+                NotifySubscribers(NotifiedAction.ADD);
                 return true;
             }
 
             return false;
         }
 
-        public bool Remove(string id)
+        /// <summary>
+        /// Simulating a method from Dictionary class that was in use, since this class
+        /// has replaced a Dictionary in the DAO objects
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual bool Remove(string id)
         {
             var removed = Cache.Remove(id);
             if (removed)
             {
-                NotifySubscribers(Action.REMOVE);
+                NotifySubscribers(NotifiedAction.REMOVE);
                 return true;
             }
 
             return false;
         }
+        #endregion
 
-        public bool Update(string id, T item)
+        /// <summary>
+        /// Triggers an Update of the Cache
+        /// </summary>
+        public virtual void MarkDirty()
+        {
+            NotifySubscribers(NotifiedAction.UPDATE);
+        }
+
+        /// <summary>
+        /// Try to avoid using this method
+        /// To be removed
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        internal virtual bool ForceReplace(string id, T item)
         {
             if (Cache.TryGetValue(id, out T? existing))
             {
-                Cache[id] = item;
-                NotifySubscribers(Action.UPDATE);
+                Cache[id] = item; // lazy - should be updating existing
+                NotifySubscribers(NotifiedAction.REMOVE); // safer to fire both than `UPDATE`
+                NotifySubscribers(NotifiedAction.ADD);
                 return true;
             }
 
             return false;
         }
 
-        public void Subscribe(Func<Dictionary<string, T>, Task> subscriber)
+        /// <summary>
+        /// Add a subscriber Func to the Cache
+        /// </summary>
+        /// <param name="subscriber"></param>
+        public void Subscribe(Func<List<T>, Task> subscriber)
         {
             var id = Guid.NewGuid().ToString();
-            subscribers.TryAdd(id, subscriber);
+            Subscribers.TryAdd(id, subscriber);
         }
 
-        void NotifySubscribers(Action action)
+        /// <summary>
+        /// Calls all subscriber Funcs
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="id"></param>
+        protected virtual void NotifySubscribers(NotifiedAction action, string? id = null)
         {
-            foreach (var item in subscribers)
+            foreach (var item in Subscribers)
             {
                 var func = item.Value;
-                func.Invoke(new Dictionary<string, T>(Cache));
+                func.Invoke(new List<T>(Cache.Values));
             }
         }
     }

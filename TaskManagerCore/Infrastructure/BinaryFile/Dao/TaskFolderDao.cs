@@ -11,16 +11,13 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         {
         }
 
-        //public List<TaskFolderEntity> FindAll()
-        //{
-        //    return new List<TaskFolderEntity>(_data.Values);
-        //}
-
-        //public TaskFolderEntity? FindById(string id)
-        //{
-        //    return _data[id];
-        //}
-
+        /// <summary>
+        /// Save or Update entity method
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException"></exception>
+        /// <exception cref="Exception"></exception>
         public override string Save(TaskFolderEntity entity)
         {
             foreach (var folder in Cache)
@@ -41,27 +38,17 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 
             Debug.WriteLine($"Updating Folder: {entity.Id}");
 
-            // assume entity is present and Adding did not fail for some other reason
-            //var existing = Cache[entity.Id];
+            // Handling this here isn't the nicest, but to avoid this there needs to be
+            // a concrete version of the Cache classes for each type...
             if (!Cache.TryGetValue(entity.Id, out var existing)) throw new Exception("Missing Folder");
             if (existing == null) throw new Exception("Missing Folder");
             existing.Name = entity.Name;
             existing.TaskIds = entity.TaskIds;
 
+            Cache.MarkDirty(); // Hacky fix for now to notify subscribers about changes (and trigger re-sorting)
+
             return existing.Id;
         }
-
-        //public bool Delete(string id)
-        //{
-        //    if (_data.ContainsKey(id))
-        //    {
-        //        Debug.WriteLine($"Deleting TaskFolder: {id}");
-        //        return _data.Remove(id);
-        //    }
-
-        //    Debug.WriteLine($"Can't remove TaskFolder with Id={id}. It does not exist");
-        //    return false;
-        //}
 
     }
 }

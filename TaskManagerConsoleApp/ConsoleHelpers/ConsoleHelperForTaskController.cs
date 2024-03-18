@@ -90,7 +90,7 @@ namespace TaskManagerConsoleApp.ConsoleHelpers
 
         internal static void ClearScreen()
         {
-            Console.WriteLine("\nPress any key to continue...");
+            Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
             Console.Clear();
         }

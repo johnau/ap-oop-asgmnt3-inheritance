@@ -308,7 +308,7 @@ namespace TaskManagerConsoleApp
                  newId = CreateTask.Invoke(newTaskData);
             } catch (Exception ex) when (ex is ArgumentNullException || ex is ArgumentException)
             {
-                newTaskData[UIData.PropertyName_DueDate] = DateTime.Now.AddDays(1);
+                newTaskData[UIData.PropertyName_DueDate] = DateTime.Now.AddDays(1).Ticks;
                 newId = CreateTask.Invoke(newTaskData);
             }
 

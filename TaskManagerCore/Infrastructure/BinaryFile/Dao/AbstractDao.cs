@@ -23,17 +23,36 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         {
             Reader = reader;
             Writer = writer;
-            //Cache = new Dictionary<string, T>();
             Cache = new SubscribeableCache<T>();
             LoadData();
-            Cache.Subscribe(async (data) =>
-            {
-                Debug.WriteLine($"Data has been updated notification! {data.Count}");
-                Writer.AddObjectsToWrite(new List<T>(data.Values));
-                await Writer.WriteValuesAsync();
-            });
+
+            // Subscribe to Cache updates for BinaryFile Writes
+            Cache.Subscribe(WriteUpdateData);
         }
 
+        /// <summary>
+        /// Save an item to Cache
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public abstract string Save(T entity);
+
+        /// <summary>
+        /// Write updated data
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        Task WriteUpdateData(List<T> data)
+        {
+            Debug.WriteLine($"Writing{data.Count} items");
+
+            Writer.AddObjectsToWrite(data);
+            return Writer.WriteValuesAsync();
+        }
+
+        /// <summary>
+        /// Load data from file
+        /// </summary>
         void LoadData()
         {
             try
@@ -44,36 +63,57 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                     Cache.TryAdd(item.Id, item);
                 }
                 Debug.WriteLine($"Loaded data: {persistentData.Count}");
-            } catch (Exception ex)
+            }
+            catch (Exception)
             {
                 Debug.WriteLine("There is no data to load");
             }
         }
 
+        /// <summary>
+        /// Get all values from Cache
+        /// </summary>
+        /// <returns></returns>
         public List<T> FindAll()
         {
             return new List<T>(Cache.Values);
         }
 
+        /// <summary>
+        /// Find matches with given list of Ids
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
         public List<T> FindByIds(List<string> ids)
         {
             List<T> matching = new List<T>();
-            foreach (var item in Cache)
+            foreach (var id in ids)
             {
-                if (ids.Contains(item.Key))
+                if (Cache.TryGetValue(id, out var match) && match != null)
                 {
-                    matching.Add(item.Value);
+                    matching.Add(match);
                 }
             }
             return matching;
         }
 
+        /// <summary>
+        /// Find match with given Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual T? FindById(string id)
         {
             Cache.TryGetValue(id, out T? entity);
             return entity;
         }
 
+        /// <summary>
+        /// Delete an item from Cache
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public virtual bool Delete(T entity)
         {
             if (entity == null) throw new ArgumentNullException();
@@ -81,8 +121,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             return Delete(entity.Id);
         }
 
-        public abstract string Save(T entity);
-
+        /// <summary>
+        /// Delete an item from Cache
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual bool Delete(string id)
         {
             if (Cache.ContainsKey(id))
@@ -94,6 +137,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             Debug.WriteLine($"Can't remove {typeof(T).Name} with Id={id}. It does not exist");
             return false;
         }
-
     }
 }
+

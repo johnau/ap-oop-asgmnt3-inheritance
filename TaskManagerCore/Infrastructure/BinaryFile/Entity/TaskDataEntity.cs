@@ -11,7 +11,18 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 
         public bool Completed { get; set; }
 
-        public DateTime? DueDate { get; set; }
+        private DateTime? _dueDate;
+        public DateTime? DueDate
+        {
+            get { return _dueDate; }
+            set
+            {
+                if (value.HasValue && value.Value > DateTime.MinValue)
+                    _dueDate = value.Value;
+                else
+                    _dueDate = null;
+            }
+        }
 
         public TaskDataEntity(string? id = "")
             : base(id)
