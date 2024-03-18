@@ -32,7 +32,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
                     Completed = habitual.Completed,
                     DueDate = habitual.DueDate,
                     RepeatingInterval = habitual.RepeatingInterval,
-                    Repititions = habitual.Repititions,
+                    Repetitions = habitual.Repititions,
                     Streak = habitual.Streak,
                 };
             }
@@ -45,7 +45,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
                     Completed = repeating.Completed,
                     DueDate = repeating.DueDate,
                     RepeatingInterval = repeating.RepeatingInterval,
-                    Repititions = repeating.Repititions,
+                    Repetitions = repeating.Repititions,
                 };
             }
             else
@@ -59,6 +59,51 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
                 };
             }
         }
+
+        // temporarily putting this static method here - will change whole class to static for now
+        public static TaskDataEntity TaskFromValues(string className, string id, string description, string notes, bool completed, DateTime? dueDate, TimeInterval? interval = null, int? repetitions = null, int? streak = null)
+        {
+            if (className.Equals(typeof(TaskDataEntity).Name, StringComparison.Ordinal))
+            {
+                return new TaskDataEntity(id)
+                {
+                    Description = description,
+                    Notes = notes,
+                    Completed = completed,
+                    DueDate = dueDate,
+                };
+            }
+            else if (className.Equals(typeof(RepeatingTaskDataEntity).Name, StringComparison.Ordinal))
+            {
+                if (dueDate == null || interval == null || repetitions == null) throw new ArgumentNullException("dueDate, interval, repetitions");
+                return new RepeatingTaskDataEntity(id)
+                {
+                    Description = description,
+                    Notes = notes,
+                    Completed = completed,
+                    DueDate = dueDate.Value,
+                    RepeatingInterval = interval.Value,
+                    Repetitions = repetitions.Value,
+                };
+            }
+            else if (className.Equals(typeof(HabitualTaskDataEntity).Name, StringComparison.Ordinal))
+            {
+                if (dueDate == null || interval == null || repetitions == null || streak == null) throw new ArgumentNullException("dueDate, interval, repetitions, streak");
+                return new HabitualTaskDataEntity(id)
+                {
+                    Description = description,
+                    Notes = notes,
+                    Completed = completed,
+                    DueDate = dueDate.Value,
+                    RepeatingInterval = interval.Value,
+                    Repetitions = repetitions.Value,
+                    Streak = streak.Value
+                };
+            }
+
+            throw new ArgumentException($"className was not valid or recognized: {className}", nameof(className));
+        }
+
 
         //public RepeatingTaskDataEntity FromModel(RepeatingTaskData taskData)
         //{
@@ -99,11 +144,13 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
         {
             if (entity is HabitualTaskDataEntity h)
             {
-                return new HabitualTaskData(h.Id, h.Description, h.Notes, h.Completed, h.DueDate, h.RepeatingInterval, h.Repititions, h.Streak);
+                var dueDate = h.DueDate.HasValue ? h.DueDate.Value : DateTime.MaxValue;
+                return new HabitualTaskData(h.Id, h.Description, h.Notes, h.Completed, dueDate, h.RepeatingInterval, h.Repetitions, h.Streak);
             }
             else if (entity is RepeatingTaskDataEntity r)
             {
-                return new RepeatingTaskData(r.Id, r.Description, r.Notes, r.Completed, r.DueDate, r.RepeatingInterval, r.Repititions);
+                var dueDate = r.DueDate.HasValue ? r.DueDate.Value : DateTime.MaxValue;
+                return new RepeatingTaskData(r.Id, r.Description, r.Notes, r.Completed, dueDate, r.RepeatingInterval, r.Repetitions);
             }
             else
             {

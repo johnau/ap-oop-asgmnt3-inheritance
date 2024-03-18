@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using BinaryFileHandler;
+using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
@@ -25,14 +26,15 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                 DueDate = DateTime.Now.AddDays(1),
             };
 
-            var writer = new TaskDataFileWriter("testing-task-data");
+            var conf = new BinaryFileConfig("testing-task-data");
+            var writer = new TaskDataFileWriter(conf);
             writer.AddObjectToWrite(task1);
             writer.AddObjectToWrite(task2);
-            var filePath = writer.WriteValues();
+            var success = writer.WriteValues();
 
-            Assert.True(File.Exists(filePath));
+            Assert.True(File.Exists(writer.FilePath));
 
-            Debug.WriteLine($"File written to: {filePath}");
+            Debug.WriteLine($"File written to: {writer.FilePath}");
         }
 
         [Fact]
@@ -58,7 +60,7 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                 Completed = false,
                 DueDate = DateTime.Now.AddDays(1),
                 RepeatingInterval = TimeInterval.Daily,
-                Repititions = 5,
+                Repetitions = 5,
             };            
             var task4 = new HabitualTaskDataEntity(Guid.NewGuid().ToString())
             {
@@ -67,20 +69,21 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
                 Completed = false,
                 DueDate = DateTime.Now.AddDays(4),
                 RepeatingInterval = TimeInterval.Weekly,
-                Repititions = 5,
+                Repetitions = 5,
                 Streak = 2,
             };
 
-            var writer = new TaskDataFileWriter("testing-task-data2");
+            var conf = new BinaryFileConfig("testing-task-data2");
+            var writer = new TaskDataFileWriter(conf);
             writer.AddObjectToWrite(task1);
             writer.AddObjectToWrite(task2);
             writer.AddObjectToWrite(task3);
             writer.AddObjectToWrite(task4);
-            var filePath = writer.WriteValues();
+            var success = writer.WriteValues();
 
-            Assert.True(File.Exists(filePath));
+            Assert.True(File.Exists(writer.FilePath));
 
-            Debug.WriteLine($"File written to: {filePath}");
+            Debug.WriteLine($"File written to: {writer.FilePath}");
         }
     }
 }

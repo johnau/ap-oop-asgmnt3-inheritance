@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using TaskManagerCore.Configuration;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Dto;
@@ -6,14 +7,18 @@ using TaskManagerCore.Model.Dto.Mapper;
 
 namespace TaskManagerCore.Controller
 {
-    public class TaskController
+    public partial class TaskController
     {
+        [GeneratedRegex(@"^due[_\.]?date$")]
+        private static partial Regex Regex_DueDatePropertyNameLowerCase();
+
         private readonly ICrudRepository<TaskData, string> TaskDataRepository;
         private readonly ICrudRepository<TaskFolder, string> TaskFolderRepository;
         private readonly GetTaskDtoMapper DtoMapperGetTask;
         private readonly GetFolderDtoMapper DtoMapperGetFolder;
         private readonly CreateTaskDtoMapper DtoMapperCreateTask;
         private readonly CreateFolderDtoMapper DtoMapperCreateFolder;
+
         public TaskController(ICrudRepository<TaskData, string> taskDataRepository,
                                 ICrudRepository<TaskFolder, string> taskFolderRepository)
         {
@@ -56,6 +61,24 @@ namespace TaskManagerCore.Controller
             }
 
             return DtoMapperGetTask.Map(task);
+        }
+
+        /// <summary>
+        /// Get List of tasks by id's
+        /// Use to get task data from list in folder
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public List<GetTaskDto> GetTasksByIds(List<string> ids)
+        {
+            var tasks = TaskDataRepository.FindByIds(ids);
+
+            var dtos = new List<GetTaskDto>();
+            foreach (var task in tasks)
+            {
+                dtos.Add(DtoMapperGetTask.Map(task));
+            }
+            return dtos;
         }
 
         /// <summary>
@@ -103,43 +126,36 @@ namespace TaskManagerCore.Controller
         {
             var folder = TaskFolderRepository.FindById(folderId);
             if (folder == null)
-            {
                 throw new Exception($"Unable to find Folder with Id: {folderId}");
-            }
 
             var idsInFolder = folder.TaskIds;
             var tasksInFolder = TaskDataRepository.FindByIds(idsInFolder);
 
             var incomplete = 0L;
-            foreach ( var task in tasksInFolder )
+            foreach (var task in tasksInFolder)
             {
                 if (!task.Completed) incomplete++;
             }
-            
+
             return incomplete;
         }
 
         /// <summary>
-        /// Sets a task to Complete = true
+        /// Sets a task to Complete = true by default.  Can be used to set completed to false
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public bool CompleteTask(string id)
+        public bool CompleteTask(string id, bool completed = true)
         {
             var task = TaskDataRepository.FindById(id);
             if (task == null)
-            {
                 throw new Exception($"Unable to find Task with Id: {id}");
-            }
 
-            var savedId = TaskDataRepository.Save(task.WithCompleted(true));
+            var savedId = TaskDataRepository.Save(task.WithCompleted(completed));
 
-            Debug.WriteLine($"Updated Task '{id}' => Completed=True");
-            if (savedId != null) // not good enough
-                return true;
-
-            return false;
+            //Debug.WriteLine($"Updated Task '{id}' => Completed=True");
+            return savedId != null; // not good, improve how this response is calculated
         }
 
         /// <summary>
@@ -185,10 +201,9 @@ namespace TaskManagerCore.Controller
         {
             var folder = TaskFolderRepository.FindById(dto.InFolderId);
             if (folder == null)
-            {
                 throw new Exception($"Could not find Folder: {dto.InFolderId}");
-            }
 
+            
             var task = DtoMapperCreateTask.Map(dto);
             var taskId = TaskDataRepository.Save(task);
 
@@ -212,11 +227,21 @@ namespace TaskManagerCore.Controller
             try
             {
                 return TaskFolderRepository.Save(taskFolder);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                Debug.WriteLine($"Could not save Task Folder: {ex.Message}");
                 throw new Exception($"Could not save Task Folder: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Delete a folder (must be empty)
+        /// </summary>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
+        public bool DeleteTaskFolder(string folderId)
+        {
+            return TaskFolderRepository.Delete(folderId);
         }
 
         /// <summary>
@@ -230,16 +255,12 @@ namespace TaskManagerCore.Controller
         {
             var task = TaskDataRepository.FindById(taskId);
             if (task == null)
-            {
                 throw new Exception($"Could not find Task with Id: {taskId}");
-            }
 
             var fromFolder = TaskFolderRepository.FindById(folderIdFrom);
             var toFolder = TaskFolderRepository.FindById(folderIdTo);
             if (fromFolder == null || toFolder == null)
-            {
                 throw new Exception($"Could not find target Folders for move ({folderIdFrom}, {folderIdTo})");
-            }
 
             fromFolder = fromFolder.WithoutTask(taskId);
             toFolder = toFolder.WithTask(taskId);
@@ -249,11 +270,72 @@ namespace TaskManagerCore.Controller
             var savedToFolderId = TaskFolderRepository.Save(toFolder);
 
             if (savedTaskId == null || savedFromFolderId == null || savedToFolderId == null)
-            {
                 return false;
-            }
 
             return true;
         }
+
+        /// <summary>
+        /// Update modifiable properties Task
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public string UpdateTaskProperty(string id, string property, object value)
+        {
+            property = property.ToLower();
+            var task = TaskDataRepository.FindById(id);
+            if (task == null)
+                throw new Exception($"Task not found with id: {id}");
+
+            if (property == "description")
+                task = task.WithDescription((string)value);
+            else if (property == "notes")
+                task = task.WithNotes((string)value);
+            else if (Regex_DueDatePropertyNameLowerCase().IsMatch(property)) // due Date
+                task = task.WithDueDate(new DateTime((long)value));
+            else
+                throw new Exception($"Unrecognized property: {property}");
+
+            try
+            {
+                return TaskDataRepository.Save(task);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not save Task: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Update modifiable properties Folder
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public string UpdateFolderProperty(string id, string property, object value)
+        {
+            property = property.ToLower();
+            var folder = TaskFolderRepository.FindById(id);
+            if (folder == null)
+                throw new Exception($"Folder not found with id: {id}");
+
+            if (property == "name")
+                folder = folder.WithName((string)value);
+
+            try
+            {
+                return TaskFolderRepository.Save(folder);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not save Folder: {ex.Message}");
+            }
+        }
+
     }
 }

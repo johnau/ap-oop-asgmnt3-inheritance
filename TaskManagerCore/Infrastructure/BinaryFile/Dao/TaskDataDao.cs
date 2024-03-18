@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+﻿using BinaryFileHandler;
+using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
-using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {
@@ -54,7 +54,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
                 var _existing = (RepeatingTaskDataEntity)existing;
                 _existing.DueDate = repeating.DueDate;
                 _existing.RepeatingInterval = repeating.RepeatingInterval;
-                _existing.Repititions = repeating.Repititions;
+                _existing.Repetitions = repeating.Repetitions;
                 existing = _existing;
             }
             if (entity is HabitualTaskDataEntity habitual) // update params again if also habitual
