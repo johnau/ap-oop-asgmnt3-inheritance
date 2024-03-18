@@ -24,17 +24,11 @@ namespace BinaryFileHandler
             CurrentClassName = "";
         }
 
-        public List<T> Data => throw new NotImplementedException();
+        public List<T> Data => new List<T>(ReadList);
 
-        public void AddObjectsToWrite(List<T> items)
-        {
-            throw new NotImplementedException();
-        }
+        public void AddObjectsToWrite(List<T> items) => WritePendingList.AddRange(items);
 
-        public void AddObjectToWrite(T item)
-        {
-            throw new NotImplementedException();
-        }
+        public void AddObjectToWrite(T item) => WritePendingList.Add(item);
 
         public List<T> ReadValues()
         {
@@ -58,9 +52,19 @@ namespace BinaryFileHandler
             return fileData;
         }
 
-        public Task<List<T>> ReadValuesAsync()
+        public async Task<List<T>> ReadValuesAsync()
         {
-            throw new NotImplementedException();
+            Debug.WriteLine($"[{DateTime.Now.Ticks}] Wait for semaphore...");
+            await accessSemaphore.WaitAsync(5_000);
+            Debug.WriteLine($"[{DateTime.Now.Ticks}] Got semaphore...");
+            try
+            {
+                return ReadValues();
+            }
+            finally
+            {
+                accessSemaphore.Release();
+            }
         }
 
         /// <summary>
@@ -174,12 +178,30 @@ namespace BinaryFileHandler
 
         public bool WriteValues()
         {
-            throw new NotImplementedException();
+            // Don't overwrite if the last write failed to protect the backup copy
+            BackupExistingFile(overwrite: !LastFailed);
+
+            // Copy pending items and clear the pending list
+            var toWrite = CopyAndClearPending();
+
+            // Tries with repeats if file is in use
+            return TryWriteFile(toWrite);
         }
 
         public Task WriteValuesAsync()
         {
-            throw new NotImplementedException();
+            return Task.Run(async () =>
+            {
+                await accessSemaphore.WaitAsync();
+                try
+                {
+                    WriteValues();
+                }
+                finally
+                {
+                    accessSemaphore.Release();
+                }
+            });
         }
 
         void StashFileData(List<T> fileData)
@@ -218,5 +240,23 @@ namespace BinaryFileHandler
             writer.Write(FileTerminator);
         }
 
+        protected void BackupExistingFile(bool overwrite)
+        {
+            try
+            {
+                File.Copy(FilePath, FilePath + BackupExtension, overwrite);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unable to create file backup: {ex.Message}");
+            }
+        }
+
+        List<T> CopyAndClearPending()
+        {
+            var copy = new List<T>(WritePendingList);
+            WritePendingList.Clear();
+            return copy;
+        }
     }
 }

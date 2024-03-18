@@ -140,16 +140,6 @@ namespace BinaryFileHandler
             }
         }
 
-        /// <summary>
-        /// Check if string is a terminator string
-        /// </summary>
-        /// <param name="checking"></param>
-        /// <returns></returns>
-        protected static bool IsTerminator(string checking)
-        {
-            return checking.Equals(FileTerminator);
-        }
-
         void StashFileData(List<T> fileData)
         {
             ReadList.Clear();

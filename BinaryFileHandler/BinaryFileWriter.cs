@@ -52,6 +52,26 @@ namespace BinaryFileHandler
         }
 
         /// <summary>
+        /// Async wrapper using Semaphore to prevent concurrent access
+        /// </summary>
+        /// <returns></returns>
+        public Task WriteValuesAsync()
+        {
+            return Task.Run(async () =>
+            {
+                await accessSemaphore.WaitAsync();
+                try
+                {
+                    WriteValues();
+                }
+                finally
+                {
+                    accessSemaphore.Release();
+                }
+            });
+        }
+
+        /// <summary>
         /// Attempts to write file with multiple retry attempts on certain failures
         /// </summary>
         /// <param name="toWrite"></param>
@@ -115,26 +135,6 @@ namespace BinaryFileHandler
             {
                 WritePendingList.Clear(); // Ensure cleared
             }
-        }
-
-        /// <summary>
-        /// Async wrapper using Semaphore to prevent concurrent access
-        /// </summary>
-        /// <returns></returns>
-        public Task WriteValuesAsync()
-        {
-            return Task.Run(async () =>
-            {
-                await accessSemaphore.WaitAsync();
-                try
-                {
-                    WriteValues();
-                }
-                finally
-                {
-                    accessSemaphore.Release();
-                }
-            });
         }
 
         /// <summary>
