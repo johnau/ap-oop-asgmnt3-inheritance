@@ -1,4 +1,3 @@
-using Microsoft.VisualBasic;
 using System.Diagnostics;
 
 namespace InMemoryCache.XunitTests

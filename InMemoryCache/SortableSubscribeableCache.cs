@@ -81,6 +81,44 @@ namespace InMemoryCache
             }
         }
 
+        protected sealed override void NotifySubscribers(NotifiedAction action, T? obj)
+        {
+            base.NotifySubscribers(action, obj);
+
+            if (obj == null) // take new copies if added or removed
+            {
+                NotifySubscribers(action); // call the other method and get the backup behavior
+            }
+            else
+            {
+                switch (action)
+                {
+                    case NotifiedAction.UPDATE:
+                        // do we need to do something here...
+                        ReSortAll(overwrite: false);
+                        break;
+
+                    case NotifiedAction.ADD:
+                        if (Cache.TryGetValue(obj.Id, out var newItem))
+                            AddItemToIndexes(newItem);
+                        else
+                            throw new Exception("Cache is in an unexpected state");
+
+                        ReSortAll(overwrite: false);
+                        break;
+
+                    case NotifiedAction.REMOVE:
+                        RemoveItemFromIndexes(obj);
+
+                        ReSortAll(overwrite: false);
+                        break;
+
+                    default:
+                        throw new ArgumentException("Ungrecognized `NotifiedAction`");
+                }
+            }
+        }
+
         /// <summary>
         /// Add item to sorted and reverse sorted indexes
         /// </summary>
@@ -123,6 +161,8 @@ namespace InMemoryCache
                 var list = sortedEntry.Value;
                 var revList = _reversedSortedLists[sortedEntry.Key];
 
+                // Could have an index sorted by id that could be used to BinarySearch by id
+
                 for (int i = 0; i < list.Count; i++)
                 {
                     var item = list[i];
@@ -133,6 +173,21 @@ namespace InMemoryCache
                         break;
                     }
                 }
+            }
+            Debug.WriteLine("Removed item from all indexes");
+        }
+
+        void RemoveItemFromIndexes(T item)
+        {
+            foreach (var sortedEntry in _sortedLists)
+            {
+                var list = sortedEntry.Value;
+                var revList = _reversedSortedLists[sortedEntry.Key];
+                if (list.Count == 0) break; // if one list is empty, all are empty
+                
+                list.Remove(item);
+                revList.Remove(item);
+                continue;
             }
             Debug.WriteLine("Removed item from all indexes");
         }

@@ -77,15 +77,20 @@
         /// <returns></returns>
         public virtual bool Remove(string id)
         {
+            if (!Cache.TryGetValue(id, out var removing) && removing != null)
+            {
+                return false;
+            }
             var removed = Cache.Remove(id);
             if (removed)
             {
-                NotifySubscribers(NotifiedAction.REMOVE, id);
+                NotifySubscribers(NotifiedAction.REMOVE, removing);
                 return true;
             }
 
             return false;
         }
+
         #endregion
 
         /// <summary>
@@ -132,6 +137,20 @@
         /// <param name="action"></param>
         /// <param name="id"></param>
         protected virtual void NotifySubscribers(NotifiedAction action, string? id = null)
+        {
+            foreach (var item in Subscribers)
+            {
+                var func = item.Value;
+                func.Invoke(new List<T>(Cache.Values));
+            }
+        }
+
+        /// <summary>
+        /// Calls all subscriber Funcs
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="id"></param>
+        protected virtual void NotifySubscribers(NotifiedAction action, T? obj)
         {
             foreach (var item in Subscribers)
             {
