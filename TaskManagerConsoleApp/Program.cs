@@ -17,6 +17,11 @@ namespace TaskManagerConsoleApp
             // async display title screen here while application loads ?
             var task = Task.Run(() => {
                 Tp.PrintTitleAscii();
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("\nFor the best viewing experience, please widen the console until the Title displays correctly.\n");
+                Console.ResetColor();
+
                 Tp.ClearScreen();
                 //Tp.PrintTitle();
             });
