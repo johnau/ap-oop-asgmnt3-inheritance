@@ -11,7 +11,7 @@ namespace BinaryFileHandler
         protected const string Extension = ".bin";
         protected const string BackupExtension = ".bak";
         protected readonly string _filenameBase;
-        protected readonly string _rootPath;
+        protected string _rootPath;
         public string FilePath => Path.Combine(_rootPath, _filenameBase + Extension);
 
         /// <summary>

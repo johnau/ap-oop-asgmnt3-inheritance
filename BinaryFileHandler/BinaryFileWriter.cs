@@ -41,13 +41,22 @@ namespace BinaryFileHandler
         /// </summary>
         public bool WriteValues()
         {
+            // Don't overwrite if the last write failed to protect the backup copy
             BackupExistingFile(overwrite: !LastFailed);
             
+            // Copy pending items and clear the pending list
             var toWrite = CopyAndClearPending();
             
+            // Tries with repeats if file is in use
             return TryWriteFile(toWrite);
         }
 
+        /// <summary>
+        /// Attempts to write file with multiple retry attempts on certain failures
+        /// </summary>
+        /// <param name="toWrite"></param>
+        /// <param name="retriesRemaining"></param>
+        /// <returns></returns>
         public bool TryWriteFile(List<T> toWrite, int retriesRemaining = 20)
         {
             try
@@ -73,16 +82,23 @@ namespace BinaryFileHandler
                 LastFailed = false;
                 return true;
             }
-            catch (Exception ex)
+            catch (IOException ex) when (IsFileInUse(ex)) // if file is in use we will retry
             {
+                Debug.WriteLine($"The file is in use: {FilePath}");
                 LastFailed = true;
-                Debug.WriteLine($"Could not write data: {ex.Message}, retrying {retriesRemaining} more times");
-
+                
                 if (retriesRemaining > 1)
                 {
-                    Thread.Sleep(50);
+                    Thread.Sleep(10);
                     TryWriteFile(toWrite, retriesRemaining--);
                 }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Could not write data: {ex.Message}, retrying {retriesRemaining} more times");
+                LastFailed = true;
+
                 return false;
             }
             finally
