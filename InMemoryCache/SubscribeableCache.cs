@@ -62,7 +62,7 @@
         {
             if (Cache.TryAdd(id, item))
             {
-                NotifySubscribers(NotifiedAction.ADD);
+                NotifySubscribers(NotifiedAction.ADD, id);
                 return true;
             }
 
@@ -80,7 +80,7 @@
             var removed = Cache.Remove(id);
             if (removed)
             {
-                NotifySubscribers(NotifiedAction.REMOVE);
+                NotifySubscribers(NotifiedAction.REMOVE, id);
                 return true;
             }
 
@@ -91,13 +91,13 @@
         /// <summary>
         /// Triggers an Update of the Cache
         /// </summary>
-        public virtual void MarkDirty()
+        public virtual void MarkDirty(string? id = null)
         {
-            NotifySubscribers(NotifiedAction.UPDATE);
+            NotifySubscribers(NotifiedAction.UPDATE, id);
         }
 
         /// <summary>
-        /// Try to avoid using this method
+        /// Try to not use this method
         /// To be removed
         /// </summary>
         /// <param name="id"></param>
@@ -108,8 +108,8 @@
             if (Cache.TryGetValue(id, out T? existing))
             {
                 Cache[id] = item; // lazy - should be updating existing
-                NotifySubscribers(NotifiedAction.REMOVE); // safer to fire both than `UPDATE`
-                NotifySubscribers(NotifiedAction.ADD);
+                NotifySubscribers(NotifiedAction.REMOVE, id); // safer to fire both than `UPDATE`
+                NotifySubscribers(NotifiedAction.ADD, id);
                 return true;
             }
 

@@ -1,6 +1,8 @@
-﻿namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
+﻿using InMemoryCache;
+
+namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 {
-    internal class EntityBase
+    internal class EntityBase : IIdentifiable
     {
         public string Id { get; }
 

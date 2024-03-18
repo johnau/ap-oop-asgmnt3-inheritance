@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Security.Principal;
 
 namespace InMemoryCache
 {
@@ -7,7 +8,7 @@ namespace InMemoryCache
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SortableSubscribeableCache<T> : SubscribeableCache<T>
-        where T : IComparable<T>
+        where T : IComparable<T>, IIdentifiable
     {
         private readonly Dictionary<string, Comparison<T>> _sortFunctions;
         private readonly List<T> _masterList;
@@ -33,19 +34,107 @@ namespace InMemoryCache
         /// <exception cref="ArgumentException"></exception>
         protected sealed override void NotifySubscribers(NotifiedAction action, string? id = null)
         {
-            base.NotifySubscribers(action);
-            switch (action)
+            base.NotifySubscribers(action, id);
+
+            if (id == null) // take new copies if added or removed
             {
-                case NotifiedAction.UPDATE:
-                    ReSortAll(overwrite: false);
-                    break;
-                case NotifiedAction.ADD:
-                case NotifiedAction.REMOVE:
-                    ReSortAll(overwrite: true);
-                    break;
-                default:
-                    throw new ArgumentException("Ungrecognized `NotifiedAction`");
+                switch (action)
+                {
+                    case NotifiedAction.UPDATE:
+                        ReSortAll(overwrite: false);
+                        break;
+                    case NotifiedAction.ADD:
+                    case NotifiedAction.REMOVE:
+                        ReSortAll(overwrite: true);
+                        break;
+                    default:
+                        throw new ArgumentException("Ungrecognized `NotifiedAction`");
+                }
             }
+            else
+            {
+                switch (action)
+                {
+                    case NotifiedAction.UPDATE:
+                        // do we need to do something here...
+                        ReSortAll(overwrite: false);
+                        break;
+
+                    case NotifiedAction.ADD:
+                        if (Cache.TryGetValue(id, out var newItem))
+                            AddItemToIndexes(newItem);
+                        else
+                            throw new Exception("Cache is in an unexpected state");
+
+                        ReSortAll(overwrite: false);
+                        break;
+
+                    case NotifiedAction.REMOVE:
+                        RemoveItemFromIndexes(id);
+
+                        ReSortAll(overwrite: false);
+                        break;
+
+                    default:
+                        throw new ArgumentException("Ungrecognized `NotifiedAction`");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add item to sorted and reverse sorted indexes
+        /// </summary>
+        /// <param name="item"></param>
+        void AddItemToIndexes(T item)
+        {
+            foreach (var sortedEntry in _sortedLists)
+            {
+                var list = sortedEntry.Value;
+                var revList = _reversedSortedLists[sortedEntry.Key];
+                if (list.Count == 0)
+                {
+                    list.Add(item);
+                    revList.Add(item);
+                    continue;
+                }
+                var insertIndex = list.BinarySearch(item); // BinarySearch uses the same comparison func used to sort the list if no other func is provided
+                if (insertIndex < 0) insertIndex = ~insertIndex; // bitflip -> use the position of the next larger 
+                if (insertIndex == list.Count) // insert end of list, call Add instead.
+                {
+                    list.Add(item);
+                    revList.Insert(0, item);
+                    continue;
+                }
+                
+                list.Insert(insertIndex, item); // could just pass the unflipped index here and would probably be the same
+                revList.Insert(revList.Count - 1 - insertIndex, item); // could just pass the unflipped index here and would probably be the same
+            }
+            Debug.WriteLine("Added a new item to all indexes");
+        }
+
+        /// <summary>
+        /// Remove item from sorted and reverse sorted indexes
+        /// </summary>
+        /// <param name="id"></param>
+        void RemoveItemFromIndexes(string id)
+        {
+            foreach (var sortedEntry in _sortedLists)
+            {
+                var list = sortedEntry.Value;
+                var revList = _reversedSortedLists[sortedEntry.Key];
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var item = list[i];
+                    if (item.Id == id)
+                    {
+                        list.RemoveAt(i);
+                        revList.RemoveAt(revList.Count - 1 - i);
+                        break;
+                    }
+                }
+            }
+            Debug.WriteLine("Removed item from all indexes");
         }
 
         /// <summary>
@@ -170,9 +259,9 @@ namespace InMemoryCache
         /// Should this be CommitChanges() or Dirty() or something like that...?
         /// </summary>
         /// <returns></returns>
-        public sealed override void MarkDirty()
+        public sealed override void MarkDirty(string? id = null)
         {
-            base.MarkDirty();
+            base.MarkDirty(id);
             ReSortAll();
         }
 
