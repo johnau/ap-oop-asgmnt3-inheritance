@@ -91,11 +91,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         public List<T> FindByIds(List<string> ids)
         {
             List<T> matching = new List<T>();
-            foreach (var item in Cache)
+            foreach (var id in ids)
             {
-                if (ids.Contains(item.Key))
+                if (Cache.TryGetValue(id, out var match) && match != null)
                 {
-                    matching.Add(item.Value);
+                    matching.Add(match);
                 }
             }
             return matching;

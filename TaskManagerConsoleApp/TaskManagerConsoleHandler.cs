@@ -62,8 +62,8 @@ namespace TaskManagerConsoleApp
         }
 
         string CellStr(string value, int p1, int p2) => $"{new string(' ', p1)}{value}{new string(' ', p2)}|";
-        string CellStr(string value, int padding) => $"{new string(' ', padding/2)}{value}{new string(' ', padding/2+padding%2)}|";
-        string TruncateStr(string s, int maxLen) => s.Length <= maxLen ? s : string.Concat(s.AsSpan(0, maxLen-3), "...");
+        string CellStr(string value, int padding) => $"{new string(' ', padding / 2)}{value}{new string(' ', padding / 2 + padding % 2)}|";
+        string TruncateStr(string s, int maxLen) => s.Length <= maxLen ? s : string.Concat(s.AsSpan(0, maxLen - 3), "...");
         string BooleanShort(bool b) => b ? "Y" : "N";
         string BooleanBad(bool b) => b ? "X" : "";
         string BooleanLong(bool b) => b ? "Yes" : "No";
@@ -205,18 +205,19 @@ namespace TaskManagerConsoleApp
 
         void Display_Folders_ViewFolder_CreateTask(string folderId, string folderName, List<Dictionary<string, object>> tasks)
         {
-            var display = () => {
+            var display = () =>
+            {
                 RenderBlank();
                 RenderTitleBar(ConsoleColor.Green);
                 RenderTitle($"'{folderName}' > Create New Task...", ConsoleColor.Green);
             }; display();
-            
+
             var existingTaskDescriptions = tasks
                     .Where(task => task.ContainsKey(UIData.PropertyName_Description) && task[UIData.PropertyName_Description] is string)
                     .Select(task => (string)task[UIData.PropertyName_Description])
                     .ToHashSet();
 
-            Dictionary<string, string> choices = new Dictionary<string, string>() 
+            Dictionary<string, string> choices = new Dictionary<string, string>()
             {
                 { UIData.Label_SingleTask, UIData.Label_SingleTask},
                 { UIData.Label_RepeatingTask, UIData.Label_RepeatingTask},
@@ -237,7 +238,7 @@ namespace TaskManagerConsoleApp
                 case UIData.Label_HabitualTask:
                     taskTypeInt = 3;
                     break;
-                default: 
+                default:
                     throw new Exception("Unsupported operation");
             }
             Debug.WriteLine($"Task type: {taskType} ({taskTypeInt})");
@@ -300,7 +301,7 @@ namespace TaskManagerConsoleApp
                 { UIData.PropertyName_DueDate, taskDueDateTicks },
                 { UIData.PropertyName_Interval, taskIntervalInt},
             };
-            
+
             var newId = CreateTask.Invoke(newTaskData);
 
             RenderContinuePrompt($"\nCreated New Task...\n{newId}\nType={taskTypeInt}, \nDesc='{taskDescription}', \nNote='{taskNotes}', \nDueDate='{taskDueDateTicks}', \nInterval='{taskIntervalInt}'\n");
@@ -308,7 +309,8 @@ namespace TaskManagerConsoleApp
 
         void Display_Folders_ViewFolder_ViewTask(string folderId, string folderName, List<Dictionary<string, object>> tasks)
         {
-            var display = () => {
+            var display = () =>
+            {
                 RenderBlank();
                 RenderTitleBar(ConsoleColor.Blue);
                 RenderTasksTable(tasks, "Select Task to View...", ConsoleColor.Blue, ConsoleColor.Blue);
@@ -329,7 +331,8 @@ namespace TaskManagerConsoleApp
 
         void Display_Folders_ViewFolder_DeleteTask(string folderId, List<Dictionary<string, object>> tasks)
         {
-            var display = () => { 
+            var display = () =>
+            {
                 RenderBlank();
                 RenderTitleBar(ConsoleColor.Red);
                 RenderTasksTable(tasks, "Select Task to Delete...", ConsoleColor.Red, ConsoleColor.Red);
@@ -361,7 +364,7 @@ namespace TaskManagerConsoleApp
             HashSet<string> existingFolderNames = new HashSet<string>();
             foreach (var folder in folders)
             {
-                if (!folder.ContainsKey(UIData.PropertyName_Name)) 
+                if (!folder.ContainsKey(UIData.PropertyName_Name))
                     break;
                 existingFolderNames.Add((string)folder[UIData.PropertyName_Name]);
             }
@@ -413,7 +416,8 @@ namespace TaskManagerConsoleApp
 
         void Display_Folders_DeleteFolder(List<Dictionary<string, object>> folders)
         {
-            var display = () => { // these page display components can be extracted into "view" render functions
+            var display = () =>
+            { // these page display components can be extracted into "view" render functions
                 RenderBlank();
                 RenderTitleBar(ConsoleColor.Red);
                 RenderFoldersTable(folders, "Select Folder to Delete...", ConsoleColor.Red, ConsoleColor.Red);
@@ -522,12 +526,13 @@ namespace TaskManagerConsoleApp
         void Display_Task_EditProperty(string taskId, string propertyName, DateTime? currentValue)
         {
             var newValue = UserEditProperty(
-                propertyName, 
+                propertyName,
                 currentValue.HasValue ? currentValue.Value.ToString(UIData.DateFormatString) : "None");
 
             if (newValue == null) return;// user cancelled
 
-            if (newValue == string.Empty) {
+            if (newValue == string.Empty)
+            {
                 var noDueDate = UserConfirmChoice("Do you want to remove the Due Date from this task?");
                 if (noDueDate) _ = UpdateTaskProperty.Invoke(taskId, propertyName, -1L);
                 return;
@@ -703,7 +708,8 @@ namespace TaskManagerConsoleApp
 
         string? UserEditProperty(string propertyName, string currentValue)
         {
-            var display = () => { // these page display components can be extracted into "view" render functions
+            var display = () =>
+            { // these page display components can be extracted into "view" render functions
                 RenderBlank();
                 RenderTitleBar(ConsoleColor.Blue);
             }; display();
@@ -760,7 +766,7 @@ namespace TaskManagerConsoleApp
                 if (++i > 9) break; // don't render commands past 9 (0 is reserved for back)
 
                 commands.Add(i + "", item.Key);
-                lines.Add(line(i+"", item.Value));
+                lines.Add(line(i + "", item.Value));
             }
             if (hasGoBackCommand)
             {   //render back command separately if present
@@ -811,11 +817,12 @@ namespace TaskManagerConsoleApp
         /// <param name="folderData"></param>
         void RenderFoldersTable(List<Dictionary<string, object>> folderData, string title = "Task Folders Listing", ConsoleColor color = ConsoleColor.White, ConsoleColor titleColor = ConsoleColor.Green)
         {
-            folderData.Sort((a, b) => { 
+            folderData.Sort((a, b) =>
+            {
                 if (a.TryGetValue(UIData.PropertyName_Name, out var _nameA) && _nameA is string nameA
                 && b.TryGetValue(UIData.PropertyName_Name, out var _nameB) && _nameB is string nameB)
                 {
-                    return (nameA).CompareTo(nameB);
+                    return nameA.CompareTo(nameB);
                 }
                 return 0; // ignore if nameA or nameB only is available
             });
@@ -835,7 +842,7 @@ namespace TaskManagerConsoleApp
                 foreach (var col in UIData.FoldersColumnLayout)
                 {
                     var value = folderProperties[col.Key] != null ? folderProperties[col.Key] : string.Empty;
-                    value = TruncateStr(value+"", col.Value);
+                    value = TruncateStr(value + "", col.Value);
                     if (col.Key == UIData.PropertyName_Index) value = index;
                     var padding = Math.Max(0, col.Value - (value + "").Length);
                     row += CellStr(value + "", padding);
@@ -855,11 +862,12 @@ namespace TaskManagerConsoleApp
         /// <param name="taskData"></param>
         void RenderTasksTable(List<Dictionary<string, object>> taskData, string title = "Tasks Listing", ConsoleColor color = ConsoleColor.White, ConsoleColor titleColor = ConsoleColor.Green)
         {
-            taskData.Sort((a, b) => { // provide other sorting through menu options (sort by completed + sort by due date) don't bother with overdue, change overdue to an asterisk on the index or something,
+            taskData.Sort((a, b) =>
+            { // provide other sorting through menu options (sort by completed + sort by due date) don't bother with overdue, change overdue to an asterisk on the index or something,
                 if (a.TryGetValue(UIData.PropertyName_Description, out var _descA) && _descA is string descA
                 && b.TryGetValue(UIData.PropertyName_Description, out var _descB) && _descB is string descB)
                 {
-                    return (descA).CompareTo(descB);
+                    return descA.CompareTo(descB);
                 }
                 return 0;
             });
@@ -925,7 +933,7 @@ namespace TaskManagerConsoleApp
                 var name = property.Key;
                 var value = property.Value;
 
-                if (name.Equals("id", StringComparison.OrdinalIgnoreCase) 
+                if (name.Equals("id", StringComparison.OrdinalIgnoreCase)
                     || name.Equals(UIData.PropertyName_Index, StringComparison.OrdinalIgnoreCase)
                     || name.Equals(UIData.PropertyName_TaskType, StringComparison.OrdinalIgnoreCase)) continue; // dont render the id, type, index to the user
 
@@ -950,17 +958,17 @@ namespace TaskManagerConsoleApp
                     //var p1_L = Math.Max(0, p1 / 2);
                     //var p1_R = Math.Max(0, p1 - p1_L);
                     if (count > 1) name = new string(' ', name.Length);
-                    row += CellStr(name, p1/2, p1/2+p1%2);
+                    row += CellStr(name, p1 / 2, p1 / 2 + p1 % 2);
 
                     // render right col
                     var p2 = Math.Max(0, valueColWidth - curr.Length);
                     //var p2_L = Math.Max(0, p2 / 2);
                     //var p2_R = Math.Max(0, p2 - p2_L);
-                    row += CellStr(curr + "", p2/2, p2/2+p2%2);
+                    row += CellStr(curr + "", p2 / 2, p2 / 2 + p2 % 2);
                     RenderLine(row, color);
                     count++;
                 }
-                
+
                 RenderRowDivider(UIData.TaskPropertiesColumnLayout, margin);
             }
 
@@ -983,7 +991,7 @@ namespace TaskManagerConsoleApp
                 c = next;
                 yield return line;
             }
-            
+
         }
 
         void RenderTitleBar(ConsoleColor bg = ConsoleColor.Green)

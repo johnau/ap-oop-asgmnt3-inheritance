@@ -1,5 +1,4 @@
-﻿
-namespace TaskManagerConsoleApp
+﻿namespace TaskManagerConsoleApp
 {
     internal class UIData
     {
