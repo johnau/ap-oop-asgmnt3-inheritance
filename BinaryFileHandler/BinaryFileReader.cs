@@ -125,7 +125,7 @@ namespace BinaryFileHandler
 
                 return true;
             }
-            catch (IOException ex) when (IsFileInUse(ex)) // if file is in use we will retry
+            catch (IOException ex) when (FileIsInUse(ex)) // if file is in use we will retry
             {
                 Debug.WriteLine($"The file is in use: {FilePath}");
                 

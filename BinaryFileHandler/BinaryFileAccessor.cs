@@ -64,7 +64,7 @@ namespace BinaryFileHandler
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
-        protected static bool IsFileInUse(IOException ex)
+        protected static bool FileIsInUse(IOException ex)
         {
             // Check if the specific IOException indicates that the file is in use
             return ex.HResult == -2147024864; // This is the HRESULT for "The process cannot access the file because it is being used by another process."
