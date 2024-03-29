@@ -154,7 +154,7 @@ namespace BinaryFileHandler
                     while (HasNext(reader))
                     {
                         var entity = new T();
-                        entity.PopulateThis(reader, CurrentClassName);
+                        entity = entity.WithDataFromBinaryReader(reader, CurrentClassName);
                         data.Add(entity);
                     }
                 }

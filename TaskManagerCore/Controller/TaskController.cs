@@ -4,6 +4,7 @@ using TaskManagerCore.Configuration;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Dto;
 using TaskManagerCore.Model.Dto.Mapper;
+using TaskManagerCore.Model.Repository;
 
 namespace TaskManagerCore.Controller
 {
@@ -11,16 +12,17 @@ namespace TaskManagerCore.Controller
     {
         [GeneratedRegex(@"^due[_\.]?date$")]
         private static partial Regex Regex_DueDatePropertyNameLowerCase();
-
-        private readonly ICrudRepository<TaskData, string> TaskDataRepository;
-        private readonly ICrudRepository<TaskFolder, string> TaskFolderRepository;
+        //private readonly ICrudRepository<TaskData, string> TaskDataRepository;
+        private readonly ITaskDataRepository TaskDataRepository;
+        //private readonly ICrudRepository<TaskFolder, string> TaskFolderRepository;
+        private readonly ITaskFolderRepository TaskFolderRepository;
         private readonly GetTaskDtoMapper DtoMapperGetTask;
         private readonly GetFolderDtoMapper DtoMapperGetFolder;
         private readonly CreateTaskDtoMapper DtoMapperCreateTask;
         private readonly CreateFolderDtoMapper DtoMapperCreateFolder;
 
-        public TaskController(ICrudRepository<TaskData, string> taskDataRepository,
-                                ICrudRepository<TaskFolder, string> taskFolderRepository)
+        public TaskController(ITaskDataRepository taskDataRepository,
+                                ITaskFolderRepository taskFolderRepository)
         {
             TaskDataRepository = taskDataRepository;
             TaskFolderRepository = taskFolderRepository;
@@ -96,6 +98,18 @@ namespace TaskManagerCore.Controller
             }
 
             return dtos;
+        }
+
+        public GetFolderDto? GetTaskFolder(string name)
+        {
+            var folder = TaskFolderRepository.FindByName(name);
+
+            if (folder == null)
+            {
+                return null;
+            }
+
+            return DtoMapperGetFolder.Map(folder);
         }
 
         /// <summary>
@@ -238,9 +252,19 @@ namespace TaskManagerCore.Controller
         /// </summary>
         /// <param name="folderId"></param>
         /// <returns></returns>
-        public bool DeleteTaskFolder(string folderId)
+        public bool DeleteTaskFolderById(string folderId)
         {
             return TaskFolderRepository.Delete(folderId);
+        }
+
+        /// <summary>
+        /// Delete a folder (must be empty)
+        /// </summary>
+        /// <param name="folderName"></param>
+        /// <returns></returns>
+        public bool DeleteTaskFolder(string folderName)
+        {
+            return TaskFolderRepository.DeleteByName(folderName);
         }
 
         /// <summary>

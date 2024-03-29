@@ -24,6 +24,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             }
         }
 
+        /// <summary>
+        /// No args constructor (allows setting id to avoid creating a DTO object that takes id)
+        /// Setting the Id is for use when entity is acting as a DTO to the real entity held in the 'persistence context'
+        /// </summary>
+        /// <param name="id"></param>
         public TaskDataEntity(string? id = "")
             : base(id)
         {
@@ -104,12 +109,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
         /*
          * Not using the BinaryFile lib this way, have implemented
          */
-        public void WriteObject(BinaryWriter writer, TaskDataEntity obj)
+        public virtual void WriteObject(BinaryWriter writer, TaskDataEntity obj)
         {
             throw new NotImplementedException();
         }
 
-        public virtual TaskDataEntity PopulateThis(BinaryReader reader, string className)
+        public virtual TaskDataEntity WithDataFromBinaryReader(BinaryReader reader, string className)
         {
             var id = reader.ReadString();
             var description = reader.ReadString();

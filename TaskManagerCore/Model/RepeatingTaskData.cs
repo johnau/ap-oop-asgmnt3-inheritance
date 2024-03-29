@@ -6,7 +6,6 @@ namespace TaskManagerCore.Model
     {
         public new DateTime DueDate { get; }
         public TimeInterval RepeatingInterval { get; }
-        //public DateTime StartFrom { get; }  // could drop StartFrom, use DueDate don't change it's value, but change override the getter to return duedate + interval*repeats...
         public int Repetitions { get; }
         
         #region constructors
@@ -30,16 +29,6 @@ namespace TaskManagerCore.Model
         #endregion
 
         /// <summary>
-        /// Override the Overdue method to check against StartFrom + Interval * Repititions
-        /// </summary>
-        /// <returns></returns>
-        public override bool IsOverdue()
-        {
-            //var hours = (int) RepeatingInterval * (Repititions + 1);
-            return !Completed && ComparisonTime() > DueDate;
-        }
-
-        /// <summary>
         /// RepeatingTaskData.WithCompleted() method to increment Repititions and the DueDate,
         /// rather than setting Completed = true
         /// Also update the DueDate
@@ -55,13 +44,8 @@ namespace TaskManagerCore.Model
 
             // Increment repititions and due date for the next reptition
             // (Would you want this to go to the next possible due date, or just stick to the intervals. i.e. If a daily task is completed 2 days late, does the next due time become yesterday, or today/tomorrow)
-            var nextDueDate = NextDueDate();
+            var nextDueDate = DueDate.AddHours((int)RepeatingInterval);
             return new RepeatingTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repetitions + 1);
-        }
-
-        internal DateTime NextDueDate()
-        {
-            return DueDate.AddHours((int)RepeatingInterval);
         }
     }
 }

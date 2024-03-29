@@ -65,6 +65,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// <summary>
         /// !BinarySearch method to suit requirements of assignment
         /// Find folders matching or starting with provided name string
+        /// FindOneByName
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -73,6 +74,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             // Ascending sort by name
             var sortedList = Cache.SortedBy(Sort.NAME + "");
             var criteriaObject = new TaskFolderEntity() { Name = name };
+
             // Find all matching with StartsWith comparer
             return sortedList.BinarySearchMultiple(criteriaObject, new FolderNameComparer_StartsWith());
         }
@@ -90,7 +92,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             var sortedList = Cache.SortedBy(Sort.NAME + "");
             var criteriaObject = new TaskFolderEntity() { Name = name };
             // Use BinarySearch to find a unique match (Folder.Name is a unique (case-insensitive) property)
-            var exactMatchIndex = sortedList.BinarySearch(criteriaObject, new FolderNameComparer());
+            //var exactMatchIndex = sortedList.BinarySearch(criteriaObject, new FolderNameComparer()); // should be able to reomve this comparer
+            var exactMatchIndex = sortedList.BinarySearch(criteriaObject);
 
             return sortedList[exactMatchIndex];
         }

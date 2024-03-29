@@ -43,7 +43,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
         }
 
         #region TaskFolder specific methods
-        public List<TaskFolder> FindByName(string name)
+        public List<TaskFolder> FindByNameStartsWith(string name)
         {
             var results = Dao.FindByName(name);
             return EntityFactory.ToModel(results);
@@ -67,6 +67,24 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
         {
             var results = Dao.FindNotEmpty();
             return EntityFactory.ToModel(results);
+        }
+
+        public TaskFolder? FindByName(string name)
+        {
+            var result = Dao.FindOneByName(name);
+            if (result == null)
+                return null;
+
+            return EntityFactory.ToModel(result);
+        }
+
+        public bool DeleteByName(string name)
+        {
+            var result = Dao.FindOneByName(name);
+            if (result == null)
+                return false;
+
+            return Dao.Delete(result.Id);
         }
 
         #endregion

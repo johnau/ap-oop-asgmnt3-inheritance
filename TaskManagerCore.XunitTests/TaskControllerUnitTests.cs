@@ -3,14 +3,15 @@ using TaskManagerCore.Configuration;
 using TaskManagerCore.Controller;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Dto;
+using TaskManagerCore.Model.Repository;
 using TaskManagerCore.XunitTests.TestHelpers;
 
 namespace TaskManagerCore.XunitTests
 {
     public class TaskControllerUnitTests
     {
-        public ICrudRepository<TaskData, string> TaskDataRepository;
-        public ICrudRepository<TaskFolder, string> TaskFolderRepository;
+        public ITaskDataRepository TaskDataRepository;
+        public ITaskFolderRepository TaskFolderRepository;
 
         public TaskControllerUnitTests()
         {

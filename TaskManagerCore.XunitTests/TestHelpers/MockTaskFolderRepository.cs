@@ -1,9 +1,10 @@
 ﻿using TaskManagerCore.Configuration;
 using TaskManagerCore.Model;
+using TaskManagerCore.Model.Repository;
 
 namespace TaskManagerCore.XunitTests.TestHelpers
 {
-    internal class MockTaskFolderRepository : ICrudRepository<TaskFolder, string>
+    internal class MockTaskFolderRepository : ITaskFolderRepository
     {
         public Func<string, bool>? OnDelete { get; set; }
         public Func<List<TaskFolder>>? OnFindAll { get; set; }
@@ -14,6 +15,11 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         public bool Delete(string id)
         {
             return OnDelete != null ? OnDelete(id) : throw new NotImplementedException("Did not provide a function for testing");
+        }
+
+        public bool DeleteByName(string name)
+        {
+            throw new NotImplementedException();
         }
 
         public List<TaskFolder> FindAll()
@@ -29,6 +35,31 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         public List<TaskFolder> FindByIds(List<string> ids)
         {
             return OnFindByIds != null ? OnFindByIds(ids) : throw new NotImplementedException("Did not provide a function for testing");
+        }
+
+        public TaskFolder? FindByName(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<TaskFolder> FindByNameStartsWith(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<TaskFolder> FindEmpty()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<TaskFolder> FindNotEmpty()
+        {
+            throw new NotImplementedException();
+        }
+
+        public TaskFolder? FindOneByName(string name)
+        {
+            throw new NotImplementedException();
         }
 
         public string Save(TaskFolder o)

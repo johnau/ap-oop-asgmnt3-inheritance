@@ -9,11 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManagerCore", "TaskMana
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManagerCore.XunitTests", "TaskManagerCore.XunitTests\TaskManagerCore.XunitTests.csproj", "{7030279E-2EC5-42AB-BD3F-B601905311AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryFileHandler", "BinaryFileHandler\BinaryFileHandler.csproj", "{8EDEF166-693C-410A-A9F0-40A41EF41A43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryFileHandler", "BinaryFileHandler\BinaryFileHandler.csproj", "{8EDEF166-693C-410A-A9F0-40A41EF41A43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryCache", "InMemoryCache\InMemoryCache.csproj", "{B7E955D6-092A-4D1A-801E-20FB075A5D1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InMemoryCache", "InMemoryCache\InMemoryCache.csproj", "{B7E955D6-092A-4D1A-801E-20FB075A5D1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryCache.XunitTests", "InMemoryCache.XunitTests\InMemoryCache.XunitTests.csproj", "{366B852B-AC9D-4D7D-87C3-792A3092F4CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InMemoryCache.XunitTests", "InMemoryCache.XunitTests\InMemoryCache.XunitTests.csproj", "{366B852B-AC9D-4D7D-87C3-792A3092F4CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
