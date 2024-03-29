@@ -154,6 +154,24 @@ namespace TaskManagerCore.Controller
             return incomplete;
         }
 
+        public long CountIncompleteInFolder(string folderName)
+        {
+            var folder = TaskFolderRepository.FindOneByName(folderName);
+            if (folder == null)
+                throw new Exception($"Unable to find Folder with Name: {folderName}");
+
+            var idsInFolder = folder.TaskIds;
+            var tasksInFolder = TaskDataRepository.FindByIds(idsInFolder);
+
+            var incomplete = 0L;
+            foreach (var task in tasksInFolder)
+            {
+                if (!task.Completed) incomplete++;
+            }
+
+            return incomplete;
+        }
+
         /// <summary>
         /// Sets a task to Complete = true by default.  Can be used to set completed to false
         /// </summary>
@@ -173,28 +191,66 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
+        /// Note: Method currently untested
+        /// </summary>
+        /// <param name="taskId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool DeleteTask(string taskId)
+        {
+            var folders = TaskFolderRepository.FindAll();
+            var folder = folders.Where(f => f.TaskIds.Contains(taskId)).First();
+            if (folder == null)
+                throw new Exception($"Unable to find Folder containing Task Id: {taskId}");
+
+            var task = TaskDataRepository.FindById(taskId);
+            if (task == null)
+                throw new Exception($"Unable to find Task with Id: {taskId}");
+
+            var savedFolderId = TaskFolderRepository.Save(folder.WithoutTask(taskId));
+            var didDeleteTask = TaskDataRepository.Delete(taskId);
+
+            if (savedFolderId != null && didDeleteTask) // not great, but fits purpose
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
         /// Deletes a task, given folder Id and task Id, assumes that caller knows
         /// the folder Id, since they will be viewing tasks through the folders
         /// </summary>
         /// <param name="folderId"></param>
         /// <param name="taskId"></param>
         /// <returns></returns>
-        public bool DeleteTaskFromFolder(string folderId, string taskId)
+        public bool DeleteTaskFromFolderById(string folderId, string taskId)
         {
-
             var folder = TaskFolderRepository.FindById(folderId);
             if (folder == null)
-            {
-                Debug.WriteLine($"Unable to find Folder with Id: {folderId}");
                 throw new Exception($"Unable to find Folder with Id: {folderId}");
-            }
 
             var task = TaskDataRepository.FindById(taskId);
             if (task == null)
-            {
-                Debug.WriteLine($"Unable to find Task with Id: {taskId}");
                 throw new Exception($"Unable to find Task with Id: {taskId}");
-            }
+
+            var savedFolderId = TaskFolderRepository.Save(folder.WithoutTask(taskId));
+            var didDeleteTask = TaskDataRepository.Delete(taskId);
+
+            if (savedFolderId != null && didDeleteTask) // not great, but fits purpose
+                return true;
+
+            return false;
+        }
+
+        public bool DeleteTaskFromFolderByName(string folderName, string taskId)
+        {
+            var folder = TaskFolderRepository.FindOneByName(folderName);
+            if (folder == null)
+                throw new Exception($"Unable to find Folder with Name: {folderName}");
+
+            var task = TaskDataRepository.FindById(taskId);
+            if (task == null)
+                throw new Exception($"Unable to find Task with Id: {taskId}");
 
             var savedFolderId = TaskFolderRepository.Save(folder.WithoutTask(taskId));
             var didDeleteTask = TaskDataRepository.Delete(taskId);

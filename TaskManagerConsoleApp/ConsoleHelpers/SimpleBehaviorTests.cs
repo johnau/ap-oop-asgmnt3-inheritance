@@ -68,7 +68,7 @@ namespace TaskManagerConsoleApp.ConsoleHelpers
             var miscTask1_Completed = controller.CompleteTask(miscTask1_Id);
 
             // Delete Tasks
-            var personalTask3_deleted = controller.DeleteTaskFromFolder(personalFolder_Id, personalTask3_Id);
+            var personalTask3_deleted = controller.DeleteTaskFromFolderById(personalFolder_Id, personalTask3_Id);
 
             // Check
             Tp.PrintTasksAndFolders(controller, "Completed Work Task 1 and Misc Task 1, Deleted Personal Task 3");

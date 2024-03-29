@@ -38,7 +38,7 @@ namespace TaskManagerConsoleApp {
             
             taskController.CompleteTask(id);
             
-            taskController.DeleteTaskFromFolder("work", id);
+            taskController.DeleteTaskFromFolderById("work", id);
         }
 
         public void ListTasksAndFolders()
