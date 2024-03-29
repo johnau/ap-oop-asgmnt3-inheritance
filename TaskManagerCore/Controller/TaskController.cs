@@ -54,7 +54,7 @@ namespace TaskManagerCore.Controller
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public GetTaskDto? GetTaskById(string id)
+        public GetTaskDto? GetTask(string id)
         {
             var task = TaskDataRepository.FindById(id);
             if (task == null)
@@ -66,12 +66,13 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
+        /// Overload of GetTasks()
         /// Get List of tasks by id's
         /// Use to get task data from list in folder
         /// </summary>
         /// <param name="ids"></param>
         /// <returns></returns>
-        public List<GetTaskDto> GetTasksByIds(List<string> ids)
+        public List<GetTaskDto> GetTasks(List<string> ids)
         {
             var tasks = TaskDataRepository.FindByIds(ids);
             
@@ -256,19 +257,13 @@ namespace TaskManagerCore.Controller
         /// </summary>
         /// <param name="folderId"></param>
         /// <returns></returns>
-        public bool DeleteTaskFolderById(string folderId)
+        public bool DeleteTaskFolder(string folderId)
         {
-            return TaskFolderRepository.Delete(folderId);
-        }
+            var success = TaskFolderRepository.Delete(folderId);
+            if (!success)
+                success = TaskFolderRepository.DeleteByName(folderId);
 
-        /// <summary>
-        /// Delete a folder (must be empty)
-        /// </summary>
-        /// <param name="folderName"></param>
-        /// <returns></returns>
-        public bool DeleteTaskFolder(string folderName)
-        {
-            return TaskFolderRepository.DeleteByName(folderName);
+            return success;
         }
 
         /// <summary>

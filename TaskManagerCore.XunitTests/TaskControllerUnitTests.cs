@@ -61,7 +61,7 @@ namespace TaskManagerCore.XunitTests
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
-            var task = controller.GetTaskById(taskDataId);
+            var task = controller.GetTask(taskDataId);
 
             Assert.NotNull(task);
             Assert.Equal(taskDescription, task.Description);
@@ -87,7 +87,7 @@ namespace TaskManagerCore.XunitTests
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
-            var task = controller.GetTaskById("bad task id");
+            var task = controller.GetTask("bad task id");
 
             Assert.Null(task);
         }
