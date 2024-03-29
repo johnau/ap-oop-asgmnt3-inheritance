@@ -12,7 +12,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
         }
         protected override int CompareNonNull(TaskDataEntity x, TaskDataEntity y)
         {
-            var result = TaskDataEntity.CompareTasksByCompleted(x, y);
+            var result = TaskDataEntity.CompareByCompleted(x, y);
             if (!_ascending) 
                 result *= -1;
             return result;

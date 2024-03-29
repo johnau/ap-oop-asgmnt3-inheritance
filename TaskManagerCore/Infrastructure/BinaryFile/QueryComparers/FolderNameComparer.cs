@@ -6,7 +6,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
     {
         protected override int CompareNonNull(TaskFolderEntity x, TaskFolderEntity y)
         {
-            return TaskFolderEntity.CompareFoldersByName(x, y);
+            return TaskFolderEntity.CompareByName(x, y);
         }
     }
 }

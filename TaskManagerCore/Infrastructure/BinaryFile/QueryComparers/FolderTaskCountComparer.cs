@@ -12,7 +12,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
         }
         protected override int CompareNonNull(TaskFolderEntity x, TaskFolderEntity y)
         {
-            var result = TaskFolderEntity.CompareFoldersByTaskCount(x, y);
+            var result = TaskFolderEntity.CompareByTaskCount(x, y);
             if (!_ascending) result *= -1;
             return result;
         }

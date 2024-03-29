@@ -19,8 +19,8 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         protected override Dictionary<string, Comparison<TaskFolderEntity>> ComparisonMethods => 
             new Dictionary<string, Comparison<TaskFolderEntity>>()
             {
-                { Sort.NAME.ToString(), TaskFolderEntity.CompareFoldersByName },
-                { Sort.TASK_COUNT.ToString(), TaskFolderEntity.CompareFoldersByTaskCount },
+                { Sort.NAME.ToString(), TaskFolderEntity.CompareByName },
+                { Sort.TASK_COUNT.ToString(), TaskFolderEntity.CompareByTaskCount },
             };
 
         /// <summary>

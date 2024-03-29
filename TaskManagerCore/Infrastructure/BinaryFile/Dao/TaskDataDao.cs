@@ -18,10 +18,10 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         protected override Dictionary<string, Comparison<TaskDataEntity>> ComparisonMethods => 
             new Dictionary<string, Comparison<TaskDataEntity>>() 
             {
-                { Sort.DUE_DATE.ToString(), TaskDataEntity.CompareTasksByDueDate },
-                { Sort.COMPLETED.ToString(), TaskDataEntity.CompareTasksByCompleted },
-                { Sort.DESCRIPTION.ToString(), TaskDataEntity.CompareTasksByDescription },
-                { Sort.NOTES.ToString(), TaskDataEntity.CompareTasksByNotes },
+                { Sort.DUE_DATE.ToString(), TaskDataEntity.CompareByDueDate },
+                { Sort.COMPLETED.ToString(), TaskDataEntity.CompareByCompleted },
+                { Sort.DESCRIPTION.ToString(), TaskDataEntity.CompareByDescription },
+                { Sort.NOTES.ToString(), TaskDataEntity.CompareByNotes },
             };
 
         /// <summary>

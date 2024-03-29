@@ -68,7 +68,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
         }
 
         #region Static Compare Methods
-        public static int CompareTasksByDueDate(TaskDataEntity x, TaskDataEntity y)
+        public static int CompareByDueDate(TaskDataEntity x, TaskDataEntity y)
         {
             if (x.DueDate.HasValue && y.DueDate.HasValue)
             {
@@ -79,17 +79,17 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 
             return 0;
         }
-        public static int CompareTasksByCompleted(TaskDataEntity x, TaskDataEntity y)
+        public static int CompareByCompleted(TaskDataEntity x, TaskDataEntity y)
         {
             return x.Completed.CompareTo(y.Completed);
         }
 
-        public static int CompareTasksByDescription(TaskDataEntity x, TaskDataEntity y)
+        public static int CompareByDescription(TaskDataEntity x, TaskDataEntity y)
         {
             return string.Compare(x.Description, y.Description, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static int CompareTasksByNotes(TaskDataEntity x, TaskDataEntity y)
+        public static int CompareByNotes(TaskDataEntity x, TaskDataEntity y)
         {
             return string.Compare(x.Notes, y.Notes, StringComparison.OrdinalIgnoreCase);
         }
@@ -114,26 +114,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             throw new NotImplementedException();
         }
 
-        public virtual TaskDataEntity WithDataFromBinaryReader(BinaryReader reader, string className)
+        public virtual TaskDataEntity ReadObject(BinaryReader reader, string className)
         {
-            var id = reader.ReadString();
-            var description = reader.ReadString();
-            var notes = reader.ReadString();
-            var completed = reader.ReadBoolean();
-            var dueDate = reader.ReadInt64();
-            var interval = reader.ReadInt32();
-            var repetitions = reader.ReadInt32();
-            var streak = reader.ReadInt32();
-
-            return EntityFactory.TaskFromValues(className,
-                                                id,
-                                                description,
-                                                notes,
-                                                completed,
-                                                dueDate > 0L ? new DateTime(dueDate) : null,
-                                                (TimeInterval)interval,
-                                                repetitions,
-                                                streak);
+            throw new NotImplementedException();
         }
         #endregion
     }

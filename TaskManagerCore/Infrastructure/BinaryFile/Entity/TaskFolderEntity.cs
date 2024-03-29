@@ -34,12 +34,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
         /// <param name="t1"></param>
         /// <param name="t2"></param>
         /// <returns></returns>
-        public static int CompareFoldersByName(TaskFolderEntity t1, TaskFolderEntity t2)
+        public static int CompareByName(TaskFolderEntity t1, TaskFolderEntity t2)
         {
             return string.Compare(t1.Name.ToLower(), t2.Name.ToLower());
         }
 
-        public static int CompareFoldersByTaskCount(TaskFolderEntity t1, TaskFolderEntity t2)
+        public static int CompareByTaskCount(TaskFolderEntity t1, TaskFolderEntity t2)
         {
             return t1.TaskIds.Count.CompareTo(t2.TaskIds.Count);
         }

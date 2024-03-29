@@ -10,7 +10,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
             var startsWithMatch = x.Description.StartsWith(y.Description, StringComparison.OrdinalIgnoreCase);
             if (startsWithMatch) return 0;
 
-            return TaskDataEntity.CompareTasksByDescription(x, y);
+            return TaskDataEntity.CompareByDescription(x, y);
         }
     }
 }
