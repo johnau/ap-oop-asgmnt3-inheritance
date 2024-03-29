@@ -1,4 +1,7 @@
-# C# OOP Assignment 3: Inheritance
+# C# OOP Assignment 3: Task Manager: Inheritance (branch "master")
+# C# OOP Assignment 4: Task Manager: Binary Files (branch "part2")
+# C# OOP Assignment 5: Task Manager: Indexing (branch "part3")
+# C# OOP Assignment 6: Task Manager: Documentation (branch "part4")
 
 ## Tests
 - TaskManagerCore.XunitTests Package contains Unit tests for the relevant classes
