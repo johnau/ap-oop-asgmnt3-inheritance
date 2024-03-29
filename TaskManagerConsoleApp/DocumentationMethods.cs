@@ -20,7 +20,7 @@ namespace TaskManagerConsoleApp {
 
             GetFolderDto? folderByName = taskController.GetTaskFolder("work");
 
-            GetFolderDto? folderById = taskController.GetTaskFolderById(id);
+            GetFolderDto? folderById = taskController.GetTaskFolder(id);
 
             bool success = taskController.DeleteTaskFolder(folderByName!.Name);
         }
@@ -38,7 +38,7 @@ namespace TaskManagerConsoleApp {
             
             taskController.CompleteTask(id);
             
-            taskController.DeleteTaskFromFolderById("work", id);
+            taskController.DeleteTaskFromFolder("work", id);
         }
 
         public void ListTasksAndFolders()

@@ -100,32 +100,22 @@ namespace TaskManagerCore.Controller
             return dtos;
         }
 
-        public GetFolderDto? GetTaskFolder(string name)
-        {
-            var folder = TaskFolderRepository.FindByName(name);
-
-            if (folder == null)
-            {
-                return null;
-            }
-
-            return DtoMapperGetFolder.Map(folder);
-        }
-
         /// <summary>
         /// Get a Task Folder (with the TaskFolder Id)
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="folderId"></param>
         /// <returns></returns>
-        public GetFolderDto? GetTaskFolderById(string id)
+        public GetFolderDto? GetTaskFolder(string folderId)
         {
-            var folder = TaskFolderRepository.FindById(id);
-            if (folder == null)
+            try
             {
-                return null;
-            }
+                var folder = GetFolderWithIdOrNameOrThrow(folderId);
+                if (folder != null)
+                    return DtoMapperGetFolder.Map(folder);
 
-            return DtoMapperGetFolder.Map(folder);
+            } catch { }
+
+            return null;
         }
 
         /// <summary>
@@ -138,9 +128,7 @@ namespace TaskManagerCore.Controller
         /// <exception cref="Exception"></exception>
         public long CountIncomplete(string folderId)
         {
-            var folder = TaskFolderRepository.FindById(folderId);
-            if (folder == null)
-                throw new Exception($"Unable to find Folder with Id: {folderId}");
+            var folder = GetFolderWithIdOrNameOrThrow(folderId);
 
             var idsInFolder = folder.TaskIds;
             var tasksInFolder = TaskDataRepository.FindByIds(idsInFolder);
@@ -151,24 +139,6 @@ namespace TaskManagerCore.Controller
                 if (!task.Completed) incomplete++;
             }
             
-            return incomplete;
-        }
-
-        public long CountIncompleteInFolder(string folderName)
-        {
-            var folder = TaskFolderRepository.FindOneByName(folderName);
-            if (folder == null)
-                throw new Exception($"Unable to find Folder with Name: {folderName}");
-
-            var idsInFolder = folder.TaskIds;
-            var tasksInFolder = TaskDataRepository.FindByIds(idsInFolder);
-
-            var incomplete = 0L;
-            foreach (var task in tasksInFolder)
-            {
-                if (!task.Completed) incomplete++;
-            }
-
             return incomplete;
         }
 
@@ -199,7 +169,8 @@ namespace TaskManagerCore.Controller
         public bool DeleteTask(string taskId)
         {
             var folders = TaskFolderRepository.FindAll();
-            var folder = folders.Where(f => f.TaskIds.Contains(taskId)).First();
+            var folder = folders.Where(f => f.TaskIds.Contains(taskId))
+                                .First();
             if (folder == null)
                 throw new Exception($"Unable to find Folder containing Task Id: {taskId}");
 
@@ -223,30 +194,9 @@ namespace TaskManagerCore.Controller
         /// <param name="folderId"></param>
         /// <param name="taskId"></param>
         /// <returns></returns>
-        public bool DeleteTaskFromFolderById(string folderId, string taskId)
+        public bool DeleteTaskFromFolder(string folderId, string taskId)
         {
-            var folder = TaskFolderRepository.FindById(folderId);
-            if (folder == null)
-                throw new Exception($"Unable to find Folder with Id: {folderId}");
-
-            var task = TaskDataRepository.FindById(taskId);
-            if (task == null)
-                throw new Exception($"Unable to find Task with Id: {taskId}");
-
-            var savedFolderId = TaskFolderRepository.Save(folder.WithoutTask(taskId));
-            var didDeleteTask = TaskDataRepository.Delete(taskId);
-
-            if (savedFolderId != null && didDeleteTask) // not great, but fits purpose
-                return true;
-
-            return false;
-        }
-
-        public bool DeleteTaskFromFolderByName(string folderName, string taskId)
-        {
-            var folder = TaskFolderRepository.FindOneByName(folderName);
-            if (folder == null)
-                throw new Exception($"Unable to find Folder with Name: {folderName}");
+            var folder = GetFolderWithIdOrNameOrThrow(folderId);
 
             var task = TaskDataRepository.FindById(taskId);
             if (task == null)
@@ -269,14 +219,7 @@ namespace TaskManagerCore.Controller
         /// <exception cref="Exception"></exception>
         public string CreateTask(CreateTaskDto dto)
         {
-            var folder = TaskFolderRepository.FindOneByName(dto.InFolderId);
-            if (folder == null)
-            {
-                Debug.WriteLine($"Did not match {dto.InFolderId} to a Folder name, will try lookup by Id next...");
-                folder = TaskFolderRepository.FindById(dto.InFolderId);
-                if (folder == null)
-                    throw new Exception($"Could not find Folder: {dto.InFolderId}");
-            }
+            var folder = GetFolderWithIdOrNameOrThrow(dto.InFolderId);
 
             var task = DtoMapperCreateTask.Map(dto);
             var taskId = TaskDataRepository.Save(task);
@@ -332,19 +275,17 @@ namespace TaskManagerCore.Controller
         /// Move a Task from one TaskFolder to another (with Task Id, and TaskFolder Id's)
         /// </summary>
         /// <param name="taskId"></param>
-        /// <param name="folderIdFrom"></param>
-        /// <param name="folderIdTo"></param>
+        /// <param name="fromFolderId"></param>
+        /// <param name="toFolderId"></param>
         /// <exception cref="Exception"></exception>
-        public bool MoveTask(string taskId, string folderIdFrom, string folderIdTo)
+        public bool MoveTask(string taskId, string fromFolderId, string toFolderId)
         {
             var task = TaskDataRepository.FindById(taskId);
             if (task == null)
                 throw new Exception($"Could not find Task with Id: {taskId}");
 
-            var fromFolder = TaskFolderRepository.FindById(folderIdFrom);
-            var toFolder = TaskFolderRepository.FindById(folderIdTo);
-            if (fromFolder == null || toFolder == null)
-                throw new Exception($"Could not find target Folders for move ({folderIdFrom}, {folderIdTo})");
+            var fromFolder = GetFolderWithIdOrNameOrThrow(fromFolderId);
+            var toFolder = GetFolderWithIdOrNameOrThrow(toFolderId);
 
             fromFolder = fromFolder.WithoutTask(taskId);
             toFolder = toFolder.WithTask(taskId);
@@ -421,5 +362,18 @@ namespace TaskManagerCore.Controller
             }
         }
 
+        TaskFolder GetFolderWithIdOrNameOrThrow(string identifier)
+        {
+            var folder = TaskFolderRepository.FindOneByName(identifier);
+            if (folder == null)
+            {
+                Debug.WriteLine($"Did not match {dto.InFolderId} to a Folder name, will try lookup by Id next...");
+                folder = TaskFolderRepository.FindById(identifier);
+                if (folder == null)
+                    throw new Exception($"Unable to find Folder with Id: {identifier}");
+            }
+
+            return folder;
+        }
     }
 }

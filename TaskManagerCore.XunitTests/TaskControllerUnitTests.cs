@@ -127,7 +127,7 @@ namespace TaskManagerCore.XunitTests
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
-            var folder = controller.GetTaskFolderById(taskFolderId);
+            var folder = controller.GetTaskFolder(taskFolderId);
 
             Assert.NotNull(folder);
         }
@@ -145,7 +145,7 @@ namespace TaskManagerCore.XunitTests
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
-            var folder = controller.GetTaskFolderById("bad id");
+            var folder = controller.GetTaskFolder("bad id");
 
             Assert.Null(folder);
         }
@@ -302,7 +302,7 @@ namespace TaskManagerCore.XunitTests
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
 
-            var result = controller.DeleteTaskFromFolderById(taskFolderId, taskId);
+            var result = controller.DeleteTaskFromFolder(taskFolderId, taskId);
 
             Assert.True(result);
         }
@@ -328,7 +328,7 @@ namespace TaskManagerCore.XunitTests
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
 
-            Assert.Throws<Exception>(() => controller.DeleteTaskFromFolderById("bad folder id", taskId));
+            Assert.Throws<Exception>(() => controller.DeleteTaskFromFolder("bad folder id", taskId));
         }
 
         [Fact]
@@ -352,7 +352,7 @@ namespace TaskManagerCore.XunitTests
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
 
-            Assert.Throws<Exception>(() => controller.DeleteTaskFromFolderById(taskFolderId, "bad task id"));
+            Assert.Throws<Exception>(() => controller.DeleteTaskFromFolder(taskFolderId, "bad task id"));
         }
 
         [Fact]
@@ -376,7 +376,7 @@ namespace TaskManagerCore.XunitTests
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
 
-            var result = controller.DeleteTaskFromFolderById(taskFolderId, taskId);
+            var result = controller.DeleteTaskFromFolder(taskFolderId, taskId);
 
             Assert.False(result);
         }
@@ -402,7 +402,7 @@ namespace TaskManagerCore.XunitTests
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
 
-            var result = controller.DeleteTaskFromFolderById(taskFolderId, taskId);
+            var result = controller.DeleteTaskFromFolder(taskFolderId, taskId);
 
             Assert.False(result);
         }

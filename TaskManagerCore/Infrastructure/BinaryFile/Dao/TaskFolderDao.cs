@@ -34,12 +34,11 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         {
             foreach (var folder in Cache)
             {
-                if (folder.Key == entity.Id) continue;
+                if (folder.Key == entity.Id) 
+                    continue;
 
                 if (folder.Value.Name.ToLower() == entity.Name.ToLower())
-                {
                     throw new InvalidDataException($"There is already a folder called: {entity.Name.ToUpper()}");
-                }
             }
 
             if (Cache.TryAdd(entity.Id, entity))

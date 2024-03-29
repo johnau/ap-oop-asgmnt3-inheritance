@@ -52,11 +52,11 @@ namespace TaskManagerConsoleApp
             var funcGetTasksByIds = (List<string> ids) => Conv.ConvertTaskDtosToGenericData(controller.GetTasksByIds(ids));
             var funcGetTaskById = (string id) => Conv.ConvertTaskDtoToGenericData(controller.GetTaskById(id));
             var funcGetAllTasks = () => Conv.ConvertFolderDtosToGenericData(controller.GetTaskFolders());
-            var funcDeleteTask = controller.DeleteTaskFromFolderById;
+            var funcDeleteTask = controller.DeleteTaskFromFolder;
             var funcCompleteTask = (string id, bool completed) => controller.CompleteTask(id, completed);
             var funcUpdateTaskProperty = controller.UpdateTaskProperty;
             var funcCreateTask = (Dictionary<string, object> taskData) => controller.CreateTask(Conv.ConvertGenericDataToTaskDto(taskData));
-            var funcGetFolderById = (string id) => Conv.ConvertFolderDtoToGenericData(controller.GetTaskFolderById(id));
+            var funcGetFolderById = (string id) => Conv.ConvertFolderDtoToGenericData(controller.GetTaskFolder(id));
 
             var console = new TaskManagerConsoleHandler(
                 func_GetAllFoldersAsList: funcGetAllFolders, 
