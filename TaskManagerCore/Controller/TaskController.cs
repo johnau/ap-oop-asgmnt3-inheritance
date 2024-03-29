@@ -20,7 +20,7 @@ namespace TaskManagerCore.Controller
         private readonly GetFolderDtoMapper DtoMapperGetFolder;
         private readonly CreateTaskDtoMapper DtoMapperCreateTask;
         private readonly CreateFolderDtoMapper DtoMapperCreateFolder;
-
+        
         public TaskController(ITaskDataRepository taskDataRepository,
                                 ITaskFolderRepository taskFolderRepository)
         {
@@ -269,9 +269,14 @@ namespace TaskManagerCore.Controller
         /// <exception cref="Exception"></exception>
         public string CreateTask(CreateTaskDto dto)
         {
-            var folder = TaskFolderRepository.FindById(dto.InFolderId);
+            var folder = TaskFolderRepository.FindOneByName(dto.InFolderId);
             if (folder == null)
-                throw new Exception($"Could not find Folder: {dto.InFolderId}");
+            {
+                Debug.WriteLine($"Did not match {dto.InFolderId} to a Folder name, will try lookup by Id next...");
+                folder = TaskFolderRepository.FindById(dto.InFolderId);
+                if (folder == null)
+                    throw new Exception($"Could not find Folder: {dto.InFolderId}");
+            }
 
             var task = DtoMapperCreateTask.Map(dto);
             var taskId = TaskDataRepository.Save(task);
