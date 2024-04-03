@@ -5,16 +5,17 @@ using TaskManagerCore.Model;
 using TaskManagerCore.Model.Dto;
 using TaskManagerCore.Model.Dto.Mapper;
 using TaskManagerCore.Model.Repository;
+using TaskManagerCore.Utility;
 
 namespace TaskManagerCore.Controller
 {
+    /// <summary>
+    /// The TaskController class provides an API to all functionality of the TaskManager-Core system.
+    /// </summary>
+    /// <include file="TaskControllerExamples.xml" path="doc/members/member[@name='M:TaskManagerCore.Controller.TaskController']/*" />
     public partial class TaskController
     {
-        [GeneratedRegex(@"^due[_\.]?date$")]
-        private static partial Regex Regex_DueDatePropertyNameLowerCase();
-        //private readonly ICrudRepository<TaskData, string> TaskDataRepository;
         private readonly ITaskDataRepository TaskDataRepository;
-        //private readonly ICrudRepository<TaskFolder, string> TaskFolderRepository;
         private readonly ITaskFolderRepository TaskFolderRepository;
         private readonly GetTaskDtoMapper DtoMapperGetTask;
         private readonly GetFolderDtoMapper DtoMapperGetFolder;
@@ -33,7 +34,7 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Get All Tasks
+        /// Get All Tasks managed in the system
         /// </summary>
         /// <returns></returns>
         public List<GetTaskDto> GetTasks()
@@ -314,7 +315,7 @@ namespace TaskManagerCore.Controller
                 task = task.WithDescription((string)value);
             else if (property == "notes")
                 task = task.WithNotes((string)value);
-            else if (Regex_DueDatePropertyNameLowerCase().IsMatch(property)) // due Date
+            else if (RegexUtility.Regex_DueDatePropertyNameLowerCase().IsMatch(property)) // due Date
                 task = task.WithDueDate(new DateTime((long)value));
             else 
                 throw new Exception($"Unrecognized property: {property}");
@@ -362,7 +363,7 @@ namespace TaskManagerCore.Controller
             var folder = TaskFolderRepository.FindOneByName(identifier);
             if (folder == null)
             {
-                Debug.WriteLine($"Did not match {dto.InFolderId} to a Folder name, will try lookup by Id next...");
+                Debug.WriteLine($"Did not match {identifier} to a Folder name, will try lookup by Id next...");
                 folder = TaskFolderRepository.FindById(identifier);
                 if (folder == null)
                     throw new Exception($"Unable to find Folder with Id: {identifier}");
