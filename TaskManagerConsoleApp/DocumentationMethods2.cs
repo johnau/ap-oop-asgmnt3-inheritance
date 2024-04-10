@@ -47,22 +47,12 @@ namespace TaskManagerConsoleApp {
         /// <param name="entity"></param>
         protected override void WriteObject(BinaryWriter writer, TaskDataEntity entity)
         {
-            writer.Write(entity.Id);
-            writer.Write(entity.Description);
-            writer.Write(entity.Notes);
-            writer.Write(entity.Completed);
-            writer.Write(entity.DueDate != null ? entity.DueDate.Value.Ticks : 0L);
-            writer.Write(entity is RepeatingTaskDataEntity repeatingTask1 ? (int)repeatingTask1.RepeatingInterval : -1);
-            writer.Write(entity is RepeatingTaskDataEntity repeatingTask2 ? repeatingTask2.Repetitions : -1);
-            writer.Write(entity is HabitualTaskDataEntity habitualTask ? habitualTask.Streak : -1);
+            throw new NotImplementedException();
         }
     }
 
     class MyTaskDataFileReader : BinaryFileReader<TaskDataEntity>
     {
-                private readonly List<string> acceptedClasses = new List<string>() {typeof(TaskDataEntity).Name,
-                                                                            typeof(RepeatingTaskDataEntity).Name,
-                                                                            typeof(HabitualTaskDataEntity).Name};
 
         public MyTaskDataFileReader(BinaryFileConfig config) : base(config) { }
 
@@ -74,27 +64,7 @@ namespace TaskManagerConsoleApp {
         /// <exception cref="ArgumentException"></exception>
         protected override TaskDataEntity ReadObject(BinaryReader reader)
         {
-            if (!acceptedClasses.Contains(CurrentClassName))
-                throw new ArgumentException("A recognized Class name was not detected");
-
-            var id = reader.ReadString();
-            var description = reader.ReadString();
-            var notes = reader.ReadString();
-            var completed = reader.ReadBoolean();
-            var dueDate = reader.ReadInt64();
-            var interval = reader.ReadInt32();
-            var repetitions = reader.ReadInt32();
-            var streak = reader.ReadInt32();
-
-            return EntityFactory.TaskFromValues(CurrentClassName, 
-                                                id, 
-                                                description, 
-                                                notes, 
-                                                completed, 
-                                                dueDate > 0L ? new DateTime(dueDate) : null, 
-                                                (TimeInterval)interval, 
-                                                repetitions, 
-                                                streak);
+            throw new NotImplementedException();
         }
     }
 
@@ -109,9 +79,7 @@ namespace TaskManagerConsoleApp {
         /// <param name="entity"></param>
         protected override void WriteObject(BinaryWriter writer, TaskFolderEntity entity)
         {
-            writer.Write(entity.Id);
-            writer.Write(entity.Name);
-            writer.Write(string.Join(Delimiter, entity.TaskIds));
+            throw new NotImplementedException();
         }
     }
 
@@ -127,15 +95,7 @@ namespace TaskManagerConsoleApp {
         /// <exception cref="Exception"></exception>
         protected override TaskFolderEntity ReadObject(BinaryReader reader)
         {
-            var id = reader.ReadString();
-            var name = reader.ReadString();
-            var taskIds = reader.ReadString().Split(Delimiter, StringSplitOptions.RemoveEmptyEntries);
-
-            return new TaskFolderEntity(id)
-            {
-                Name = name,
-                TaskIds = taskIds.ToList(),
-            };
+            throw new NotImplementedException();
         }
     }
 

@@ -12,7 +12,7 @@ namespace TaskManagerCore.Controller
     /// <summary>
     /// The TaskController class provides an API to all functionality of the TaskManager-Core system.
     /// </summary>
-    /// <include file="TaskControllerExamples.xml" path="doc/members/member[@name='M:TaskManagerCore.Controller.TaskController']/*" />
+    /// <include file="TaskControllerDocs.xml" path="doc/members/member[@name='M:TaskManagerCore.Controller.TaskController']/*" />
     public partial class TaskController
     {
         private readonly ITaskDataRepository TaskDataRepository;
@@ -22,6 +22,11 @@ namespace TaskManagerCore.Controller
         private readonly CreateTaskDtoMapper DtoMapperCreateTask;
         private readonly CreateFolderDtoMapper DtoMapperCreateFolder;
         
+        /// <summary>
+        /// The only TaskController constructor
+        /// </summary>
+        /// <param name="taskDataRepository">Implementation of ITaskDataRepository</param>
+        /// <param name="taskFolderRepository">Implementation of ITaskFolderRepository</param>
         public TaskController(ITaskDataRepository taskDataRepository,
                                 ITaskFolderRepository taskFolderRepository)
         {
@@ -51,7 +56,7 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Get a Task (with the Task Id)
+        /// Get a Task using the Id of the Task
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

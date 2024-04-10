@@ -3,3 +3,16 @@
 /obj
 */bin
 */obj
+
+# DocFx files
+/docs/**
+docfx.*
+.markdownlint.json
+GenerateDocWebsite.cmd
+
+# DocFx generated files
+# /docs/**/toc.yml
+# /docs/reference/
+_site/**
+_api/**
+toc.yml

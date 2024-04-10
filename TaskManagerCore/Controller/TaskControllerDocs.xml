@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<doc>
+	<members>
+		<member name="M:TaskManagerCore.Controller.TaskController">
+			<example>
+				<code>
+/**
+  * The following example demonstrates basic usage of the TaskController class					
+  */
+					
+using TaskManagerCore;
+using TaskManagerCore.Controller;
+using TaskManagerCore.Model;
+using TaskManagerCore.Model.Dto;
+
+namespace MyApp 
+{
+  class TaskManagerSample
+  {
+    private readonly TaskController TaskManager =
+                                 TaskManagerFactory.CreateDefaultTaskManager();
+
+    public void BasicFolderActions()
+    {
+      var folder = new CreateFolderDto("Work");
+               
+      string id = TaskManager.CreateTaskFolder(folder);
+               
+      GetFolderDto? folderByName = TaskManager.GetTaskFolder("work");
+               
+      GetFolderDto? folderById = TaskManager.GetTaskFolderById(id);
+               
+      bool success = TaskManager.DeleteTaskFolder(folderByName!.Name);
+    }
+
+    public void BasicTaskActions()
+    {
+      var task = new CreateTaskDto(TaskType.SINGLE,
+                    "work", // case-insensitive
+                    "A new task",
+                    "This task is for testing purposes",
+                    DateTime.Now.AddDays(1)
+                    );
+
+      string id = TaskManager.CreateTask(task);
+
+      TaskManager.CompleteTask(id);
+
+      bool success = TaskManager.DeleteTaskFromFolder("work", id);
+    }
+
+    public void ListTasksAndFolders()
+    {
+      List&lt;GetFolderDto&gt;
+      allFolders = TaskManager.GetTaskFolders();
+
+      List&lt;GetTaskDto&gt; allTasks = TaskManager.GetTasks();
+    }
+  }
+}
+				</code>
+				<code>
+/**
+  * The following example demonstrates overriding default Persistence behavior
+  * - Replace Persistence layer: implement ITaskDataRepository and ITaskFolderRepostory
+  * - Provide instances to TaskController constructor.
+  */
+
+using TaskManagerCore.Model.Repository;
+using TaskManagerCore.Controller;
+
+namespace MyApp 
+{
+  class TaskManagerBuilder
+  {
+    public void CreateTaskManagerWithOtherPersistence()
+    {
+      ITaskDataRepository taskRepository = new MySqliteTaskRepository();
+
+      ITaskFolderRepository folderRepository = new MySqliteFolderRepository();
+
+      var controller = new TaskController(taskRepository, folderRepository);
+    }
+  }
+}
+				</code>
+			</example>
+		</member>
+	</members>
+</doc>

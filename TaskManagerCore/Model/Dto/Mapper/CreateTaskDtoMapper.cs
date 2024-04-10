@@ -1,6 +1,6 @@
 ﻿namespace TaskManagerCore.Model.Dto.Mapper
 {
-    public class CreateTaskDtoMapper : IDtoMapper<CreateTaskDto, TaskData>
+    internal class CreateTaskDtoMapper : IDtoMapper<CreateTaskDto, TaskData>
     {
         public TaskData Map(CreateTaskDto dto)
         {

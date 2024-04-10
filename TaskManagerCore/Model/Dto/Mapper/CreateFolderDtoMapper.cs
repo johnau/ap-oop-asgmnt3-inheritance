@@ -1,6 +1,6 @@
 ﻿namespace TaskManagerCore.Model.Dto.Mapper
 {
-    public class CreateFolderDtoMapper : IDtoMapper<CreateFolderDto, TaskFolder>
+    internal class CreateFolderDtoMapper : IDtoMapper<CreateFolderDto, TaskFolder>
     {
         public TaskFolder Map(CreateFolderDto dto)
         {
