@@ -31,11 +31,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Extract Repo Name
       id: extract_repo_name
-      run: echo "::set-output name=name::${{ github.event.repository.name }}"
+      run: echo "{name}=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
+      #run: echo "::set-output name=name::${{ github.event.repository.name }}"
       #run: echo "::set-output name=name::${{ github.repository#*/ }}"
 
     - name: Update TOC
