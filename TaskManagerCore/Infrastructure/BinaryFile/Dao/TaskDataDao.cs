@@ -6,6 +6,9 @@ using BinaryFileHandler;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {
+    /// <summary>
+    /// 
+    /// </summary>
     internal class TaskDataDao : AbstractDao<TaskDataEntity>
     {
         public TaskDataDao(BinaryFileReader<TaskDataEntity> reader, BinaryFileWriter<TaskDataEntity> writer) 

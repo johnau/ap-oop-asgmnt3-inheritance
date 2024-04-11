@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text.RegularExpressions;
-using TaskManagerCore.Configuration;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Dto;
 using TaskManagerCore.Model.Dto.Mapper;
@@ -21,12 +19,12 @@ namespace TaskManagerCore.Controller
         private readonly GetFolderDtoMapper DtoMapperGetFolder;
         private readonly CreateTaskDtoMapper DtoMapperCreateTask;
         private readonly CreateFolderDtoMapper DtoMapperCreateFolder;
-        
+
         /// <summary>
-        /// The only TaskController constructor
+        /// Initializes a new instance of the TaskController class.
         /// </summary>
-        /// <param name="taskDataRepository">Implementation of ITaskDataRepository</param>
-        /// <param name="taskFolderRepository">Implementation of ITaskFolderRepository</param>
+        /// <param name="taskDataRepository">The implementation of ITaskDataRepository to use.</param>
+        /// <param name="taskFolderRepository">The implementation of ITaskFolderRepository to use.</param>
         public TaskController(ITaskDataRepository taskDataRepository,
                                 ITaskFolderRepository taskFolderRepository)
         {
@@ -39,9 +37,9 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Get All Tasks managed in the system
+        /// Get all tasks managed in the system.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A list of GetTaskDto objects representing tasks in the system.</returns>
         public List<GetTaskDto> GetTasks()
         {
             var all = TaskDataRepository.FindAll();
@@ -56,10 +54,10 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Get a Task using the Id of the Task
+        /// Get a task using its ID.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">The ID of the task to retrieve.</param>
+        /// <returns>The GetTaskDto representing the retrieved task, or <see langword="null"/> if the task is not found.</returns>
         public GetTaskDto? GetTask(string id)
         {
             var task = TaskDataRepository.FindById(id);
@@ -72,12 +70,13 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Overload of GetTasks()
-        /// Get List of tasks by id's
-        /// Use to get task data from list in folder
+        /// Retrieves a list of tasks with the specified IDs.
         /// </summary>
-        /// <param name="ids"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// Use this method to retrieve task data from a list of IDs.
+        /// </remarks>
+        /// <param name="ids">The list of task IDs to retrieve.</param>
+        /// <returns>A list of <see cref="GetTaskDto"/> objects representing the retrieved tasks.</returns>
         public List<GetTaskDto> GetTasks(List<string> ids)
         {
             var tasks = TaskDataRepository.FindByIds(ids);
@@ -91,9 +90,9 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Get All Task Folders
+        /// Retrieves all task folders in the system.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A list of <see cref="GetFolderDto"/> objects representing the retrieved task folders.</returns>
         public List<GetFolderDto> GetTaskFolders()
         {
             var all = TaskFolderRepository.FindAll();
@@ -108,10 +107,10 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Get a Task Folder (with the TaskFolder Id)
+        /// Retrieves a task folder with the specified ID.
         /// </summary>
-        /// <param name="folderId"></param>
-        /// <returns></returns>
+        /// <param name="folderId">The ID of the task folder to retrieve.</param>
+        /// <returns>The <see cref="GetFolderDto"/> representing the retrieved task folder, or null if not found.</returns>
         public GetFolderDto? GetTaskFolder(string folderId)
         {
             try
@@ -126,13 +125,14 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// This method is spec'd in the TaskFolder class however it doesn't seem
-        /// unreasonable to shift it up a few levels to avoid the reference between
-        /// the two entities.
+        /// Counts the number of incomplete tasks in the specified folder.
         /// </summary>
-        /// <param name="folderId"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+        /// <remarks>
+        /// This method retrieves the incomplete tasks in the folder identified by <paramref name="folderId"/> and returns the count.
+        /// </remarks>
+        /// <param name="folderId">The ID of the folder to count incomplete tasks in.</param>
+        /// <returns>The number of incomplete tasks in the specified folder.</returns>
+        /// <exception cref="Exception">Thrown if the folder with the specified ID cannot be found.</exception>
         public long CountIncomplete(string folderId)
         {
             var folder = GetFolderWithIdOrNameOrThrow(folderId);
@@ -150,11 +150,12 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Sets a task to Complete = true by default.  Can be used to set completed to false
+        /// Sets the completion status of a task.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+        /// <param name="id">The ID of the task to set completion status for.</param>
+        /// <param name="completed">A boolean value indicating whether the task is completed.</param>
+        /// <returns>True if the task completion status was successfully updated; otherwise, false.</returns>
+        /// <exception cref="Exception">Thrown if the task with the specified ID cannot be found.</exception>
         public bool CompleteTask(string id, bool completed = true)
         {
             var task = TaskDataRepository.FindById(id);
@@ -168,11 +169,11 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Note: Method currently untested
+        /// Deletes the task with the specified ID.
         /// </summary>
-        /// <param name="taskId"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+        /// <param name="taskId">The ID of the task to delete.</param>
+        /// <returns>True if the task was successfully deleted; otherwise, false.</returns>
+        /// <exception cref="Exception">Thrown if the task or the folder containing the task cannot be found.</exception>
         public bool DeleteTask(string taskId)
         {
             var folders = TaskFolderRepository.FindAll();
@@ -195,12 +196,14 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Deletes a task, given folder Id and task Id, assumes that caller knows
-        /// the folder Id, since they will be viewing tasks through the folders
+        /// Deletes a task from the specified folder.
         /// </summary>
-        /// <param name="folderId"></param>
-        /// <param name="taskId"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// This method deletes the task identified by <paramref name="taskId"/> from the folder identified by <paramref name="folderId"/>.
+        /// </remarks>
+        /// <param name="folderId">The ID of the folder containing the task.</param>
+        /// <param name="taskId">The ID of the task to delete.</param>
+        /// <returns>True if the task was successfully deleted from the folder; otherwise, false.</returns>
         public bool DeleteTaskFromFolder(string folderId, string taskId)
         {
             var folder = GetFolderWithIdOrNameOrThrow(folderId);
@@ -219,11 +222,14 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Create a new Task in a specified TaskFolder (with the TaskFolder Id)
+        /// Creates a new task in the specified task folder.
         /// </summary>
-        /// <param name="dto"></param>
-        /// <param name="folderId"></param>
-        /// <exception cref="Exception"></exception>
+        /// <remarks>
+        /// This method creates a new task using the provided data transfer object (<paramref name="dto"/>).
+        /// </remarks>
+        /// <param name="dto">The data transfer object containing the task information.</param>
+        /// <returns>The ID of the newly created task.</returns>
+        /// <exception cref="Exception">Thrown if the task cannot be created or added to the folder.</exception>
         public string CreateTask(CreateTaskDto dto)
         {
             var folder = GetFolderWithIdOrNameOrThrow(dto.InFolderId);
@@ -240,11 +246,14 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Create a new TaskFolder
+        /// Creates a new task folder.
         /// </summary>
-        /// <param name="dto"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+        /// <remarks>
+        /// This method creates a new task folder using the provided data transfer object (<paramref name="dto"/>).
+        /// </remarks>
+        /// <param name="dto">The data transfer object containing the folder information.</param>
+        /// <returns>The ID of the newly created task folder.</returns>
+        /// <exception cref="Exception">Thrown if the task folder cannot be created.</exception>
         public string CreateTaskFolder(CreateFolderDto dto)
         {
             var taskFolder = DtoMapperCreateFolder.Map(dto);
@@ -259,10 +268,13 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Delete a folder (must be empty)
+        /// Deletes a folder, which must be empty.
         /// </summary>
-        /// <param name="folderId"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// This method deletes the folder identified by <paramref name="folderId"/>. The folder must not contain any tasks for deletion to succeed.
+        /// </remarks>
+        /// <param name="folderId">The ID of the folder to delete.</param>
+        /// <returns>True if the folder was successfully deleted; otherwise, false.</returns>
         public bool DeleteTaskFolder(string folderId)
         {
             var success = TaskFolderRepository.Delete(folderId);
@@ -273,12 +285,15 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Move a Task from one TaskFolder to another (with Task Id, and TaskFolder Id's)
+        /// Moves a task from one folder to another.
         /// </summary>
-        /// <param name="taskId"></param>
-        /// <param name="fromFolderId"></param>
-        /// <param name="toFolderId"></param>
-        /// <exception cref="Exception"></exception>
+        /// <remarks>
+        /// This method moves the task identified by <paramref name="taskId"/> from the folder identified by <paramref name="fromFolderId"/> to the folder identified by <paramref name="toFolderId"/>.
+        /// </remarks>
+        /// <param name="taskId">The ID of the task to move.</param>
+        /// <param name="fromFolderId">The ID of the folder from which to move the task.</param>
+        /// <param name="toFolderId">The ID of the folder to which the task should be moved.</param>
+        /// <exception cref="Exception">Thrown if the task cannot be found or if there is an issue saving the changes to the folders.</exception>
         public bool MoveTask(string taskId, string fromFolderId, string toFolderId)
         {
             var task = TaskDataRepository.FindById(taskId);
@@ -302,13 +317,16 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Update modifiable properties Task
+        /// Updates modifiable properties of a task.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="property"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+        /// <remarks>
+        /// This method updates the specified property of the task identified by <paramref name="id"/> with the provided <paramref name="value"/>.
+        /// </remarks>
+        /// <param name="id">The ID of the task to update.</param>
+        /// <param name="property">The name of the property to update.</param>
+        /// <param name="value">The new value for the property.</param>
+        /// <returns>The ID of the updated task.</returns>
+        /// <exception cref="Exception">Thrown if the task cannot be found or if there is an issue saving the changes.</exception>
         public string UpdateTaskProperty(string id, string property, object value)
         {
             property = property.ToLower();
@@ -336,13 +354,16 @@ namespace TaskManagerCore.Controller
         }
 
         /// <summary>
-        /// Update modifiable properties Folder
+        /// Updates modifiable properties of a folder.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="property"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+        /// <remarks>
+        /// This method updates the specified property of the folder identified by <paramref name="id"/> with the provided <paramref name="value"/>.
+        /// </remarks>
+        /// <param name="id">The ID of the folder to update.</param>
+        /// <param name="property">The name of the property to update.</param>
+        /// <param name="value">The new value for the property.</param>
+        /// <returns>The ID of the updated folder.</returns>
+        /// <exception cref="Exception">Thrown if the folder cannot be found or if there is an issue saving the changes.</exception>
         public string UpdateFolderProperty(string id, string property, object value)
         {
             property = property.ToLower();
@@ -363,15 +384,25 @@ namespace TaskManagerCore.Controller
             }
         }
 
-        TaskFolder GetFolderWithIdOrNameOrThrow(string identifier)
+        /// <summary>
+        /// Retrieves a folder with the specified identifier or name.
+        /// </summary>
+        /// <remarks>
+        /// This method retrieves a folder from the repository based on the provided <paramref name="identifier"/>.
+        /// If the folder is not found by name, it attempts to find it by ID.
+        /// </remarks>
+        /// <param name="identifier">The name or ID of the folder to retrieve.</param>
+        /// <returns>The folder with the specified identifier.</returns>
+        /// <exception cref="Exception">Thrown if the folder cannot be found.</exception>
+        private TaskFolder GetFolderWithIdOrNameOrThrow(string identifier)
         {
-            var folder = TaskFolderRepository.FindOneByName(identifier);
+            var folder = TaskFolderRepository.FindById(identifier); 
             if (folder == null)
             {
-                Debug.WriteLine($"Did not match {identifier} to a Folder name, will try lookup by Id next...");
-                folder = TaskFolderRepository.FindById(identifier);
+                Debug.WriteLine($"Did not match {identifier} to a Folder id, will try lookup by Name next...");
+                folder = TaskFolderRepository.FindOneByName(identifier);
                 if (folder == null)
-                    throw new Exception($"Unable to find Folder with Id: {identifier}");
+                    throw new Exception($"Unable to find Folder with Name or Id: {identifier}");
             }
 
             return folder;

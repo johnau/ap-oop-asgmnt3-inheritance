@@ -3,12 +3,21 @@
 namespace TaskManagerCore.Configuration
 {
     /// <summary>
-    /// Generic CRUD Repository Interface
+    /// Represents a generic CRUD repository interface.
     /// </summary>
-    /// <typeparam name="T">Type of the repository object</typeparam>
-    /// <typeparam name="ID">Type of the repository object's ID</typeparam>
-    public interface ICrudRepository<T, ID>
-        where T : class
+    /// <typeparam name="T">The type of objects stored in the repository.</typeparam>
+    /// <typeparam name="ID">The type of the ID used for identifying objects in the repository.</typeparam>
+    /// <remarks>
+    /// <para>
+    /// This interface defines basic CRUD (Create, Read, Update, Delete) operations
+    /// for interacting with a data repository.
+    /// </para>
+    /// <para>
+    /// Implementations of this interface can be used both at the repository layer
+    /// and the DAO (Data Access Object) layer.
+    /// </para>
+    /// </remarks>
+    public interface ICrudRepository<T, ID> where T : class
     {
         /// <summary>
         /// Retrieves all objects stored in the repository.
@@ -17,19 +26,17 @@ namespace TaskManagerCore.Configuration
         List<T> FindAll();
 
         /// <summary>
-        /// Retrieves all objects matching the provided IDs from the repository.
+        /// Retrieves objects with the specified IDs from the repository.
         /// </summary>
         /// <param name="ids">A list of IDs to match.</param>
-        /// <returns>A list of <typeparamref name="T"/> objects, or an empty list if no matching objects are found.</returns>
+        /// <returns>A list of <typeparamref name="T"/> objects matching the provided IDs.</returns>
         List<T> FindByIds(List<ID> ids);
 
         /// <summary>
         /// Retrieves an object by its ID.
         /// </summary>
         /// <param name="id">The ID of the object to retrieve.</param>
-        /// <returns>
-        /// The <typeparamref name="T"/> object found with the specified ID, or <c>null</c> if no matching object is found.
-        /// </returns>
+        /// <returns>The <typeparamref name="T"/> object found with the specified ID, or <c>null</c> if not found.</returns>
         T? FindById(ID id);
 
         /// <summary>

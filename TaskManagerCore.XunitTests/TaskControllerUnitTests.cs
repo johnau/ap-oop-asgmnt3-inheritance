@@ -118,16 +118,15 @@ namespace TaskManagerCore.XunitTests
         public void GetTaskFolderById_ValidId_WillSucceed()
         {
             var taskFolder = new TaskFolder(Guid.NewGuid().ToString(), "Test Folder 1", new List<string>());
-            var taskFolderId = taskFolder.Id;
 
             // Create mock instances of classes
             TaskFolderRepository = new MockTaskFolderRepository()
             {
-                OnFindById = (id) => id == taskFolderId ? taskFolder : null,
+                OnFindById = (id) => id == taskFolder.Id ? taskFolder : null,
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
-            var folder = controller.GetTaskFolder(taskFolderId);
+            var folder = controller.GetTaskFolder(taskFolder.Id);
 
             Assert.NotNull(folder);
         }
@@ -168,16 +167,15 @@ namespace TaskManagerCore.XunitTests
             };
 
             var taskFolder = new TaskFolder(Guid.NewGuid().ToString(), "Test Folder 1", taskDatas.Select(task => task.Id).ToList());
-            var taskFolderId = taskFolder.Id;
 
             // Create mock instances of classes
             TaskFolderRepository = new MockTaskFolderRepository()
             {
-                OnFindById = (id) => id == taskFolderId ? taskFolder : null,
+                OnFindById = (id) => id == taskFolder.Id ? taskFolder : null,
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
-            var count = controller.CountIncomplete(taskFolderId);
+            var count = controller.CountIncomplete(taskFolder.Id);
 
             Assert.Equal(3, count);
         }
@@ -223,6 +221,7 @@ namespace TaskManagerCore.XunitTests
             TaskFolderRepository = new MockTaskFolderRepository()
             {
                 OnFindById = (id) => id == taskFolderId ? taskFolder : null,
+                OnFindByName = (id) => null,
             };
 
             // Test
@@ -323,6 +322,7 @@ namespace TaskManagerCore.XunitTests
             TaskFolderRepository = new MockTaskFolderRepository()
             {
                 OnFindById = (id) => id == taskFolderId ? taskFolder : null,
+                OnFindByName = (id) => null,
                 OnSave = (folder) => "",
             };
 
@@ -461,6 +461,7 @@ namespace TaskManagerCore.XunitTests
             TaskFolderRepository = new MockTaskFolderRepository()
             {
                 OnFindById = (id) => null,
+                OnFindByName = (id) => null,
                 OnSave = (folder) => "test_does_not_matter",
             };
 
@@ -521,6 +522,7 @@ namespace TaskManagerCore.XunitTests
             TaskFolderRepository = new MockTaskFolderRepository()
             {
                 OnFindById = (id) => null,
+                OnFindByName = (id) => null,
                 OnSave = (folder) => "test_does_not_matter",
             };
 

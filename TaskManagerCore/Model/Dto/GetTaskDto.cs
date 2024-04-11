@@ -1,6 +1,18 @@
 ﻿
 namespace TaskManagerCore.Model.Dto
 {
+    /// <summary>
+    /// Data Transfer Object (DTO) representing a task entity retrieved from the system.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This DTO layer serves as a boundary between the business layers and the view layers.
+    /// The view layer is able to rely on this data structure despite potential changes to
+    /// the underlying model. Conversly, the data exposed to the view layer can be altered
+    /// without making changes to the model, ie. to conceal the database id which does not 
+    /// need to be exposed to the view layer.
+    /// </para>
+    /// </remarks>
     public class GetTaskDto
     {
         /// <value>

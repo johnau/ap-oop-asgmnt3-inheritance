@@ -2,6 +2,12 @@
 <doc>
 	<members>
 		<member name="M:TaskManagerCore.Controller.TaskController">
+			<remarks>
+				<para>
+					The TaskController could return JSON strings of the DTO objects, and could provide RPC API endpoints,
+					or could return HTML content and provide RESTful API endpoints.
+				</para>
+			</remarks>
 			<example>
 				<code>
 /**

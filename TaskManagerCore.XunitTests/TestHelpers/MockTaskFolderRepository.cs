@@ -9,6 +9,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         public Func<string, bool>? OnDelete { get; set; }
         public Func<List<TaskFolder>>? OnFindAll { get; set; }
         public Func<string, TaskFolder?>? OnFindById { get; set; }
+        public Func<string, TaskFolder?>? OnFindByName { get; set; }
         public Func<List<string>, List<TaskFolder>>? OnFindByIds { get; set; }
         public Func<TaskFolder, string?>? OnSave { get; set; }
 
@@ -59,7 +60,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
 
         public TaskFolder? FindOneByName(string name)
         {
-            throw new NotImplementedException();
+            return OnFindByName != null ? OnFindByName(name) : throw new NotImplementedException("Did not provide a function for testing");
         }
 
         public string Save(TaskFolder o)
