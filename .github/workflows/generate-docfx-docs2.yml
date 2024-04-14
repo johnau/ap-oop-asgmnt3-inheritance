@@ -43,12 +43,17 @@ jobs:
       run: |
         sed -i "s|/services/|/${{ steps.extract_repo_name.outputs.name }}/services/|g" docs/toc.yml
         sed -i "s|/general/|/${{ steps.extract_repo_name.outputs.name }}/general/|g" docs/toc.yml
+    
+    - name: Set up NodeJs 20
+      uses: actions/setup-node@v4
+      with:
+        # Examples: 12.x, 10.15.1, >=10.15.0, lts/Hydrogen, 16-nightly, latest, node
+        node-version: 'lts/Hydrogen'
 
     - name: Dotnet Setup
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.x
-        node-version: 20
 
     - run: dotnet tool update -g docfx
     - run: docfx docs/docfx.json
