@@ -38,6 +38,7 @@ button,
 a {
   color: var(--highlight-dark);
   cursor: pointer;
+  font-weight: bold;
 }
 
 button:hover,
