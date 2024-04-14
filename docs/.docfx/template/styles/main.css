@@ -191,6 +191,11 @@ article h4 {
   color: var(--font-color);
 }
 
+.toc .nav > li > ul.nav.level2 > li > a::before {
+  content: '\2022'; /* Unicode character for bullet (•) */
+  margin-right: 0.5em; /* Adjust spacing between bullet and text */
+}
+
 /* TOC filter box */
 .sidefilter {
   background-color: #fff;
