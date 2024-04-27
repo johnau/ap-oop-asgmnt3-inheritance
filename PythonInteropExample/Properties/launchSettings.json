@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PythonInteropExample": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PYTHONNET_PYDLL": "C:\\Users\\John\\AppData\\Local\\Programs\\Python\\Python311\\python311.dll"
+      }
+    }
+  }
+}

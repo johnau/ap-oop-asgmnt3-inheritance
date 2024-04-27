@@ -21,7 +21,6 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
         /// <param name="list"></param>
         /// <param name="criteria"></param>
         /// <param name="comparer"></param>
-        /// <param name="blankObject"></param>
         /// <returns></returns>
         internal static List<T> BinarySearchMultiple<T>(this List<T> list,
                                                             T criteria,
