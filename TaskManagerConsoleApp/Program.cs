@@ -7,6 +7,8 @@ using TaskManagerCore.Infrastructure.BinaryFile.Dao;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Model.Dto;
 using BinaryFileHandler;
+using TaskManagerCore.Infrastructure.Sqlite.Dao;
+using TaskManagerCore.Infrastructure.Sqlite;
 
 namespace TaskManagerConsoleApp
 {
@@ -42,7 +44,19 @@ namespace TaskManagerConsoleApp
             //var folderDao = new TaskFolderDao();                              // Use this for the Memory namespace class (part1 of task)
             var folderDao = new TaskFolderDao(folderReader, folderWriter);      // Use this for the BinaryFile namespace class (part2 of task)
             var fodlerRepo = new TaskFolderRepository(folderDao);
-            var controller = new TaskController(taskRepo, fodlerRepo);
+            //var controller = new TaskController(taskRepo, fodlerRepo);
+
+            // SQL Stuff
+            var dbContext = new TaskFolderContext();
+            dbContext.Database.EnsureCreated();
+
+            var taskDataDaoSql = new TaskDataSqlDao(dbContext);
+            var taskFolderDaoSql = new TaskFolderSqlDao(dbContext);
+
+            var taskDataRepoSql = new TaskDataSqlRepository(taskDataDaoSql);
+            var taskFolderRepoSql = new TaskFolderSqlRepository(taskFolderDaoSql);
+
+            var controller = new TaskController(taskRepo, fodlerRepo, taskDataRepoSql, taskFolderRepoSql);
 
             //RunTests(controller);
 
