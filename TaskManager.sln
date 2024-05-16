@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NaturalLanguageProcessor.Xu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PythonInteropExample", "PythonInteropExample\PythonInteropExample.csproj", "{3A4943F4-8976-4B25-A74D-F7FBF0F56C78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpacyCsharpExample", "SpacyCsharpExample\SpacyCsharpExample.csproj", "{8B4CD769-52B4-4CFD-B8BD-6BC1B2CA07DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpacyCsharpExample", "SpacyCsharpExample\SpacyCsharpExample.csproj", "{8B4CD769-52B4-4CFD-B8BD-6BC1B2CA07DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
