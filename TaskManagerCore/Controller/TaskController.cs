@@ -15,8 +15,6 @@ namespace TaskManagerCore.Controller
     {
         private readonly ITaskDataRepository TaskDataRepository;
         private readonly ITaskFolderRepository TaskFolderRepository;
-        private readonly ITaskDataRepository? TaskDataRepository_SQL;
-        private readonly ITaskFolderRepository? TaskFolderRepository_SQL;
         private readonly GetTaskDtoMapper DtoMapperGetTask;
         private readonly GetFolderDtoMapper DtoMapperGetFolder;
         private readonly CreateTaskDtoMapper DtoMapperCreateTask;
@@ -32,28 +30,6 @@ namespace TaskManagerCore.Controller
         {
             TaskDataRepository = taskDataRepository;
             TaskFolderRepository = taskFolderRepository;
-            DtoMapperGetTask = new GetTaskDtoMapper();
-            DtoMapperGetFolder = new GetFolderDtoMapper();
-            DtoMapperCreateTask = new CreateTaskDtoMapper();
-            DtoMapperCreateFolder = new CreateFolderDtoMapper();
-        }
-
-        /// <summary>
-        /// Constructor for SQL Secondary Data Source
-        /// </summary>
-        /// <param name="taskDataRepository"></param>
-        /// <param name="taskFolderRepository"></param>
-        /// <param name="taskDataRepository_SQL"></param>
-        /// <param name="taskFolderRepository_SQL"></param>
-        public TaskController(ITaskDataRepository taskDataRepository,
-                        ITaskFolderRepository taskFolderRepository,
-                        ITaskDataRepository taskDataRepository_SQL,
-                        ITaskFolderRepository taskFolderRepository_SQL)
-        {
-            TaskDataRepository = taskDataRepository;
-            TaskFolderRepository = taskFolderRepository;
-            TaskDataRepository_SQL = taskDataRepository_SQL;
-            TaskFolderRepository_SQL = taskFolderRepository_SQL;
             DtoMapperGetTask = new GetTaskDtoMapper();
             DtoMapperGetFolder = new GetFolderDtoMapper();
             DtoMapperCreateTask = new CreateTaskDtoMapper();
@@ -104,7 +80,7 @@ namespace TaskManagerCore.Controller
         public List<GetTaskDto> GetTasks(List<string> ids)
         {
             var tasks = TaskDataRepository.FindByIds(ids);
-            
+
             var dtos = new List<GetTaskDto>();
             foreach (var task in tasks)
             {
@@ -143,7 +119,8 @@ namespace TaskManagerCore.Controller
                 if (folder != null)
                     return DtoMapperGetFolder.Map(folder);
 
-            } catch { }
+            }
+            catch { }
 
             return null;
         }
@@ -165,11 +142,11 @@ namespace TaskManagerCore.Controller
             var tasksInFolder = TaskDataRepository.FindByIds(idsInFolder);
 
             var incomplete = 0L;
-            foreach ( var task in tasksInFolder )
+            foreach (var task in tasksInFolder)
             {
                 if (!task.Completed) incomplete++;
             }
-            
+
             return incomplete;
         }
 
@@ -186,10 +163,7 @@ namespace TaskManagerCore.Controller
             if (task == null)
                 throw new Exception($"Unable to find Task with Id: {id}");
 
-            var task_completed = task.WithCompleted(completed);
-            var savedId = TaskDataRepository.Save(task_completed);
-            
-            SaveToSecondaryDataStore(task_completed);
+            var savedId = TaskDataRepository.Save(task.WithCompleted(completed));
 
             //Debug.WriteLine($"Updated Task '{id}' => Completed=True");
             return savedId != null; // not good, improve how this response is calculated
@@ -213,12 +187,8 @@ namespace TaskManagerCore.Controller
             if (task == null)
                 throw new Exception($"Unable to find Task with Id: {taskId}");
 
-            var folder_updated = folder.WithoutTask(taskId);
-            var savedFolderId = TaskFolderRepository.Save(folder_updated);
+            var savedFolderId = TaskFolderRepository.Save(folder.WithoutTask(taskId));
             var didDeleteTask = TaskDataRepository.Delete(taskId);
-
-            SaveToSecondaryDataStore(folder_updated);
-            DeleteFromSecondaryTaskDataStore(task.Id);
 
             if (savedFolderId != null && didDeleteTask) // not great, but fits purpose
                 return true;
@@ -243,14 +213,8 @@ namespace TaskManagerCore.Controller
             if (task == null)
                 throw new Exception($"Unable to find Task with Id: {taskId}");
 
-            var folder_updated = folder.WithoutTask(taskId);
-            var savedFolderId = TaskFolderRepository.Save(folder_updated);
-            
-            SaveToSecondaryDataStore(folder_updated);
-
+            var savedFolderId = TaskFolderRepository.Save(folder.WithoutTask(taskId));
             var didDeleteTask = TaskDataRepository.Delete(taskId);
-
-            DeleteFromSecondaryTaskDataStore(taskId);
 
             if (savedFolderId != null && didDeleteTask) // not great, but fits purpose
                 return true;
@@ -274,13 +238,10 @@ namespace TaskManagerCore.Controller
             var task = DtoMapperCreateTask.Map(dto);
             var taskId = TaskDataRepository.Save(task);
 
-            var folder_updated = folder.WithTask(taskId);
-            var updatedFolderId = TaskFolderRepository.Save(folder_updated);
+            var folderUpdated = folder.WithTask(taskId);
+            var updatedFolderId = TaskFolderRepository.Save(folderUpdated);
             if (taskId == null || updatedFolderId == null)
                 throw new Exception($"Unable to Create task in folder {dto.InFolderId}");
-
-            SaveToSecondaryDataStore(task);
-            SaveToSecondaryDataStore(folder_updated);
 
             return taskId;
         }
@@ -299,12 +260,8 @@ namespace TaskManagerCore.Controller
             var taskFolder = DtoMapperCreateFolder.Map(dto);
             try
             {
-                var success = TaskFolderRepository.Save(taskFolder);
-                
-                SaveToSecondaryDataStore(taskFolder);
-
-                return success;
-            } 
+                return TaskFolderRepository.Save(taskFolder);
+            }
             catch (Exception ex)
             {
                 throw new Exception($"Could not save Task Folder: {ex.Message}");
@@ -324,8 +281,6 @@ namespace TaskManagerCore.Controller
             var success = TaskFolderRepository.Delete(folderId);
             if (!success)
                 success = TaskFolderRepository.DeleteByName(folderId);
-
-            DeleteFromSecondaryFolderDataStore(folderId);
 
             return success;
         }
@@ -359,9 +314,6 @@ namespace TaskManagerCore.Controller
             if (savedTaskId == null || savedFromFolderId == null || savedToFolderId == null)
                 return false;
 
-            SaveToSecondaryDataStore(fromFolder);
-            SaveToSecondaryDataStore(toFolder);
-
             return true;
         }
 
@@ -389,16 +341,12 @@ namespace TaskManagerCore.Controller
                 task = task.WithNotes((string)value);
             else if (RegexUtility.Regex_DueDatePropertyNameLowerCase().IsMatch(property)) // due Date
                 task = task.WithDueDate(new DateTime((long)value));
-            else 
+            else
                 throw new Exception($"Unrecognized property: {property}");
-            
+
             try
             {
-                var _id = TaskDataRepository.Save(task);
-
-                SaveToSecondaryDataStore(task);
-
-                return _id;
+                return TaskDataRepository.Save(task);
             }
             catch (Exception ex)
             {
@@ -429,11 +377,7 @@ namespace TaskManagerCore.Controller
 
             try
             {
-                var _id = TaskFolderRepository.Save(folder);
-
-                SaveToSecondaryDataStore(folder);
-
-                return _id;
+                return TaskFolderRepository.Save(folder);
             }
             catch (Exception ex)
             {
@@ -453,7 +397,7 @@ namespace TaskManagerCore.Controller
         /// <exception cref="Exception">Thrown if the folder cannot be found.</exception>
         private TaskFolder GetFolderWithIdOrNameOrThrow(string identifier)
         {
-            var folder = TaskFolderRepository.FindById(identifier); 
+            var folder = TaskFolderRepository.FindById(identifier);
             if (folder == null)
             {
                 Debug.WriteLine($"Did not match {identifier} to a Folder id, will try lookup by Name next...");
@@ -463,53 +407,6 @@ namespace TaskManagerCore.Controller
             }
 
             return folder;
-        }
-
-        private void SaveToSecondaryDataStore(TaskData task)
-        {
-            if (TaskDataRepository_SQL != null)
-            {
-                TaskDataRepository_SQL.Save(task);
-            } else
-            {
-                Debug.WriteLine($"Did not save SQL");
-            }
-        }
-
-        private void SaveToSecondaryDataStore(TaskFolder folder)
-        {
-            if (TaskFolderRepository_SQL != null)
-            {
-                TaskFolderRepository_SQL.Save(folder);
-            }
-            else
-            {
-                Debug.WriteLine($"Did not save SQL");
-            }
-        }
-
-        private void DeleteFromSecondaryFolderDataStore(string id)
-        {
-            if (TaskDataRepository_SQL != null)
-            {
-                TaskDataRepository_SQL.Delete(id);
-            }
-            else
-            {
-                Debug.WriteLine($"Did not save SQL");
-            }
-        }
-
-        private void DeleteFromSecondaryTaskDataStore(string id)
-        {
-            if (TaskFolderRepository_SQL != null)
-            {
-                TaskFolderRepository_SQL.Delete(id);
-            }
-            else
-            {
-                Debug.WriteLine($"Did not save SQL");
-            }
         }
     }
 }

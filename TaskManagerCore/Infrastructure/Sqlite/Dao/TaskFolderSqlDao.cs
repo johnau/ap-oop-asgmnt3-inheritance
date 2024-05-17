@@ -1,81 +1,131 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Diagnostics;
+using System.Linq;
 using TaskManagerCore.Infrastructure.Sqlite.Entity;
 
 namespace TaskManagerCore.Infrastructure.Sqlite.Dao
 {
     internal class TaskFolderSqlDao
     {
-        private readonly TaskFolderContext _context;
+        private readonly SqliteContext _context;
 
-        public TaskFolderSqlDao(TaskFolderContext context)
+        public TaskFolderSqlDao(SqliteContext context)
         {
             _context = context;
             Debug.WriteLine($"Database path: {_context.DbPath}.");
         }
 
-        public bool Create(TaskFolderEntity entity)
+        public bool Save(TaskFolderEntityV2 entity)
         {
-            Debug.WriteLine($"Inserting a new TaskFolder Change entry for folder name: {entity.Name}");
-            _context.Add(entity);
+            Debug.WriteLine($"Creating or Updating Task: {entity.Name}");
+
+            var existing = _context.Folders
+                                    .FirstOrDefault(task => task.GlobalId == entity.GlobalId);
+
+            var existingWithSameName = _context.Folders
+                        .FirstOrDefault(task => task.Name == entity.Name);
+
+            if (existing == null && existingWithSameName != null)
+                throw new InvalidDataException($"There is already a folder called: {entity.Name.ToUpper()}");
+
+            if (existing != null)
+            {
+                existing.Name = entity.Name;
+                existing.TaskIds = entity.TaskIds;
+                existing.Tasks = entity.Tasks;
+
+                _context.Update(existing);
+            }
+            else
+            {
+                _context.Add(entity);
+            }
+
             _context.SaveChanges();
 
             return true;
         }
 
-        public TaskFolderEntity? FindById(string id)
+        public TaskFolderEntityV2? FindById(string id)
         {
             Console.WriteLine("Querying for a folder id");
             var latestFolderState = _context.Folders
-                                            .Where(folder => EF.Functions.Collate(folder.Id, "BIN") == id)
-                                            .OrderByDescending(j => j.TaskFolderEntityId)
+                                            .Where(folder => EF.Functions.Collate(folder.GlobalId, "BINARY") == id)
                                             .FirstOrDefault();
 
             return latestFolderState;
         }
 
-        public List<TaskFolderEntity> FindByIds(List<string> ids)
+        public List<TaskFolderEntityV2> FindByIds(List<string> ids)
         {
-            var matches = new List<TaskFolderEntity>();
-
-            foreach (var id in ids)
-            {
-                var result = FindById(id);
-                if (result != null)
-                    matches.Add(result);
-            }
-
-            return matches;
+            return _context.Folders
+                            .Where(folder => ids.Contains(folder.GlobalId))
+                            .ToList();
         }
 
-        public TaskFolderEntity? FindByName(string folderName)
+        public TaskFolderEntityV2? FindByName(string folderName)
         {
             Console.WriteLine("Querying for a folder name");
             var latestFolderState = _context.Folders
                                             .Where(folder => EF.Functions.Collate(folder.Name, "NOCASE") == folderName)
-                                            .OrderByDescending(j => j.TaskFolderEntityId)
                                             .FirstOrDefault();
 
             return latestFolderState;
         }
 
-        public List<TaskFolderEntity> FindAll()
+        /// <summary>
+        /// Only gets the latest 100 folders
+        /// </summary>
+        /// <returns></returns>
+        public List<TaskFolderEntityV2> FindAll()
         {
             return _context.Folders
-                            .GroupBy(folder => folder.Id)  // Group tasks by ID
-                            .Select(group => group
-                                            .OrderByDescending(folder => folder.TaskFolderEntityId)
-                                            .First()) // For each group (ID), select the latest entry
-                            .ToList();
+                                .OrderByDescending(folder => folder.Id)
+                                .Take(100)
+                                .ToList();
         }
 
-        public List<TaskFolderEntity> GetHistory(string id)
+        public bool Delete(string globalId)
+        {
+            try
+            {
+                var entity = _context.Folders.FirstOrDefault(folder => folder.GlobalId == globalId);
+                if (entity == null)
+                    return false;
+
+                _context.Folders.Remove(entity);
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public List<TaskFolderEntityV2> FindByNameStartsWith(string name)
+        {
+            string lowerName = name.ToLower();
+
+            return _context.Folders
+                           .Where(folder => EF.Functions.Like(folder.Name.ToLower(), $"{lowerName}%"))
+                           .ToList();
+        }
+
+        public List<TaskFolderEntityV2> FindEmpty()
         {
             return _context.Folders
-                            .Where(j => EF.Functions.Collate(j.Name, "NOCASE") == id)
-                            .OrderByDescending(j => j.TaskFolderEntityId)
-                            .ToList();
+                           .Where(folder => folder.TaskIds == null || folder.TaskIds.Count == 0)
+                           .ToList();
         }
+
+        public List<TaskFolderEntityV2> FindNotEmpty()
+        {
+            return _context.Folders
+               .Where(folder => folder.TaskIds != null && folder.TaskIds.Count > 0)
+               .ToList();
+        }
+
     }
 }

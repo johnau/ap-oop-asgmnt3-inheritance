@@ -34,7 +34,7 @@ namespace TaskManagerCore.Infrastructure.Sqlite
 
         public string Save(TaskFolder o)
         {
-            if (Dao.Create(EntityFactory.FromModel(o)))
+            if (Dao.Save(EntityFactory.FromModel(o)))
             {
                 return o.Id;
             }
@@ -44,21 +44,15 @@ namespace TaskManagerCore.Infrastructure.Sqlite
 
         public bool Delete(string id)
         {
-            var existing = FindById(id);
-            if (existing != null)
-            {
-                existing = existing.WithName("<DELETED>"); // assume folder is empty - given this is a secondary data store right now
-                Save(existing);
-                return true;
-            }
-
-            return false;
+            return Dao.Delete(id);
         }
 
         #region TaskFolder specific methods
         public List<TaskFolder> FindByNameStartsWith(string name)
         {
-            throw new NotImplementedException();
+            var results = Dao.FindByNameStartsWith(name);
+
+            return EntityFactory.ToModel(results);
         }
 
         public TaskFolder? FindOneByName(string name)
@@ -72,12 +66,16 @@ namespace TaskManagerCore.Infrastructure.Sqlite
 
         public List<TaskFolder> FindEmpty()
         {
-            throw new NotImplementedException();
+            var results = Dao.FindEmpty();
+
+            return EntityFactory.ToModel(results);
         }
 
         public List<TaskFolder> FindNotEmpty()
         {
-            throw new NotImplementedException();
+            var results = Dao.FindNotEmpty();
+
+            return EntityFactory.ToModel(results);
         }
 
         public TaskFolder? FindByName(string name)
@@ -95,7 +93,7 @@ namespace TaskManagerCore.Infrastructure.Sqlite
             if (result == null)
                 return false;
 
-            return Delete(result.Id);
+            return Delete(result.GlobalId);
         }
 
         #endregion

@@ -9,12 +9,74 @@ using TaskManagerCore.Model.Dto;
 using BinaryFileHandler;
 using TaskManagerCore.Infrastructure.Sqlite.Dao;
 using TaskManagerCore.Infrastructure.Sqlite;
+using TaskManagerCore.Infrastructure;
+using System.Threading.Tasks;
 
 namespace TaskManagerConsoleApp
 {
     internal class Program
     {
         private static void Main(string[] args)
+        {
+            /**
+             * Construct application graph / bootstrap
+             */
+
+            var tasksFileConf = new BinaryFileConfig("taskmanager-task-data");
+            var folderFileConf = new BinaryFileConfig("taskmanager-folder-data");
+
+            var taskWriter = new TaskDataFileWriter(tasksFileConf);
+            var taskReader = new TaskDataFileReader(tasksFileConf);
+            var folderWriter = new TaskFolderFileWriter(folderFileConf);
+            var folderReader = new TaskFolderFileReader(folderFileConf);
+
+            /**
+             * Infrastructure: Persistence stuff (In-memory data store)
+             */
+            //var taskDao = new TaskDataDao();                                  // Use this for the Memory namespace class (part1 of task)
+            //var folderDao = new TaskFolderDao();                              // Use this for the Memory namespace class (part1 of task)
+
+            /**
+             * Infrastructure: Persistence stuff (Binary file data store)
+             */
+            var taskDao = new TaskDataDao(taskReader, taskWriter);              // Use this for the BinaryFile namespace class (part2 of task)
+            var taskRepo = new TaskDataRepository(taskDao);
+            
+            var folderDao = new TaskFolderDao(folderReader, folderWriter);      // Use this for the BinaryFile namespace class (part2 of task)
+            var fodlerRepo = new TaskFolderRepository(folderDao);
+
+            /**
+             * Infrastructure: Persistence stuff (Sql data store)
+             */
+            var dbContext = new SqliteContext();
+            dbContext.Database.EnsureCreated();
+
+            var taskDataDaoSql = new TaskDataSqlDao(dbContext);
+            var taskRepoSql = new TaskDataSqlRepository(taskDataDaoSql);
+
+            var taskFolderDaoSql = new TaskFolderSqlDao(dbContext);
+            var folderRepoSql = new TaskFolderSqlRepository(taskFolderDaoSql);
+
+            /**
+             * Infrastructure: Persistence stuff (Dual Repository Repository)
+             */
+            var dualTaskRepo = new TaskDataDualRepositoryRunner(taskRepo, taskRepoSql);
+            var dualFolderRepo = new TaskFolderDualRepositoryRunner(fodlerRepo, folderRepoSql);
+
+            /**
+             * Task Controller instance
+             * (Main controller class to all functionality)
+             */
+            var controller = new TaskController(dualTaskRepo, dualFolderRepo);
+
+            /** 
+             * Console UI
+             * (Temporary UI for messing around with)
+             */
+            BuildAndRunConsoleUI(controller);
+        }
+
+        static void BuildAndRunConsoleUI(TaskController controller)
         {
             // async display title screen here while application loads ?
             var task = Task.Run(() => {
@@ -28,38 +90,7 @@ namespace TaskManagerConsoleApp
                 //Tp.PrintTitle();
             });
 
-            // construct application
-
-            var tasksFileConf = new BinaryFileConfig("taskmanager-task-data");
-            var folderFileConf = new BinaryFileConfig("taskmanager-folder-data");
-
-            var taskWriter = new TaskDataFileWriter(tasksFileConf);
-            var taskReader = new TaskDataFileReader(tasksFileConf);
-            var folderWriter = new TaskFolderFileWriter(folderFileConf);
-            var folderReader = new TaskFolderFileReader(folderFileConf);
-            
-            //var taskDao = new TaskDataDao();                                  // Use this for the Memory namespace class (part1 of task)
-            var taskDao = new TaskDataDao(taskReader, taskWriter);              // Use this for the BinaryFile namespace class (part2 of task)
-            var taskRepo = new TaskDataRepository(taskDao);
-            //var folderDao = new TaskFolderDao();                              // Use this for the Memory namespace class (part1 of task)
-            var folderDao = new TaskFolderDao(folderReader, folderWriter);      // Use this for the BinaryFile namespace class (part2 of task)
-            var fodlerRepo = new TaskFolderRepository(folderDao);
-            //var controller = new TaskController(taskRepo, fodlerRepo);
-
-            // SQL Stuff
-            var dbContext = new TaskFolderContext();
-            dbContext.Database.EnsureCreated();
-
-            var taskDataDaoSql = new TaskDataSqlDao(dbContext);
-            var taskFolderDaoSql = new TaskFolderSqlDao(dbContext);
-
-            var taskDataRepoSql = new TaskDataSqlRepository(taskDataDaoSql);
-            var taskFolderRepoSql = new TaskFolderSqlRepository(taskFolderDaoSql);
-
-            var controller = new TaskController(taskRepo, fodlerRepo, taskDataRepoSql, taskFolderRepoSql);
-
-            //RunTests(controller);
-
+            // Construct Console UI
             var funcGetAllFolders = () => Conv.ConvertFolderDtosToGenericData(controller.GetTaskFolders());
             var funcCreateFolder = (string name) => controller.CreateTaskFolder(new CreateFolderDto(name));
             var funcDeleteFolder = controller.DeleteTaskFolder;
@@ -73,7 +104,7 @@ namespace TaskManagerConsoleApp
             var funcGetFolderById = (string id) => Conv.ConvertFolderDtoToGenericData(controller.GetTaskFolder(id));
 
             var console = new TaskManagerConsoleHandler(
-                func_GetAllFoldersAsList: funcGetAllFolders, 
+                func_GetAllFoldersAsList: funcGetAllFolders,
                 func_CreateFolderById: funcCreateFolder,
                 func_DeleteFolderById: funcDeleteFolder,
                 func_GetTaskById: funcGetTaskById,

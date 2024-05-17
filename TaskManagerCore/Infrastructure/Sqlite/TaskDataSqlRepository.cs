@@ -1,6 +1,7 @@
 ﻿using TaskManagerCore.Model.Repository;
 using TaskManagerCore.Model;
 using TaskManagerCore.Infrastructure.Sqlite.Dao;
+using Microsoft.VisualBasic;
 
 namespace TaskManagerCore.Infrastructure.Sqlite
 {
@@ -42,7 +43,7 @@ namespace TaskManagerCore.Infrastructure.Sqlite
 
         public string Save(TaskData o)
         {
-            if (Dao.Create(EntityFactory.FromModel(o)))
+            if (Dao.Save(EntityFactory.FromModel(o)))
             {
                 return o.Id;
             }
@@ -52,18 +53,7 @@ namespace TaskManagerCore.Infrastructure.Sqlite
 
         public bool Delete(string id)
         {
-            var existing = FindById(id);
-            if (existing != null)
-            {
-                var deleting = existing.WithDescription("<DELETED>")
-                        .WithNotes("<DELETED>")
-                        .WithCompleted(false)
-                        .WithDueDate(DateTime.MinValue);
-                Save(deleting);
-                return true;
-            }
-
-            return false;
+            return Dao.Delete(id);
         }
         #endregion
 
@@ -71,12 +61,16 @@ namespace TaskManagerCore.Infrastructure.Sqlite
 
         public List<TaskData> FindByDueDate(DateTime dueDate)
         {
-            throw new NotImplementedException();
+            var results = Dao.FindByDueDate(dueDate);
+
+            return EntityFactory.ToModel(results);
         }
 
         public List<TaskData> FindByDescription(string description)
         {
-            throw new NotImplementedException();
+            var results = Dao.FindByDescription(description);
+
+            return EntityFactory.ToModel(results);
         }
 
         //public TaskData? FindOneByDescription(string description)
@@ -88,12 +82,16 @@ namespace TaskManagerCore.Infrastructure.Sqlite
 
         public List<TaskData> FindByNotes(string notes)
         {
-            throw new NotImplementedException();
+            var results = Dao.FindByNotes(notes);
+
+            return EntityFactory.ToModel(results);
         }
 
         public List<TaskData> FindByCompleted(bool completed)
         {
-            throw new NotImplementedException();
+            var results = Dao.FindByCompleted(completed);
+
+            return EntityFactory.ToModel(results);
         }
 
         #endregion

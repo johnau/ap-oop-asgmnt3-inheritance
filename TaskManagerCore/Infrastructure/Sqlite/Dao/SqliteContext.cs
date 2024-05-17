@@ -4,18 +4,18 @@ using TaskManagerCore.Infrastructure.Sqlite.Entity;
 
 namespace TaskManagerCore.Infrastructure.Sqlite.Dao;
 
-internal class TaskFolderContext : DbContext
+internal class SqliteContext : DbContext
 {
-    public DbSet<TaskFolderEntity> Folders { get; set; }
-    public DbSet<TaskDataEntity> Tasks { get; set; }
+    public DbSet<TaskFolderEntityV2> Folders { get; set; }
+    public DbSet<TaskDataEntityV2> Tasks { get; set; }
 
     public string DbPath { get; }
 
-    public TaskFolderContext()
+    public SqliteContext()
     {
         var folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
-        DbPath = Path.Join(path, "taskmanager.db");
+        DbPath = Path.Join(path, "task_manager.db");
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -23,4 +23,7 @@ internal class TaskFolderContext : DbContext
         options.UseSqlite($"Data Source={DbPath}");
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+    }
 }
