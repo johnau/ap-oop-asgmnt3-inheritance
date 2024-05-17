@@ -33,7 +33,21 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
             {
                 existing.Name = entity.Name;
                 existing.TaskIds = entity.TaskIds;
-                existing.Tasks = entity.Tasks;
+                //existing.Tasks = entity.Tasks;
+
+                // Populating the relationship here out of laziness, performance will not be great
+                // rebuilding the relationships every save.
+                foreach (var taskId in entity.TaskIds)
+                {
+                    var task = _context.Tasks.FirstOrDefault(task => task.GlobalId == taskId);
+                    if (task == null)
+                    {
+                        Debug.WriteLine($"SQL Database Sync Error: Task does not exist: {taskId}");
+                        continue;
+                    }
+
+                    existing.Tasks.Add(task);
+                }
 
                 _context.Update(existing);
             }
