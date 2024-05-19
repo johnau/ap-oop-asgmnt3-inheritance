@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using TaskManagerCore.Infrastructure.Sqlite;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Repository;
 
@@ -117,12 +116,12 @@ namespace TaskManagerCore.Infrastructure
             return result1;
         }
 
-        public string Save(TaskFolder o)
+        public TaskFolder Save(TaskFolder o)
         {
             var result1 = _taskFolderRepository1.Save(o);
 
-            var forSql = EntityFactoryV2.WithId(o, result1);
-            var result2 = _taskFolderRepository2.Save(forSql);
+            //var forSql = EntityFactoryV2.WithId(o, result1);
+            var result2 = _taskFolderRepository2.Save(result1);
 
             ComparePrimitive("id", result1, result2);
 

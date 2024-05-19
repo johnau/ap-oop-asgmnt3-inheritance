@@ -17,4 +17,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TaskManagerCore\TaskManagerCore.csproj" />
+  </ItemGroup>
+
 </Project>

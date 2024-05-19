@@ -7,8 +7,8 @@ using TaskManagerCore.Infrastructure.BinaryFile.Dao;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Model.Dto;
 using BinaryFileHandler;
-using TaskManagerCore.Infrastructure.Sqlite.Dao;
-using TaskManagerCore.Infrastructure.Sqlite;
+using TaskManagerCore.SQL.Sqlite.Dao;
+using TaskManagerCore.SQL.Sqlite;
 using TaskManagerCore.Infrastructure;
 using System.Threading.Tasks;
 

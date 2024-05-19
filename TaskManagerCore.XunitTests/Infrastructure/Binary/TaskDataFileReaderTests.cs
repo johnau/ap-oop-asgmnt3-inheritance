@@ -115,17 +115,17 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
         }
 
         [Fact]
-        public void ReadDataFile_RaceCondition_WillFail()
+        public async Task ReadDataFile_RaceCondition_WillFail()
         {
             var expecetdTasks = 4;
             var filename = "testing-task-data_separate-threads_" + DateTime.Now.Ticks;
-            Task.Run(() => WriteFileForTests(filename, expecetdTasks));
+            await Task.Run(() => WriteFileForTests(filename, expecetdTasks));
 
             var conf = new BinaryFileConfig(filename);
             var reader = new TaskDataFileReader(conf);
-            
+
             #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-            Assert.ThrowsAsync<Exception>(async () =>
+            await Assert.ThrowsAsync<Exception>(async () =>
             {
                 var count = 0;
                 while (count < 1_000)

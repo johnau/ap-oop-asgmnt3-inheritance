@@ -43,7 +43,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public abstract string Save(T entity);
+        public abstract T Save(T entity);
 
         /// <summary>
         /// Write updated data

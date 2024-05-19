@@ -241,7 +241,7 @@ namespace TaskManagerCore.XunitTests
             TaskDataRepository = new MockTaskDataRepository()
             {
                 OnFindById = (id) => task, // return task
-                OnSave = (t) => taskId, // return id
+                OnSave = (t) => task, // return id
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
@@ -258,7 +258,7 @@ namespace TaskManagerCore.XunitTests
             TaskDataRepository = new MockTaskDataRepository()
             {
                 OnFindById = (id) => id == taskId ? task : null,
-                OnSave = (t) => taskId,
+                OnSave = (t) => task,
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
@@ -300,7 +300,7 @@ namespace TaskManagerCore.XunitTests
             TaskFolderRepository = new MockTaskFolderRepository()
             {
                 OnFindById = (id) => id == taskFolderId ? taskFolder : null,
-                OnSave = (folder) => "",
+                OnSave = (folder) => taskFolder,
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
@@ -327,7 +327,7 @@ namespace TaskManagerCore.XunitTests
             {
                 OnFindById = (id) => id == taskFolderId ? taskFolder : null,
                 OnFindByName = (id) => null,
-                OnSave = (folder) => "",
+                OnSave = (folder) => null,
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
@@ -351,7 +351,7 @@ namespace TaskManagerCore.XunitTests
             TaskFolderRepository = new MockTaskFolderRepository()
             {
                 OnFindById = (id) => id == taskFolderId ? taskFolder : null,
-                OnSave = (folder) => "",
+                OnSave = (folder) => taskFolder,
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
@@ -414,59 +414,70 @@ namespace TaskManagerCore.XunitTests
         [Fact]
         public void CreateTask_ValidDto_WillSucceed()
         {
-            // create dto
-            var dto = new CreateTaskDto(TaskType.SINGLE, "folderId", "Test Task Description", "Notes", DateTime.Now.AddHours(1), TimeInterval.Daily);
+            var mockIdFolder = Guid.NewGuid().ToString();
+            var mockIdTask = Guid.NewGuid().ToString();
+            var taskDesc = "Test Task Description";
+            var taskNotes = "Notes";
+            var taskDate = DateTime.Now.AddHours(1);
 
-            // fake Id that would be generated
-            var mockId = Guid.NewGuid().ToString();
+            // create dto
+            var dto = new CreateTaskDto(TaskType.SINGLE, mockIdFolder, taskDesc, taskNotes, taskDate, TimeInterval.None);
 
             // fake folder to be returned
-            var mockFolder = new TaskFolder("test folder");
+            var mockTaskSave = new TaskData(mockIdTask, taskDesc, taskNotes, false, taskDate);
+            var mockFolderSave = new TaskFolder(mockIdFolder, "test folder", []);
+            var mockFolderFind = new TaskFolder("test folder");
 
             // mock the response of TaskFolderRepository.FindById() to get the folder
             // mock the response of TaskDataRepository.Save() to generate the Task Id
             // mock the response of TaskFolderRepository.Save() to update the folder
             TaskDataRepository = new MockTaskDataRepository()
             {
-                OnSave = (task) => mockId,
+                OnSave = (task) => mockTaskSave,
             };
+
             TaskFolderRepository = new MockTaskFolderRepository()
             {
-                OnFindById = (id) => mockFolder,
-                OnSave = (folder) => "test_does_not_matter",
+                OnFindById = (id) => mockFolderFind,
+                OnSave = (folder) => mockFolderSave,
             };
 
             // submit dto to the method and get newly created task id
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
             var result = controller.CreateTask(dto);
 
-            Assert.Equal(mockId, result);
+            Assert.Equal(mockIdFolder, result);
         }
 
         [Fact]
         public void CreateTask_InvalidDtoBadFolderId_WillFail()
         {
-            // create dto
-            var dto = new CreateTaskDto(TaskType.SINGLE, "folderId", "Test Task Description", "Notes", DateTime.Now.AddHours(1), TimeInterval.Daily);
+            var mockIdFolder = Guid.NewGuid().ToString();
+            var mockIdTask = Guid.NewGuid().ToString();
+            var taskDesc = "Test Task Description";
+            var taskNotes = "Notes";
+            var taskDate = DateTime.Now.AddHours(1);
 
-            // fake Id that would be generated
-            var mockId = Guid.NewGuid().ToString();
+            // create dto
+            var dto = new CreateTaskDto(TaskType.SINGLE, mockIdFolder, taskDesc, taskNotes, taskDate, TimeInterval.None);
 
             // fake folder to be returned
-            var mockFolder = new TaskFolder("test folder");
+            var mockTaskSave = new TaskData(mockIdTask, taskDesc, taskNotes, false, taskDate);
+            var mockFolderSave = new TaskFolder(mockIdFolder, "test folder", []);
+            var mockFolderFind = new TaskFolder("test folder");
 
             // mock the response of TaskFolderRepository.FindById() to get the folder
             // mock the response of TaskDataRepository.Save() to generate the Task Id
             // mock the response of TaskFolderRepository.Save() to update the folder
             TaskDataRepository = new MockTaskDataRepository()
             {
-                OnSave = (task) => mockId,
+                OnSave = (task) => mockTaskSave,
             };
             TaskFolderRepository = new MockTaskFolderRepository()
             {
                 OnFindById = (id) => null,
                 OnFindByName = (id) => null,
-                OnSave = (folder) => "test_does_not_matter",
+                OnSave = (folder) => mockFolderSave,
             };
 
             // submit dto to the method and get newly created task id
@@ -477,14 +488,19 @@ namespace TaskManagerCore.XunitTests
         [Fact]
         public void CreateTask_BadTaskRepo_WillFail()
         {
-            // create dto
-            var dto = new CreateTaskDto(TaskType.SINGLE, "folderId", "Test Task Description", "Notes", DateTime.Now.AddHours(1), TimeInterval.Daily);
+            var mockIdFolder = Guid.NewGuid().ToString();
+            var mockIdTask = Guid.NewGuid().ToString();
+            var taskDesc = "Test Task Description";
+            var taskNotes = "Notes";
+            var taskDate = DateTime.Now.AddHours(1);
 
-            // fake Id that would be generated
-            var mockId = Guid.NewGuid().ToString();
+            // create dto
+            var dto = new CreateTaskDto(TaskType.SINGLE, mockIdFolder, taskDesc, taskNotes, taskDate, TimeInterval.None);
 
             // fake folder to be returned
-            var mockFolder = new TaskFolder("test folder");
+            var mockTaskSave = new TaskData(mockIdTask, taskDesc, taskNotes, false, taskDate);
+            var mockFolderSave = new TaskFolder(mockIdFolder, "test folder", []);
+            var mockFolderFind = new TaskFolder("test folder");
 
             // mock the response of TaskFolderRepository.FindById() to get the folder
             // mock the response of TaskDataRepository.Save() to generate the Task Id
@@ -495,8 +511,8 @@ namespace TaskManagerCore.XunitTests
             };
             TaskFolderRepository = new MockTaskFolderRepository()
             {
-                OnFindById = (id) => mockFolder,
-                OnSave = (folder) => "test_does_not_matter",
+                OnFindById = (id) => mockFolderFind,
+                OnSave = (folder) => mockFolderSave,
             };
 
             // submit dto to the method and get newly created task id
@@ -527,7 +543,7 @@ namespace TaskManagerCore.XunitTests
             {
                 OnFindById = (id) => null,
                 OnFindByName = (id) => null,
-                OnSave = (folder) => "test_does_not_matter",
+                OnSave = (folder) => mockFolder,
             };
 
             // submit dto to the method and get newly created task id
@@ -538,14 +554,16 @@ namespace TaskManagerCore.XunitTests
         [Fact]
         public void CreateTaskFolder_ValidDto_WillSucceed()
         {
-            // create task folder dto
-            var dto = new CreateFolderDto("Test Folder 1");
+            // create task folder dtov
+            var name = "Test Folder 1";
+            var dto = new CreateFolderDto(name);
             var testId = Guid.NewGuid().ToString();
+            var mockFolder = new TaskFolder(testId, name, new List<string>());
 
             // mock response of task folder save
             TaskFolderRepository = new MockTaskFolderRepository()
             {
-                OnSave = (folder) => testId,
+                OnSave = (folder) => mockFolder,
             };
 
             // run test method
@@ -593,7 +611,7 @@ namespace TaskManagerCore.XunitTests
             TaskDataRepository = new MockTaskDataRepository()
             {
                 OnFindById = (id) => id == taskId ? task : null,
-                OnSave = (t) => taskId,
+                OnSave = (t) => task,
             };
             TaskFolderRepository = new MockTaskFolderRepository()
             {
@@ -604,8 +622,8 @@ namespace TaskManagerCore.XunitTests
                 },
                 OnSave = (folder) =>
                 {
-                    if (folder.Id == taskFolderFrom.Id) return taskFolderFromId;
-                    else if (folder.Id == taskFolderTo.Id) return taskFolderToId;
+                    if (folder.Id == taskFolderFrom.Id) return taskFolderFrom;
+                    else if (folder.Id == taskFolderTo.Id) return taskFolderTo;
                     else throw new Exception("Test error");
                 },
             };

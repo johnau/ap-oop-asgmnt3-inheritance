@@ -45,7 +45,7 @@ namespace TaskManagerCore.Configuration
         /// </summary>
         /// <param name="o">The object to save.</param>
         /// <returns>The ID of the saved object.</returns>
-        ID Save(T o);
+        T Save(T o);
 
         /// <summary>
         /// Deletes the object with the specified ID.

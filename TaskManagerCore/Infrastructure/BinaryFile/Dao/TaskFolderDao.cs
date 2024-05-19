@@ -33,7 +33,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// <returns></returns>
         /// <exception cref="InvalidDataException"></exception>
         /// <exception cref="Exception"></exception>
-        public override string Save(TaskFolderEntity entity)
+        public override TaskFolderEntity Save(TaskFolderEntity entity)
         {
             foreach (var folder in Cache)
             {
@@ -47,7 +47,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             if (Cache.TryAdd(entity.Id, entity))
             {
                 Debug.WriteLine($"Saved new Folder: {entity.Id}");
-                return entity.Id;
+                return entity;
             }
 
             Debug.WriteLine($"Updating Folder: {entity.Id}");
@@ -61,7 +61,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 
             Cache.MarkDirty(); // Hacky fix for now to notify subscribers about changes (and trigger re-sorting)
 
-            return existing.Id;
+            return existing;
         }
 
         /// <summary>

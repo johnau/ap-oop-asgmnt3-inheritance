@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TaskManagerCore.SQL.Sqlite.Entity
 {
-    internal class TaskDataEntityV2 : EntityBaseV2
+    public class TaskDataEntityV2 : EntityBaseV2
     {
         public string Description { get; set; }
 

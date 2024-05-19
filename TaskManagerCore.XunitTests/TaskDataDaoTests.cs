@@ -35,10 +35,10 @@ namespace TaskManagerCore.XunitTests
                 DueDate = DateTime.Now,
             };
 
-            var id = dao.Save(entity);
+            var saved = dao.Save(entity);
 
-            Assert.NotEqual(string.Empty, id);
-            Assert.Equal(entity.Id, id);
+            Assert.NotEqual(string.Empty, saved.Id);
+            Assert.Equal(entity.Id, saved.Id);
 
             TH.CleanupAfterTest(filename);
         }
@@ -229,13 +229,13 @@ namespace TaskManagerCore.XunitTests
                     DueDate = date,                 
                 };
                 // Store with DAO
-                var id = dao.Save(entity);
+                var saved = dao.Save(entity);
 
                 // Store locally for tests
                 daysTaskCounts[dayIndex]++;
                 completedTaskCounts[completed]++;
-                idsToNotes.Add(id, notes);
-                idsToDescriptions.Add(id, description);
+                idsToNotes.Add(saved.Id, notes);
+                idsToDescriptions.Add(saved.Id, description);
 
                 Debug.WriteLine($"Now have {daysTaskCounts[dayIndex]} tasks on day {dayIndex}");
             }

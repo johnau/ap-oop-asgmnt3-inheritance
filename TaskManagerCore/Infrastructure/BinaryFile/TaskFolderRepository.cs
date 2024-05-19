@@ -33,9 +33,10 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return EntityFactory.ToModel(one);
         }
 
-        public string Save(TaskFolder o)
+        public TaskFolder Save(TaskFolder o)
         {
-            return Dao.Save(EntityFactory.FromModel(o));
+            var saved = Dao.Save(EntityFactory.FromModel(o));
+            return EntityFactory.ToModel(saved);
         }
 
         public bool Delete(string id)

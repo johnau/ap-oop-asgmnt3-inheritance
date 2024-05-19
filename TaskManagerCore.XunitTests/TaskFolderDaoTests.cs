@@ -30,9 +30,9 @@ namespace TaskManagerCore.XunitTests
                 TaskIds = new List<string>() { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() },
             };
 
-            var id = dao.Save(entity);
-            Assert.NotEqual(string.Empty, id);
-            Assert.Equal(entity.Id, id);
+            var saved = dao.Save(entity);
+            Assert.NotEqual(string.Empty, saved.Id);
+            Assert.Equal(entity.Id, saved.Id);
 
             TH.CleanupAfterTest(filename);
         }

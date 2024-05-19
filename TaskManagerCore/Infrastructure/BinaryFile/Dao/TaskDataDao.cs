@@ -36,7 +36,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// <returns></returns>
         /// <exception cref="InvalidDataException"></exception>
         /// <exception cref="Exception">Throw exception if unique description is violated</exception>
-        public override string Save(TaskDataEntity entity)
+        public override TaskDataEntity Save(TaskDataEntity entity)
         {
             /* 
              * Try Add new Task
@@ -44,17 +44,17 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             if (entity is HabitualTaskDataEntity habitualEntity) // TODO: move all type checks and casts to a single class in each layer.
             {
                 if (Cache.TryAdd(entity.Id, habitualEntity))
-                    return entity.Id;
+                    return entity;
             }
             else if (entity is RepeatingTaskDataEntity repeatingEntity)
             {
                 if (Cache.TryAdd(entity.Id, repeatingEntity))
-                    return entity.Id;
+                    return entity;
             }
             else
             {
                 if (Cache.TryAdd(entity.Id, entity))
-                    return entity.Id;
+                    return entity;
             }
 
             /* 
@@ -92,7 +92,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
             // Notify subscribers about changes - not greatest solution having to manually trigger just for this update
             Cache.MarkDirty(); 
 
-            return existing.Id;
+            return existing;
         }
 
         /// <summary>

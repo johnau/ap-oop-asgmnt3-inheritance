@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TaskManager.SQL\TaskManager.SQL.csproj" />
     <ProjectReference Include="..\TaskManagerCore\TaskManagerCore.csproj" />
   </ItemGroup>
 

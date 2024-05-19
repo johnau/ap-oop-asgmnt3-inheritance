@@ -6,7 +6,7 @@ using TaskManagerCore.SQL.Sqlite.Entity;
 namespace TaskManagerCore.SQL.Sqlite.Dao
 {
 
-    internal class SqliteContext : DbContext
+    public class SqliteContext : DbContext
     {
         public DbSet<TaskFolderEntityV2> Folders { get; set; }
         public DbSet<TaskDataEntityV2> Tasks { get; set; }

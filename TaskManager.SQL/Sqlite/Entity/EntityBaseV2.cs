@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TaskManagerCore.SQL.Sqlite.Entity
 {
-    internal class EntityBaseV2
+    public class EntityBaseV2
     {
         [Key]
         public long Id { get; set; } // for auto generated id in database (we will store a record for every change to keep track of changes)

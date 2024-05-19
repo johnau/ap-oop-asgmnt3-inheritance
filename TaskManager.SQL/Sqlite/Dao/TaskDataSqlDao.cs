@@ -7,7 +7,7 @@ using TaskManagerCore.SQL.Sqlite.Entity;
 
 namespace TaskManagerCore.SQL.Sqlite.Dao
 {
-    internal class TaskDataSqlDao
+    public class TaskDataSqlDao
     {
         private readonly SqliteContext _context;
 
@@ -48,7 +48,7 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
 
         public TaskDataEntityV2 FindById(string id)
         {
-            Debug.WriteLine($"Querying for a folder by id: {id}");
+            Debug.WriteLine($"Querying for a Task by id: {id}");
             var latestTaskState = _context.Tasks
                                             .Where(task => task.GlobalId == id)
                                             //.FromSqlRaw("SELECT * FROM Tasks WHERE GlobalId = {0}", id)
@@ -70,7 +70,9 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
             Debug.WriteLine($"Deleting task: {globalId}");
             try
             {
-                var entity = _context.Tasks.FirstOrDefault(folder => folder.GlobalId == globalId);
+                var entity = _context.Tasks
+                    .FirstOrDefault(task => task.GlobalId == globalId);
+
                 if (entity == null)
                     return false;
 

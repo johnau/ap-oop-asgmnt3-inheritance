@@ -239,14 +239,14 @@ namespace TaskManagerCore.Controller
             var folder = GetFolderWithIdOrNameOrThrow(dto.InFolderId);
 
             var task = DtoMapperCreateTask.Map(dto);
-            var taskId = TaskDataRepository.Save(task);
+            var savedTask = TaskDataRepository.Save(task);
 
-            var folderUpdated = folder.WithTask(taskId);
+            var folderUpdated = folder.WithTask(savedTask.Id);
             var updatedFolderId = TaskFolderRepository.Save(folderUpdated);
-            if (taskId == null || updatedFolderId == null)
+            if (savedTask == null || updatedFolderId == null)
                 throw new Exception($"Unable to Create task in folder {dto.InFolderId}");
 
-            return taskId;
+            return savedTask.Id;
         }
 
         /// <summary>
@@ -263,7 +263,8 @@ namespace TaskManagerCore.Controller
             var taskFolder = DtoMapperCreateFolder.Map(dto);
             try
             {
-                return TaskFolderRepository.Save(taskFolder);
+                var saved = TaskFolderRepository.Save(taskFolder);
+                return saved.Id;
             }
             catch (Exception ex)
             {
@@ -349,7 +350,8 @@ namespace TaskManagerCore.Controller
 
             try
             {
-                return TaskDataRepository.Save(task);
+                var saved = TaskDataRepository.Save(task);
+                return saved.Id;
             }
             catch (Exception ex)
             {
@@ -380,7 +382,8 @@ namespace TaskManagerCore.Controller
 
             try
             {
-                return TaskFolderRepository.Save(folder);
+                var saved = TaskFolderRepository.Save(folder);
+                return saved.Id;
             }
             catch (Exception ex)
             {

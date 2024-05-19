@@ -856,9 +856,9 @@ namespace TaskManagerConsoleApp
                     if (col.Key == UIData.PropertyName_Index) value = index;
                     var padding = Math.Max(0, col.Value - (value + "").Length);
                     row += CellStr(value + "", padding);
-                    Debug.WriteLine($"@ Column #{col.Key}");
+                    //Debug.WriteLine($"@ Column #{col.Key}");
                 }
-                Debug.WriteLine($"Writing folder #{folderProperties[UIData.PropertyName_Name]} row: {row}");
+                //Debug.WriteLine($"Writing folder #{folderProperties[UIData.PropertyName_Name]} row: {row}");
                 RenderLine(row, color);
                 RenderRowDivider(UIData.FoldersColumnLayout, margin);
                 index++;
@@ -910,9 +910,9 @@ namespace TaskManagerConsoleApp
                     value = TruncateStr(value + "", col.Value);
                     var padding = Math.Max(0, col.Value - (value + "").Length);
                     row += CellStr(value + "", padding);
-                    Debug.WriteLine($"@ Column #{col.Key}");
+                    //Debug.WriteLine($"@ Column #{col.Key}");
                 }
-                Debug.WriteLine($"Writing task #{taskProperties[UIData.PropertyName_Description]} row: {row}");
+                //Debug.WriteLine($"Writing task #{taskProperties[UIData.PropertyName_Description]} row: {row}");
                 RenderLine(row, color);
                 RenderRowDivider(UIData.TasksColumnLayout, margin);
                 index++;

@@ -6,10 +6,10 @@ using System;
 
 namespace TaskManagerCore.SQL.Sqlite
 {
-    internal class TaskFolderSqlRepository : ITaskFolderRepository
+    public class TaskFolderSqlRepository : ITaskFolderRepository
     {
         readonly TaskFolderSqlDao Dao;
-        internal TaskFolderSqlRepository(TaskFolderSqlDao dao)
+        public TaskFolderSqlRepository(TaskFolderSqlDao dao)
         {
             Dao = dao;
         }
@@ -34,11 +34,11 @@ namespace TaskManagerCore.SQL.Sqlite
             return EntityFactoryV2.ToModel(one);
         }
 
-        public string Save(TaskFolder o)
+        public TaskFolder Save(TaskFolder o)
         {
             if (Dao.Save(EntityFactoryV2.FromModel(o)))
             {
-                return o.Id;
+                return o;
             }
 
             throw new Exception("Sql error: Unable to add folder");

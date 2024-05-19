@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace TaskManagerCore.SQL.Sqlite.Entity
 {
-    internal class TaskFolderEntityV2 : EntityBaseV2
+    public class TaskFolderEntityV2 : EntityBaseV2
     {
         internal static readonly char separator = ';';
 

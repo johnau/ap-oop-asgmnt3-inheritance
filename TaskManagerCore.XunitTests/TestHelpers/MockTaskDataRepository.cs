@@ -12,7 +12,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         public Func<List<TaskData>> OnFindAll { get; set; }
         public Func<string, TaskData> OnFindById { get; set; }
         public Func<List<string>, List<TaskData>> OnFindByIds { get; set; }
-        public Func<TaskData, string> OnSave { get; set; }
+        public Func<TaskData, TaskData> OnSave { get; set; }
 
         public bool Delete(string id)
         {
@@ -54,7 +54,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             throw new NotImplementedException();
         }
 
-        public string Save(TaskData o)
+        public TaskData Save(TaskData o)
         {
             #pragma warning disable CS8603 // Possible null reference return.
             return OnSave != null ? OnSave(o) : throw new NotImplementedException("Did not provide a function for testing");

@@ -7,7 +7,7 @@ using System;
 
 namespace TaskManagerCore.SQL.Sqlite
 {
-    internal class TaskDataSqlRepository : ITaskDataRepository
+    public class TaskDataSqlRepository : ITaskDataRepository
     {
         readonly TaskDataSqlDao Dao;
         public TaskDataSqlRepository(TaskDataSqlDao dao)
@@ -43,11 +43,11 @@ namespace TaskManagerCore.SQL.Sqlite
             return EntityFactoryV2.ToModel(one);
         }
 
-        public string Save(TaskData o)
+        public TaskData Save(TaskData o)
         {
             if (Dao.Save(EntityFactoryV2.FromModel(o)))
             {
-                return o.Id;
+                return o;
             }
 
             throw new Exception("Unable to save to database");

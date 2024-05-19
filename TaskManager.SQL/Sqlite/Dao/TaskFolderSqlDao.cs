@@ -8,7 +8,7 @@ using TaskManagerCore.SQL.Sqlite.Entity;
 
 namespace TaskManagerCore.SQL.Sqlite.Dao
 {
-    internal class TaskFolderSqlDao
+    public class TaskFolderSqlDao
     {
         private readonly SqliteContext _context;
 
@@ -20,7 +20,7 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
 
         public bool Save(TaskFolderEntityV2 entity)
         {
-            Debug.WriteLine($"Creating or Updating Task: {entity.Name}");
+            Debug.WriteLine($"Creating or Updating Folder: {entity.Name}");
 
             var existing = _context.Folders
                                     .Where(folder => folder.GlobalId == entity.GlobalId)
@@ -48,7 +48,7 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
 
                     if (task == null)
                     {
-                        Debug.WriteLine($"SQL Database Sync Error: Task does not exist: {taskId}");
+                        Debug.WriteLine($"SQL Database Sync Error: Folder does not exist: {taskId}");
                         continue;
                     }
 

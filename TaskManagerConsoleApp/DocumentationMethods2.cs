@@ -121,7 +121,7 @@ namespace TaskManagerConsoleApp {
             throw new NotImplementedException();
         }
 
-        public string Save(TaskData o)
+        public TaskData Save(TaskData o)
         {
             throw new NotImplementedException();
         }
@@ -185,7 +185,7 @@ namespace TaskManagerConsoleApp {
             throw new NotImplementedException();
         }
 
-        public string Save(TaskFolder o)
+        public TaskFolder Save(TaskFolder o)
         {
             throw new NotImplementedException();
         }

@@ -10,6 +10,51 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
     /// </summary>
     internal static class EntityFactory
     {
+        #region Helper Methods For Transporting the GlobalID from other Repository
+
+        /**
+         * 
+         * Probably a better place for these
+         * 
+         */
+
+        public static TaskData WithId(TaskData task, string id)
+        {
+            if (task is HabitualTaskData habitual)
+            {
+                return new HabitualTaskData(id,
+                                            habitual.Description,
+                                            habitual.Notes,
+                                            habitual.Completed,
+                                            habitual.DueDate,
+                                            habitual.RepeatingInterval,
+                                            habitual.Repetitions,
+                                            habitual.Streak
+                                            );
+
+            }
+            else if (task is RepeatingTaskData repeating)
+            {
+                return new RepeatingTaskData(id,
+                                            repeating.Description,
+                                            repeating.Notes,
+                                            repeating.Completed,
+                                            repeating.DueDate,
+                                            repeating.RepeatingInterval,
+                                            repeating.Repetitions);
+            }
+            else
+            {
+                return new TaskData(id, task.Description, task.Notes, task.Completed, task.DueDate);
+            }
+        }
+
+        public static TaskFolder WithId(TaskFolder folder, string id)
+        {
+            return new TaskFolder(id, folder.Name, folder.TaskIds);
+        }
+        #endregion
+
         public static TaskFolderEntity FromModel(TaskFolder taskFolder)
         {
             return new TaskFolderEntity(taskFolder.Id)
