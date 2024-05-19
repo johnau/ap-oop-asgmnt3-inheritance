@@ -50,11 +50,15 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         /// <returns></returns>
         public new RepeatingTaskDataTestHelperExtension WithCompleted(bool value)
         {
-            var completed = base.WithCompleted(value); 
+            var completed = (RepeatingTaskData)base.WithCompleted(value);
             // process the base class method and assign values here - this isn't the nicest, but interfaces don't feel appropriate.
             // The TaskData classes could be refactored as structs - lightweight and free of functionality, with accessor classes for the business logic
             // would make nicer testing?
-            return new RepeatingTaskDataTestHelperExtension(completed.Id, completed.Description, completed.Notes, false, DueDate, RepeatingInterval, Repetitions)
+
+            //if (completed.DueDate == null || !completed.DueDate.HasValue)
+            //    throw new ArgumentException("Invalid Habitual Task; Does not have a DueDate set");
+
+            return new RepeatingTaskDataTestHelperExtension(completed.Id, completed.Description, completed.Notes, false, completed.DueDate, RepeatingInterval, Repetitions)
             {
                 FakeDateTime = FakeDateTime
             };

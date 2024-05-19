@@ -50,7 +50,7 @@ namespace TaskManagerConsoleApp
              * Infrastructure: Persistence stuff (Sql data store)
              */
             var dbContext = new SqliteContext(dataFilesFolderPath);
-            dbContext.Database.EnsureCreated();
+            //dbContext.Database.EnsureCreated(); // shifted inside SqliteContext
 
             var taskDataDaoSql = new TaskDataSqlDao(dbContext);
             var taskRepoSql = new TaskDataSqlRepository(taskDataDaoSql);

@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using TaskManagerCore.Configuration;
 using TaskManagerCore.SQL.Sqlite.Entity;
 
 namespace TaskManagerCore.SQL.Sqlite.Dao
 {
-    public class TaskDataSqlDao
+    public class TaskDataSqlDao : ICrudRepository<TaskDataEntityV2, string>
     {
         private readonly SqliteContext _context;
 
@@ -17,13 +18,14 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
             Debug.WriteLine($"Database path: {_context.DbPath}.");
         }
 
-        public bool Save(TaskDataEntityV2 entity)
+        public TaskDataEntityV2 Save(TaskDataEntityV2 entity)
         {
             Debug.WriteLine($"Creating or Updating Task: {entity.Description}");
 
             var existing = _context.Tasks
                                     .FirstOrDefault(task => task.GlobalId == entity.GlobalId);
 
+            TaskDataEntityV2 saved;
             if (existing != null)
             {
                 existing.Description = entity.Description;
@@ -35,15 +37,17 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
                 existing.Streak = entity.Streak;
 
                 _context.Update(existing);
+                saved = existing;
             }
             else
             {
                 _context.Add(entity);
+                saved = entity;
             }
 
             _context.SaveChanges();
 
-            return true;
+            return saved;
         }
 
         public TaskDataEntityV2 FindById(string id)
@@ -55,6 +59,17 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
                                             .FirstOrDefault();
 
             return latestTaskState;
+        }
+
+        public List<TaskDataEntityV2> FindByIds(List<string> ids)
+        {
+            Debug.WriteLine($"Querying for tasks by ids: {string.Join(",", ids)}");
+
+            var matchedTasks = _context.Tasks
+                                        .Where(task => ids.Contains(task.GlobalId))
+                                        .ToList();
+
+            return matchedTasks;
         }
 
         public List<TaskDataEntityV2> FindAll()
@@ -126,6 +141,7 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
 
             return tasksByCompletion;
         }
+
 
     }
 }

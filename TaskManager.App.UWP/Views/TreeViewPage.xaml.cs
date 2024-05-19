@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 
 using TaskManager.App.UWP.ViewModels;
 
@@ -12,11 +13,21 @@ namespace TaskManager.App.UWP.Views
     // For other samples, get the XAML Controls Gallery app http://aka.ms/XamlControlsGallery
     public sealed partial class TreeViewPage : Page
     {
-        public TreeViewViewModel ViewModel { get; } = new TreeViewViewModel();
+        public TreeViewViewModel ViewModel { get; }
 
         public TreeViewPage()
         {
             InitializeComponent();
+
+            /**
+             * Dependency Injection Note:
+             * UWP Apps don't allow constructors with parameters, so we must manually 
+             * get the dependency.  
+             * There is a workaround by a custom implementation of 
+             * IXamlType.ActivateInstance() and IXamlMetadataProvider  but most likely
+             * won't be doing that for this assignment.
+             */
+            ViewModel = App.Services.GetRequiredService<TreeViewViewModel>();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)

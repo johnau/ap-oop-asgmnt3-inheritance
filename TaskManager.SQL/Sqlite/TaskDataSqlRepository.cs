@@ -45,12 +45,8 @@ namespace TaskManagerCore.SQL.Sqlite
 
         public TaskData Save(TaskData o)
         {
-            if (Dao.Save(EntityFactoryV2.FromModel(o)))
-            {
-                return o;
-            }
-
-            throw new Exception("Unable to save to database");
+            var saved = Dao.Save(EntityFactoryV2.FromModel(o));
+            return EntityFactoryV2.ToModel(saved);
         }
 
         public bool Delete(string id)

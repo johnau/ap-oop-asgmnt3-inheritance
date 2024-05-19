@@ -151,6 +151,9 @@
     <Compile Include="Activation\ActivationHandler.cs" />
     <Compile Include="Behaviors\TreeViewCollapseBehavior.cs" />
     <Compile Include="Converters\DateTimeFormatConverter.cs" />
+    <Compile Include="DependencyInjection\INamedServiceProvider.cs" />
+    <Compile Include="DependencyInjection\NamedServiceProvider.cs" />
+    <Compile Include="DependencyInjection\ServiceResolver.cs" />
     <Compile Include="EventHandlers\Ink\AddStrokeEventArgs.cs" />
     <Compile Include="EventHandlers\Ink\CopyPasteStrokesEventArgs.cs" />
     <Compile Include="EventHandlers\Ink\MoveStrokesEventArgs.cs" />
@@ -159,6 +162,7 @@
     <Compile Include="Helpers\IBackNavigationHandler.cs" />
     <Compile Include="Helpers\NavHelper.cs" />
     <Compile Include="Helpers\SettingsStorageExtensions.cs" />
+    <Compile Include="DependencyInjection\ServiceCollectionExtensions.cs" />
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultActivationHandler.cs" />
     <Compile Include="Services\Ink\InkAsyncAnalyzer.cs" />
@@ -181,6 +185,7 @@
     <Compile Include="Services\ThemeSelectorService.cs" />
     <Compile Include="StateTriggers\ControlSizeTrigger.cs" />
     <Compile Include="TemplateSelectors\SampleDataTemplateSelector.cs" />
+    <Compile Include="TemplateSelectors\TaskDataTemplateSelector.cs" />
     <Compile Include="ViewModels\ChartViewModel.cs" />
     <Compile Include="ViewModels\ContentGridDetailViewModel.cs" />
     <Compile Include="ViewModels\ContentGridViewModel.cs" />
@@ -354,9 +359,21 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BinaryFileHandler\BinaryFileHandler.csproj">
+      <Project>{8edef166-693c-410a-a9f0-40a41ef41a43}</Project>
+      <Name>BinaryFileHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InMemoryCache\InMemoryCache.csproj">
+      <Project>{b7e955d6-092a-4d1a-801e-20fb075a5d1b}</Project>
+      <Name>InMemoryCache</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TaskManager.App.UWP.Core\TaskManager.App.UWP.Core.csproj">
       <Project>{FCBD0C58-366F-46A9-9A01-DBAB299E6D4A}</Project>
       <Name>TaskManager.App.UWP.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TaskManager.SQL\TaskManager.SQL.csproj">
+      <Project>{a1c1f097-34f0-4f9a-a473-5cc936676877}</Project>
+      <Name>TaskManager.SQL</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskManagerCore\TaskManagerCore.csproj">
       <Project>{90ee50ce-1c72-4074-8598-85dd9212a083}</Project>

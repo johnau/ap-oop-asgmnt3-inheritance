@@ -13,7 +13,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
                                                                             typeof(RepeatingTaskDataEntity).Name,
                                                                             typeof(HabitualTaskDataEntity).Name};
 
-        public TaskDataFileReader(BinaryFileConfig config) : base(config) { }
+        public TaskDataFileReader(BinaryFileConfig config) 
+            : base(config) 
+        { }
 
         /// <summary>
         /// Reads current TaskDataEntity with provided BinaryReader instance

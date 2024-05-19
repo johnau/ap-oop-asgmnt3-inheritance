@@ -4,7 +4,8 @@
     {
         public string FileName { get; }
         public string RootPath { get; }
-        public BinaryFileConfig(string fileName, string rootPath = "") : this()
+
+        public BinaryFileConfig(string fileName, string rootPath = "")
         {
             FileName = fileName;
             RootPath = rootPath;

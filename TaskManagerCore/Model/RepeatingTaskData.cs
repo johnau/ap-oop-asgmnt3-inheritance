@@ -108,14 +108,18 @@ namespace TaskManagerCore.Model
         /// <returns>A new instance of <see cref="RepeatingTaskData"/> with the specified completion status and updated repetitions and due date.</returns>
         public override TaskData WithCompleted(bool value)
         {
-            if (value == false) // || DueDate == null)
-            {
+            //var completed = base.WithCompleted(value);
+            //if (!completed.DueDate.HasValue)
+            //    throw new Exception("Invalid Repeating Task State, no DueDate");
+
+            if (value == false) // Is always false
                 return this;
-            }
 
             // Increment repititions and due date for the next reptition
             // (Would you want this to go to the next possible due date, or just stick to the intervals. i.e. If a daily task is completed 2 days late, does the next due time become yesterday, or today/tomorrow)
+
             var nextDueDate = DueDate.AddHours((int)RepeatingInterval);
+            //var nextDueDate = completed.DueDate.Value.AddHours((int)RepeatingInterval);
             return new RepeatingTaskData(Id, Description, Notes, false, nextDueDate, RepeatingInterval, Repetitions + 1);
         }
 

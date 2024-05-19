@@ -36,12 +36,9 @@ namespace TaskManagerCore.SQL.Sqlite
 
         public TaskFolder Save(TaskFolder o)
         {
-            if (Dao.Save(EntityFactoryV2.FromModel(o)))
-            {
-                return o;
-            }
+            var saved = Dao.Save(EntityFactoryV2.FromModel(o));
 
-            throw new Exception("Sql error: Unable to add folder");
+            return EntityFactoryV2.ToModel(saved);
         }
 
         public bool Delete(string id)

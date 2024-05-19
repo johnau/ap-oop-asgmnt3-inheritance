@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using TaskManagerCore.Configuration;
 using TaskManagerCore.SQL.Sqlite.Entity;
 
 namespace TaskManagerCore.SQL.Sqlite.Dao
 {
-    public class TaskFolderSqlDao
+    public class TaskFolderSqlDao : ICrudRepository<TaskFolderEntityV2, string>
     {
         private readonly SqliteContext _context;
 
@@ -18,7 +19,7 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
             Debug.WriteLine($"Database path: {_context.DbPath}.");
         }
 
-        public bool Save(TaskFolderEntityV2 entity)
+        public TaskFolderEntityV2 Save(TaskFolderEntityV2 entity)
         {
             Debug.WriteLine($"Creating or Updating Folder: {entity.Name}");
 
@@ -32,6 +33,7 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
             if (existing == null && existingWithSameName != null)
                 throw new InvalidDataException($"There is already a folder called: {entity.Name.ToUpper()}");
 
+            TaskFolderEntityV2 saved;
             if (existing != null)
             {
                 existing.Name = entity.Name;
@@ -56,15 +58,17 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
                 }
 
                 _context.Update(existing);
+                saved = existing;
             }
             else
             {
                 _context.Add(entity);
+                saved = entity;
             }
 
             _context.SaveChanges();
 
-            return true;
+            return saved;
         }
 
         public TaskFolderEntityV2 FindById(string id)

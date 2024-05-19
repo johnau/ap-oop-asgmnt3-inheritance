@@ -29,6 +29,8 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
             {
                 DbPath = Path.Combine(dataFolderPath, fileName);
             }
+
+            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

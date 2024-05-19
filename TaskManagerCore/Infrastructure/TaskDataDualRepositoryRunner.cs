@@ -105,7 +105,7 @@ namespace TaskManagerCore.Infrastructure
             //var forSql = EntityFactory.WithId(o, result1);
             var result2 = _taskDataRepository2.Save(result1);
 
-            ComparePrimitive("id", result1, result2);
+            CompareSingle(result1, result2);
 
             return result1;
         }

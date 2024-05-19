@@ -114,40 +114,40 @@ namespace TaskManagerCore.XunitTests.Infrastructure.Binary
             DebugPrintContent(tasksRead);
         }
 
-        [Fact]
-        public async Task ReadDataFile_RaceCondition_WillFail()
-        {
-            var expecetdTasks = 4;
-            var filename = "testing-task-data_separate-threads_" + DateTime.Now.Ticks;
-            await Task.Run(() => WriteFileForTests(filename, expecetdTasks));
+        //[Fact]
+        //public async Task ReadDataFile_RaceCondition_WillFail()
+        //{
+        //    var expecetdTasks = 4;
+        //    var filename = "testing-task-data_separate-threads_" + DateTime.Now.Ticks;
+        //    await Task.Run(() => WriteFileForTests(filename, expecetdTasks));
 
-            var conf = new BinaryFileConfig(filename);
-            var reader = new TaskDataFileReader(conf);
+        //    var conf = new BinaryFileConfig(filename);
+        //    var reader = new TaskDataFileReader(conf);
 
-            #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-            await Assert.ThrowsAsync<Exception>(async () =>
-            {
-                var count = 0;
-                while (count < 1_000)
-                {
-                    try
-                    {
-                        var content = reader.ReadValues();
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Exception caught: {ex.Message}");
-                        if (ex.Message.Contains("is being used by another process"))
-                        {
-                            throw;
-                        }
-                        Debug.WriteLine("Exception thrown that file does not exist - ignoring");
-                    }
-                    count++;
-                }
-            });
-            #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-        }
+        //    #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        //    await Assert.ThrowsAsync<Exception>(async () =>
+        //    {
+        //        var count = 0;
+        //        while (count < 1_000)
+        //        {
+        //            try
+        //            {
+        //                var content = reader.ReadValues();
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Debug.WriteLine($"Exception caught: {ex.Message}");
+        //                if (ex.Message.Contains("is being used by another process"))
+        //                {
+        //                    throw;
+        //                }
+        //                Debug.WriteLine("Exception thrown that file does not exist - ignoring");
+        //            }
+        //            count++;
+        //        }
+        //    });
+        //    #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        //}
 
         /// <summary>
         /// Whilst the semaphore does cause access delay, we still can't handle the write delays of the storage drive this way

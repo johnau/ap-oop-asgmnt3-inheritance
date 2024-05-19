@@ -123,7 +123,7 @@ namespace TaskManagerCore.Infrastructure
             //var forSql = EntityFactoryV2.WithId(o, result1);
             var result2 = _taskFolderRepository2.Save(result1);
 
-            ComparePrimitive("id", result1, result2);
+            CompareSingle(result1, result2);
 
             return result1;
         }

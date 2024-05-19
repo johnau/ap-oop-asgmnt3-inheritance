@@ -446,7 +446,7 @@ namespace TaskManagerCore.XunitTests
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
             var result = controller.CreateTask(dto);
 
-            Assert.Equal(mockIdFolder, result);
+            Assert.Equal(mockIdTask, result);
         }
 
         [Fact]

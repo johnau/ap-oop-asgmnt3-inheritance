@@ -240,10 +240,12 @@ namespace TaskManagerCore.Controller
 
             var task = DtoMapperCreateTask.Map(dto);
             var savedTask = TaskDataRepository.Save(task);
+            if (savedTask == null)
+                throw new Exception($"Unable to Create task in folder {dto.InFolderId}");
 
             var folderUpdated = folder.WithTask(savedTask.Id);
             var updatedFolderId = TaskFolderRepository.Save(folderUpdated);
-            if (savedTask == null || updatedFolderId == null)
+            if (updatedFolderId == null)
                 throw new Exception($"Unable to Create task in folder {dto.InFolderId}");
 
             return savedTask.Id;
