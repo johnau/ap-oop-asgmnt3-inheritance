@@ -1,4 +1,7 @@
-﻿namespace TaskManagerCore.Configuration
+﻿using System;
+using System.Collections.Generic;
+
+namespace TaskManagerCore.Configuration
 {
     internal class ComparisonToComparerWrapper<T> : IComparer<T>
     {
@@ -9,7 +12,7 @@
             this.comparison = comparison;
         }
 
-        public int Compare(T? t1, T? t2)
+        public int Compare(T t1, T t2)
         {
             if (t1 == null && t2 == null) return 0;
             if (t1 == null || t2 == null) return t1 == null ? -1 : 1;

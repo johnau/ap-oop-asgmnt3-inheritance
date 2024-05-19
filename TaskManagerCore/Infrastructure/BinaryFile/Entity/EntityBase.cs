@@ -1,4 +1,5 @@
 ﻿using InMemoryCache;
+using System;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 {
@@ -6,7 +7,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
     {
         public string Id { get; }
 
-        protected EntityBase(string? id = "")
+        protected EntityBase(string id = "")
         {
             if (id != null && id != string.Empty)
             {

@@ -1,8 +1,10 @@
-﻿namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
+﻿using System.Collections.Generic;
+
+namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
 {
     internal abstract class QueryComparerBase<T> : IComparer<T>
     {
-        public int Compare(T? x, T? y)
+        public int Compare(T x, T y)
         {
             //if (x == null || y == null) throw new ArgumentNullException($"x: {x}, y: {y}");
             if (x == null && y == null) return 0;

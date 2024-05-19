@@ -1,4 +1,5 @@
-﻿using TaskManagerCore.Model;
+﻿using System;
+using TaskManagerCore.Model;
 
 namespace TaskManagerCore.XunitTests.TestHelpers
 {
@@ -16,7 +17,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public override TaskDataTestHelperExtension WithCompleted(bool value)
+        public new TaskDataTestHelperExtension WithCompleted(bool value)
         {
             var _ = base.WithCompleted(value);
             return new TaskDataTestHelperExtension(_.Id, _.Description, _.Notes, _.Completed, _.DueDate)
@@ -25,7 +26,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             };
         }
 
-        public override TaskDataTestHelperExtension WithDescription(string value)
+        public new TaskDataTestHelperExtension WithDescription(string value)
         {
             var _ = base.WithDescription(value);
             return new TaskDataTestHelperExtension(_.Id, _.Description, _.Notes, _.Completed, _.DueDate)
@@ -34,7 +35,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             };
         }
 
-        public override TaskDataTestHelperExtension WithNotes(string value)
+        public new TaskDataTestHelperExtension WithNotes(string value)
         {
             var _ = base.WithNotes(value);
             return new TaskDataTestHelperExtension(_.Id, _.Description, _.Notes, _.Completed, _.DueDate)
@@ -42,7 +43,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
                 FakeDateTime = FakeDateTime
             };
         }
-        public override TaskDataTestHelperExtension WithDueDate(DateTime? value)
+        public new TaskDataTestHelperExtension WithDueDate(DateTime? value)
         {
             var _ = base.WithDueDate(value);
             return new TaskDataTestHelperExtension(_.Id, _.Description, _.Notes, _.Completed, _.DueDate)

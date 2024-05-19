@@ -1,9 +1,14 @@
-﻿namespace TaskManagerCore.Model
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+
+namespace TaskManagerCore.Model
 {
     /// <summary>
     /// Represents the base class for task data.
     /// </summary>
-    public class TaskData //: ITaskMangeable
+    public class TaskData
     {
         /// <value>
         /// The unique identifier of the task.
@@ -96,11 +101,9 @@
         /// <returns>A new <see cref="TaskData"/> instance with the updated description.</returns>
         public virtual TaskData WithDescription(string value)
         {
-            //value ??= string.Empty; // compound assignment
-            if (value == null)
-            {
-                value = string.Empty;
-            }
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException(nameof(value), "The Description should never be null or empty in a TaskData object");
+
             return new TaskData(Id, value, Notes, Completed, DueDate);
         }
 
@@ -111,11 +114,9 @@
         /// <returns>A new <see cref="TaskData"/> instance with the updated notes.</returns>
         public virtual TaskData WithNotes(string value)
         {
-            //value ??= string.Empty; // compound assignment
             if (value == null)
-            {
                 value = string.Empty;
-            }
+
             return new TaskData(Id, Description, value, Completed, DueDate);
         }
 
@@ -149,5 +150,38 @@
         {
             return DateTime.Now;
         }
+
+        #region Equals and GetHashCode
+        public bool Equals(object other)
+        {
+            return Equals(other as TaskData);
+        }
+
+        public bool Equals(TaskData other)
+        {
+            if (other == null)
+                return false;
+
+            return Id == other.Id &&
+                   Description == other.Description &&
+                   Notes == other.Notes &&
+                   Completed == other.Completed &&
+                   DueDate == other.DueDate;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17; // Start with small prime, convention
+                hash = hash * 23 + (Id?.GetHashCode() ?? 0);
+                hash = hash * 23 + (Description?.GetHashCode() ?? 0);
+                hash = hash * 23 + (Notes?.GetHashCode() ?? 0);
+                hash = hash * 23 + Completed.GetHashCode();
+                hash = hash * 23 + (DueDate?.GetHashCode() ?? 0);
+                return hash;
+            }
+        }
+        #endregion
     }
 }

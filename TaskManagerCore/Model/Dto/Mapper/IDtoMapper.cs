@@ -2,6 +2,6 @@
 {
     internal interface IDtoMapper<T, V>
     {
-        public V Map(T entity);
+        V Map(T entity);
     }
 }

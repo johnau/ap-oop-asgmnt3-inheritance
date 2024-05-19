@@ -1,6 +1,9 @@
 ﻿using BinaryFileHandler;
 using InMemoryCache;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using TaskManagerCore.Configuration;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 
@@ -106,9 +109,9 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public virtual T? FindById(string id)
+        public virtual T FindById(string id)
         {
-            Cache.TryGetValue(id, out T? entity);
+            Cache.TryGetValue(id, out T entity);
             return entity;
         }
 

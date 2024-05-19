@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace TaskManagerCore.Infrastructure.Sqlite.Entity
 {
@@ -16,10 +17,7 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Entity
             get { return _dueDate; }
             set
             {
-                if (value.HasValue && value.Value > DateTime.MinValue)
-                    _dueDate = value.Value;
-                else
-                    _dueDate = null;
+                _dueDate = value;
             }
         }
 
@@ -27,7 +25,7 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Entity
         public long Repetitions { get; set; }
         public long Streak { get; set; }
 
-        public TaskFolderEntityV2? ParentFolder { get; set; }
+        public TaskFolderEntityV2 ParentFolder { get; set; }
 
         public TaskDataEntityV2()
             : this("")
@@ -38,7 +36,7 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Entity
         /// Setting the Id is for use when entity is acting as a DTO to the real entity held in the 'persistence context'
         /// </summary>
         /// <param name="globalId"></param>
-        public TaskDataEntityV2(string? globalId = "")
+        public TaskDataEntityV2(string globalId = "")
             : base(globalId)
         {
             Description = "";

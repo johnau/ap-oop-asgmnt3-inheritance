@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using TaskManagerCore.Infrastructure.Sqlite.Entity;
 
 namespace TaskManagerCore.Infrastructure.Sqlite.Dao
@@ -43,11 +46,12 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
             return true;
         }
 
-        public TaskDataEntityV2? FindById(string id)
+        public TaskDataEntityV2 FindById(string id)
         {
             Debug.WriteLine($"Querying for a folder by id: {id}");
             var latestTaskState = _context.Tasks
-                                            .Where(task => EF.Functions.Collate(task.GlobalId, "NOCASE") == id)
+                                            .Where(task => task.GlobalId == id)
+                                            //.FromSqlRaw("SELECT * FROM Tasks WHERE GlobalId = {0}", id)
                                             .FirstOrDefault();
 
             return latestTaskState;
@@ -92,7 +96,9 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
         {
             Debug.WriteLine($"Querying for tasks with description: {description}");
             var tasksWithDescription = _context.Tasks
-                                               .Where(task => EF.Functions.Collate(task.Description, "NOCASE") == description)
+                                               //.Where(task => EF.Functions.Collate(task.Description, "NOCASE") == description)
+                                               .Where(task => task.Description.ToLower() == description.ToLower())
+                                               //.FromSqlRaw($"SELECT * FROM Tasks WHERE Description COLLATE NOCASE = '{description}'")
                                                .ToList();
 
             return tasksWithDescription;
@@ -102,7 +108,8 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
         {
             Debug.WriteLine($"Querying for tasks with notes: {notes}");
             var tasksWithDescription = _context.Tasks
-                                               .Where(task => EF.Functions.Collate(task.Notes, "NOCASE") == notes)
+                                               .Where(task => task.Notes.ToLower() == notes.ToLower())
+                                               //.FromSqlRaw($"SELECT * FROM Tasks WHERE LOWER(Notes) LIKE '%' || LOWER({notes}) || '%'")
                                                .ToList();
 
             return tasksWithDescription;

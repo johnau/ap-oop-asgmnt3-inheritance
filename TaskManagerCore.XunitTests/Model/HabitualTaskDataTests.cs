@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using TaskManagerCore.Model;
 using TaskManagerCore.XunitTests.TestHelpers;
+using Xunit;
 
 namespace TaskManagerCore.XunitTests.Model
 {

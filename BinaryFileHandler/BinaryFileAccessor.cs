@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
 
 namespace BinaryFileHandler
 {
@@ -28,24 +31,21 @@ namespace BinaryFileHandler
             _filenameBase = config.FileName;
 
             if (config.RootPath == null || config.RootPath == string.Empty)
-            {
-                // Path.GetTempPath();
                 _rootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data_files");
-                if (!Directory.Exists(_rootPath))
-                    Directory.CreateDirectory(_rootPath);
-
-                Debug.WriteLine($"Root Path: {_rootPath}");
-            }
             else
-            {
                 _rootPath = config.RootPath;
-            }
+
+            Debug.WriteLine($"Root Path: {_rootPath}");
+            if (!Directory.Exists(_rootPath))
+                Directory.CreateDirectory(_rootPath);
         }
 
         /// <summary>
         /// Multiple attempts check for file in-case it is just being created
         /// </summary>
         /// <param name="path"></param>
+        /// <param name="checkLimit"></param>
+        /// <param name="checkIntervalMs"></param>
         /// <returns></returns>
         protected static bool FileExists(string path, int checkLimit = 10, int checkIntervalMs = 10)
         {
@@ -67,6 +67,10 @@ namespace BinaryFileHandler
         /// <returns></returns>
         protected static bool FileIsInUse(IOException ex)
         {
+            if (ex is null)
+            {
+                throw new ArgumentNullException(nameof(ex));
+            }
             // Check if the specific IOException indicates that the file is in use
             return ex.HResult == -2147024864; // This is the HRESULT for "The process cannot access the file because it is being used by another process."
         }

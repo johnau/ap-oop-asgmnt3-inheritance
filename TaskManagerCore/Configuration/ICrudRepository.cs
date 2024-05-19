@@ -1,4 +1,5 @@
-﻿using TaskManagerCore.Model.Repository;
+﻿using System.Collections.Generic;
+using TaskManagerCore.Model.Repository;
 
 namespace TaskManagerCore.Configuration
 {
@@ -37,7 +38,7 @@ namespace TaskManagerCore.Configuration
         /// </summary>
         /// <param name="id">The ID of the object to retrieve.</param>
         /// <returns>The <typeparamref name="T"/> object found with the specified ID, or <c>null</c> if not found.</returns>
-        T? FindById(ID id);
+        T FindById(ID id);
 
         /// <summary>
         /// Saves the provided object and returns its ID.

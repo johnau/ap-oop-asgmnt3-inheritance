@@ -1,4 +1,7 @@
 ﻿using BinaryFileHandler;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Model;
 
@@ -32,12 +35,18 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers
             var repetitions = reader.ReadInt32();
             var streak = reader.ReadInt32();
 
+            DateTime? dueDateDT = null;
+            if (dueDate > 0L)
+            {
+                dueDateDT = new DateTime(dueDate);
+            }
+
             return EntityFactory.TaskFromValues(CurrentClassName, 
                                                 id, 
                                                 description, 
                                                 notes, 
-                                                completed, 
-                                                dueDate > 0L ? new DateTime(dueDate) : null, 
+                                                completed,
+                                                dueDateDT, 
                                                 (TimeInterval)interval, 
                                                 repetitions, 
                                                 streak);

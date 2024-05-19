@@ -1,4 +1,6 @@
-﻿namespace TaskManagerCore.Model.Dto.Mapper
+﻿using System.Collections.Generic;
+
+namespace TaskManagerCore.Model.Dto.Mapper
 {
     internal class GetTaskDtoMapper : IDtoMapper<TaskData, GetTaskDto>
     {

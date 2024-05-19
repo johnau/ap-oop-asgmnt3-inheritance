@@ -1,4 +1,7 @@
 ﻿
+using System;
+using System.Collections.Generic;
+
 namespace TaskManagerCore.Model.Dto
 {
     /// <summary>
@@ -51,7 +54,7 @@ namespace TaskManagerCore.Model.Dto
         /// <value>
         /// The identifier of the folder to which the task belongs.
         /// </value>
-        public string? InFolderId { get; }
+        public string InFolderId { get; }
 
         /// <value>
         /// The additional data associated with the task, stored in a dictionary.
@@ -81,7 +84,7 @@ namespace TaskManagerCore.Model.Dto
                             bool completed,
                             DateTime? dueDate = null,
                             bool overdue = false,
-                            string? folderId = null)
+                            string folderId = null)
         {
             Type = type;
             Id = id;
@@ -113,7 +116,7 @@ namespace TaskManagerCore.Model.Dto
                     bool completed,
                     DateTime? dueDate,
                     bool overdue,
-                    string? folderId,
+                    string folderId,
                     Dictionary<string, string> xData)
             : this(type, id, description, notes, completed, dueDate, overdue, folderId)
         {

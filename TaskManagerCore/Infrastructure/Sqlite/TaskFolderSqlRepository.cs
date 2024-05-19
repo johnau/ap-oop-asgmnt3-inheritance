@@ -1,6 +1,8 @@
 ﻿using TaskManagerCore.Model.Repository;
 using TaskManagerCore.Model;
 using TaskManagerCore.Infrastructure.Sqlite.Dao;
+using System.Collections.Generic;
+using System;
 
 namespace TaskManagerCore.Infrastructure.Sqlite
 {
@@ -15,26 +17,26 @@ namespace TaskManagerCore.Infrastructure.Sqlite
         public List<TaskFolder> FindAll()
         {
             var all = Dao.FindAll();
-            return EntityFactory.ToModel(all);
+            return EntityFactoryV2.ToModel(all);
         }
 
         public List<TaskFolder> FindByIds(List<string> ids)
         {
             var matching = Dao.FindByIds(ids);
-            return EntityFactory.ToModel(matching);
+            return EntityFactoryV2.ToModel(matching);
         }
 
-        public TaskFolder? FindById(string id)
+        public TaskFolder FindById(string id)
         {
             var one = Dao.FindById(id);
             if (one == null) return null;
 
-            return EntityFactory.ToModel(one);
+            return EntityFactoryV2.ToModel(one);
         }
 
         public string Save(TaskFolder o)
         {
-            if (Dao.Save(EntityFactory.FromModel(o)))
+            if (Dao.Save(EntityFactoryV2.FromModel(o)))
             {
                 return o.Id;
             }
@@ -52,39 +54,39 @@ namespace TaskManagerCore.Infrastructure.Sqlite
         {
             var results = Dao.FindByNameStartsWith(name);
 
-            return EntityFactory.ToModel(results);
+            return EntityFactoryV2.ToModel(results);
         }
 
-        public TaskFolder? FindOneByName(string name)
+        public TaskFolder FindOneByName(string name)
         {
             var result = Dao.FindByName(name);
             if (result == null)
                 return null;
 
-            return EntityFactory.ToModel(result);
+            return EntityFactoryV2.ToModel(result);
         }
 
         public List<TaskFolder> FindEmpty()
         {
             var results = Dao.FindEmpty();
 
-            return EntityFactory.ToModel(results);
+            return EntityFactoryV2.ToModel(results);
         }
 
         public List<TaskFolder> FindNotEmpty()
         {
             var results = Dao.FindNotEmpty();
 
-            return EntityFactory.ToModel(results);
+            return EntityFactoryV2.ToModel(results);
         }
 
-        public TaskFolder? FindByName(string name)
+        public TaskFolder FindByName(string name)
         {
             var result = Dao.FindByName(name);
             if (result == null)
                 return null;
 
-            return EntityFactory.ToModel(result);
+            return EntityFactoryV2.ToModel(result);
         }
 
         public bool DeleteByName(string name)

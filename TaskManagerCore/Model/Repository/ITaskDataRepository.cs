@@ -1,4 +1,6 @@
-﻿using TaskManagerCore.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using TaskManagerCore.Configuration;
 
 namespace TaskManagerCore.Model.Repository
 {

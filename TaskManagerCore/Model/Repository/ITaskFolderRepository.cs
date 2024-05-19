@@ -1,4 +1,5 @@
-﻿using TaskManagerCore.Configuration;
+﻿using System.Collections.Generic;
+using TaskManagerCore.Configuration;
 
 namespace TaskManagerCore.Model.Repository
 {
@@ -12,7 +13,7 @@ namespace TaskManagerCore.Model.Repository
         /// </summary>
         /// <param name="name">The name of the task folder to search for.</param>
         /// <returns>The task folder entity matching the specified name, or null if not found.</returns>
-        TaskFolder? FindByName(string name);
+        TaskFolder FindByName(string name);
 
         /// <summary>
         /// Finds task folders whose names start with the specified string.
@@ -26,7 +27,7 @@ namespace TaskManagerCore.Model.Repository
         /// </summary>
         /// <param name="name">The name of the task folder to search for.</param>
         /// <returns>The first task folder entity found with the specified name, or null if not found.</returns>
-        TaskFolder? FindOneByName(string name);
+        TaskFolder FindOneByName(string name);
 
         /// <summary>
         /// Finds task folders that are empty.
@@ -46,5 +47,12 @@ namespace TaskManagerCore.Model.Repository
         /// <param name="name">The name of the task folder to delete.</param>
         /// <returns>True if the task folder was successfully deleted, otherwise false.</returns>
         bool DeleteByName(string name);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        List<TaskFolder> FindByIds(List<string> ids);
     }
 }

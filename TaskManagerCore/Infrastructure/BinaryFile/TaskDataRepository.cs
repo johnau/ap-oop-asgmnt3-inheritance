@@ -1,4 +1,6 @@
-﻿using TaskManagerCore.Infrastructure.BinaryFile.Dao;
+﻿using System;
+using System.Collections.Generic;
+using TaskManagerCore.Infrastructure.BinaryFile.Dao;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Repository;
 
@@ -25,7 +27,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return EntityFactory.ToModel(matching);
         }
 
-        public TaskData? FindById(string id)
+        public TaskData FindById(string id)
         {
             var one = Dao.FindById(id);
             if (one == null) return null;

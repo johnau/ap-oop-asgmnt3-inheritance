@@ -1,4 +1,6 @@
-﻿using TaskManagerCore.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using TaskManagerCore.Configuration;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Repository;
 
@@ -6,11 +8,11 @@ namespace TaskManagerCore.XunitTests.TestHelpers
 {
     public class MockTaskDataRepository : ITaskDataRepository
     {
-        public Func<string, bool>? OnDelete { get; set; }
-        public Func<List<TaskData>>? OnFindAll { get; set; }
-        public Func<string, TaskData?>? OnFindById { get; set; }
-        public Func<List<string>, List<TaskData>>? OnFindByIds { get; set; }
-        public Func<TaskData, string?>? OnSave { get; set; }
+        public Func<string, bool> OnDelete { get; set; }
+        public Func<List<TaskData>> OnFindAll { get; set; }
+        public Func<string, TaskData> OnFindById { get; set; }
+        public Func<List<string>, List<TaskData>> OnFindByIds { get; set; }
+        public Func<TaskData, string> OnSave { get; set; }
 
         public bool Delete(string id)
         {
@@ -37,7 +39,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             throw new NotImplementedException();
         }
 
-        public TaskData? FindById(string id)
+        public TaskData FindById(string id)
         {
             return OnFindById != null ? OnFindById(id) : throw new NotImplementedException("Did not provide a function for testing");
         }

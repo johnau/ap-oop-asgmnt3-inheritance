@@ -1,4 +1,5 @@
-﻿using TaskManagerCore.Model;
+﻿using System;
+using TaskManagerCore.Model;
 
 namespace TaskManagerCore.XunitTests.TestHelpers
 {
@@ -47,7 +48,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public override RepeatingTaskDataTestHelperExtension WithCompleted(bool value)
+        public new RepeatingTaskDataTestHelperExtension WithCompleted(bool value)
         {
             var completed = base.WithCompleted(value); 
             // process the base class method and assign values here - this isn't the nicest, but interfaces don't feel appropriate.

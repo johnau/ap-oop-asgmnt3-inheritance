@@ -1,7 +1,7 @@
 ﻿namespace TaskManagerCore.Configuration
 {
-    internal interface ISearchable
+    public interface ISearchable
     {
-        public string ToValuesOnlyString();
+        string ToValuesOnlyString();
     }
 }

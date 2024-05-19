@@ -1,4 +1,8 @@
-﻿namespace InMemoryCache
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace InMemoryCache
 {
     /// <summary>
     /// Wraps Dictionary to provide subscription (extending or implementing exposes too many methods)
@@ -41,7 +45,7 @@
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public bool TryGetValue(string key, out T? value) => Cache.TryGetValue(key, out value);
+        public bool TryGetValue(string key, out T value) => Cache.TryGetValue(key, out value);
 
         /// <summary>
         /// Simulating a method from Dictionary class that was in use, since this class
@@ -60,11 +64,20 @@
         /// <returns></returns>
         public virtual bool TryAdd(string id, T item)
         {
+#if NETSTANDARD2_0
+            if (!Cache.ContainsKey(id))
+            {
+                Cache.Add(id, item);
+                NotifySubscribers(NotifiedAction.ADD, id);
+                return true;
+            }
+#elif NET8_0_OR_GREATER
             if (Cache.TryAdd(id, item))
             {
                 NotifySubscribers(NotifiedAction.ADD, id);
                 return true;
             }
+#endif
 
             return false;
         }
@@ -91,12 +104,12 @@
             return false;
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Triggers an Update of the Cache
         /// </summary>
-        public virtual void MarkDirty(string? id = null)
+        public virtual void MarkDirty(string id = null)
         {
             NotifySubscribers(NotifiedAction.UPDATE, id);
         }
@@ -110,7 +123,7 @@
         /// <returns></returns>
         internal virtual bool ForceReplace(string id, T item)
         {
-            if (Cache.TryGetValue(id, out T? existing))
+            if (Cache.TryGetValue(id, out T existing))
             {
                 Cache[id] = item; // lazy - should be updating existing
                 NotifySubscribers(NotifiedAction.REMOVE, id); // safer to fire both than `UPDATE`
@@ -128,7 +141,18 @@
         public void Subscribe(Func<List<T>, Task> subscriber)
         {
             var id = Guid.NewGuid().ToString();
+
+#if NETSTANDARD2_0
+            
+            if (!Subscribers.ContainsKey(id))
+            {
+                Subscribers.Add(id, subscriber);
+            }
+#elif NET8_0_OR_GREATER
+      
             Subscribers.TryAdd(id, subscriber);
+#endif
+
         }
 
         /// <summary>
@@ -136,7 +160,7 @@
         /// </summary>
         /// <param name="action"></param>
         /// <param name="id"></param>
-        protected virtual void NotifySubscribers(NotifiedAction action, string? id = null)
+        protected virtual void NotifySubscribers(NotifiedAction action, string id = null)
         {
             foreach (var item in Subscribers)
             {
@@ -150,7 +174,7 @@
         /// </summary>
         /// <param name="action"></param>
         /// <param name="id"></param>
-        protected virtual void NotifySubscribers(NotifiedAction action, T? obj)
+        protected virtual void NotifySubscribers(NotifiedAction action, T obj)
         {
             foreach (var item in Subscribers)
             {

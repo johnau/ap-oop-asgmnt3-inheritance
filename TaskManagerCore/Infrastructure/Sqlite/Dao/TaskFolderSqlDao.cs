@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using TaskManagerCore.Infrastructure.Sqlite.Entity;
 
@@ -21,10 +23,11 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
             Debug.WriteLine($"Creating or Updating Task: {entity.Name}");
 
             var existing = _context.Folders
-                                    .FirstOrDefault(task => task.GlobalId == entity.GlobalId);
+                                    .Where(folder => folder.GlobalId == entity.GlobalId)
+                                    .FirstOrDefault();
 
             var existingWithSameName = _context.Folders
-                        .FirstOrDefault(task => task.Name == entity.Name);
+                                                .FirstOrDefault(folder => folder.Name.ToLower() == entity.Name.ToLower());
 
             if (existing == null && existingWithSameName != null)
                 throw new InvalidDataException($"There is already a folder called: {entity.Name.ToUpper()}");
@@ -33,13 +36,16 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
             {
                 existing.Name = entity.Name;
                 existing.TaskIds = entity.TaskIds;
-                //existing.Tasks = entity.Tasks;
+                // existing.Tasks = entity.Tasks;
 
                 // Populating the relationship here out of laziness, performance will not be great
                 // rebuilding the relationships every save.
                 foreach (var taskId in entity.TaskIds)
                 {
-                    var task = _context.Tasks.FirstOrDefault(task => task.GlobalId == taskId);
+                    var task = _context.Tasks
+                                        .Where(t => t.GlobalId == taskId)
+                                        .FirstOrDefault();
+
                     if (task == null)
                     {
                         Debug.WriteLine($"SQL Database Sync Error: Task does not exist: {taskId}");
@@ -61,11 +67,14 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
             return true;
         }
 
-        public TaskFolderEntityV2? FindById(string id)
+        public TaskFolderEntityV2 FindById(string id)
         {
             Console.WriteLine("Querying for a folder id");
             var latestFolderState = _context.Folders
-                                            .Where(folder => EF.Functions.Collate(folder.GlobalId, "BINARY") == id)
+                                            .Include(folder => folder.Tasks)
+                                            //.Where(folder => EF.Functions.Collate(folder.GlobalId, "BINARY") == id)
+                                            .Where(folder => folder.GlobalId == id)
+                                            //.FromSqlRaw("SELECT * FROM Tasks WHERE GlobalId COLLATE BINARY = {0} LIMIT 1", id) // adding a few SQL statements in - incase that's required for the curriculum
                                             .FirstOrDefault();
 
             return latestFolderState;
@@ -74,15 +83,18 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
         public List<TaskFolderEntityV2> FindByIds(List<string> ids)
         {
             return _context.Folders
+                            .Include(folder => folder.Tasks)
                             .Where(folder => ids.Contains(folder.GlobalId))
                             .ToList();
         }
 
-        public TaskFolderEntityV2? FindByName(string folderName)
+        public TaskFolderEntityV2 FindByName(string folderName)
         {
             Console.WriteLine("Querying for a folder name");
             var latestFolderState = _context.Folders
-                                            .Where(folder => EF.Functions.Collate(folder.Name, "NOCASE") == folderName)
+                                            .Include(folder => folder.Tasks)
+                                            .Where(folder => folder.Name.Equals(folderName, StringComparison.CurrentCultureIgnoreCase))
+                                            //.FromSqlRaw("SELECT * FROM Tasks WHERE GlobalId COLLATE NOCASE = {0} LIMIT 1", folderName)
                                             .FirstOrDefault();
 
             return latestFolderState;
@@ -95,16 +107,19 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
         public List<TaskFolderEntityV2> FindAll()
         {
             return _context.Folders
-                                .OrderByDescending(folder => folder.Id)
-                                .Take(100)
-                                .ToList();
+                            .Include(folder => folder.Tasks)
+                            .OrderByDescending(folder => folder.Id)
+                            .Take(100)
+                            .ToList();
         }
 
         public bool Delete(string globalId)
         {
             try
             {
-                var entity = _context.Folders.FirstOrDefault(folder => folder.GlobalId == globalId);
+                var entity = _context.Folders
+                                        .Include(folder => folder.Tasks)
+                                        .FirstOrDefault(folder => folder.GlobalId == globalId);
                 if (entity == null)
                     return false;
 
@@ -123,22 +138,25 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Dao
             string lowerName = name.ToLower();
 
             return _context.Folders
-                           .Where(folder => EF.Functions.Like(folder.Name.ToLower(), $"{lowerName}%"))
-                           .ToList();
+                            .Include(folder => folder.Tasks)
+                            .Where(folder => EF.Functions.Like(folder.Name.ToLower(), $"{lowerName}%"))
+                            .ToList();
         }
 
         public List<TaskFolderEntityV2> FindEmpty()
         {
             return _context.Folders
-                           .Where(folder => folder.TaskIds == null || folder.TaskIds.Count == 0)
-                           .ToList();
+                            .Include(folder => folder.Tasks)
+                            .Where(folder => folder.TaskIds == null || folder.TaskIds.Count() == 0)
+                            .ToList();
         }
 
         public List<TaskFolderEntityV2> FindNotEmpty()
         {
             return _context.Folders
-               .Where(folder => folder.TaskIds != null && folder.TaskIds.Count > 0)
-               .ToList();
+                            .Include(folder => folder.Tasks)
+                            .Where(folder => folder.TaskIds != null && folder.TaskIds.Count() > 0)
+                            .ToList();
         }
 
     }

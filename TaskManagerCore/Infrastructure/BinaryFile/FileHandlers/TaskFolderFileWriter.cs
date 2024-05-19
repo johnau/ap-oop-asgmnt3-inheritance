@@ -1,4 +1,5 @@
 ﻿using BinaryFileHandler;
+using System.IO;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.FileHandlers

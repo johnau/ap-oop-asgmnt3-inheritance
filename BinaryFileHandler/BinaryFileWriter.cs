@@ -1,5 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BinaryFileHandler
 {
@@ -11,6 +16,7 @@ namespace BinaryFileHandler
     {
         protected List<T> WritePendingList;
         protected bool LastFailed = false;
+
         public BinaryFileWriter(BinaryFileConfig config)
             : base(config)
         {
@@ -119,7 +125,7 @@ namespace BinaryFileHandler
             {
                 Debug.WriteLine($"Access denied: {ex.Message}");
                 // Change path to temp folder and try again without counting as a retry
-                _rootPath = Path.Combine(Path.GetTempPath(), "bin_dat_" + Guid.NewGuid());
+                _rootPath = Path.Combine(Path.GetTempPath(), "taskmanager_data_" + Guid.NewGuid());
 
                 LastFailed = true;
                 

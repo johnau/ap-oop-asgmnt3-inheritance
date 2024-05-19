@@ -1,10 +1,14 @@
-﻿using BinaryFileHandler;
+﻿using Xunit;
+using BinaryFileHandler;
 using System.Diagnostics;
 using TaskManagerCore.Infrastructure.BinaryFile;
 using TaskManagerCore.Infrastructure.BinaryFile.Dao;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TH = TaskManagerCore.XunitTests.TestHelpers.TestHelperFunctions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TaskManagerCore.XunitTests
 {
@@ -139,19 +143,19 @@ namespace TaskManagerCore.XunitTests
         [Fact]
         public void FindByCompleted_RandomizedTest_WillSucceed()
         {
-            static void TestMethod(bool b)
-            {
-                (var filename, var dao) = SetupTaskDataDao("test-tasks-notes5");
-                var completedTaskCounts = PopulateRandomTestTasks(dao, 20).CompletedToTaskCounts;
-
-                var results = dao.FindByCompleted(b);
-                Assert.Equal(completedTaskCounts[b], results.Count);
-
-                TH.CleanupAfterTest(filename);
-            }
-
             TH.RunTestMultipleTimes(() => TestMethod(true), _testIterations);
             TH.RunTestMultipleTimes(() => TestMethod(false), _testIterations);
+        }
+
+        private static void TestMethod(bool b)
+        {
+            (var filename, var dao) = SetupTaskDataDao("test-tasks-notes5");
+            var completedTaskCounts = PopulateRandomTestTasks(dao, 20).CompletedToTaskCounts;
+
+            var results = dao.FindByCompleted(b);
+            Assert.Equal(completedTaskCounts[b], results.Count);
+
+            TH.CleanupAfterTest(filename);
         }
 
         #region static test helpers

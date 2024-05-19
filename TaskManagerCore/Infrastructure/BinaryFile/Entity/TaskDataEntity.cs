@@ -1,4 +1,6 @@
 ﻿using BinaryFileHandler;
+using System;
+using System.IO;
 using TaskManagerCore.Configuration;
 using TaskManagerCore.Model;
 
@@ -29,7 +31,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
         /// Setting the Id is for use when entity is acting as a DTO to the real entity held in the 'persistence context'
         /// </summary>
         /// <param name="id"></param>
-        public TaskDataEntity(string? id = "")
+        public TaskDataEntity(string id = "")
             : base(id)
         {
             Description = "";
@@ -37,7 +39,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             Completed = false;
         }
 
-        public virtual int CompareTo(TaskDataEntity? other)
+        public virtual int CompareTo(TaskDataEntity other)
         {
             if (other == null) return 1;
 

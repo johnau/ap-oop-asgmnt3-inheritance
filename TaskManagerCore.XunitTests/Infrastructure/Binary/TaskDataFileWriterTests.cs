@@ -1,9 +1,12 @@
 ﻿using BinaryFileHandler;
+using System;
 using System.Diagnostics;
+using System.IO;
 using TaskManagerCore.Infrastructure.BinaryFile;
 using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Model;
+using Xunit;
 
 namespace TaskManagerCore.XunitTests.Infrastructure.Binary
 {

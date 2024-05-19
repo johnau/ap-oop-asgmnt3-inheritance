@@ -1,4 +1,6 @@
-﻿namespace BinaryFileHandler
+﻿using System.IO;
+
+namespace BinaryFileHandler
 {
     public interface IBinaryWritableReadable<T>
     {

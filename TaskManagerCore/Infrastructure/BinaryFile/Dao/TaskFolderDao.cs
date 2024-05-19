@@ -4,6 +4,9 @@ using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.Infrastructure.BinaryFile.QueryComparers;
 using BinaryFileHandler;
+using System.IO;
+using System;
+using System.Collections.Generic;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
 {
@@ -85,7 +88,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// </summary>
         /// <param name="name"></param>
         /// <returns>List of matched TaskFolderEntity classes</returns>
-        public TaskFolderEntity? FindOneByName(string name)
+        public TaskFolderEntity FindOneByName(string name)
         {
             // Ascending sort by name
             var sortedList = Cache.SortedBy(Sort.NAME + "");
@@ -132,7 +135,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Dao
         /// </summary>
         /// <param name="taskId"></param>
         /// <returns>Matched TaskFolderEntity classe or null</returns>
-        public TaskFolderEntity? FindParentOfTask(string taskId)
+        public TaskFolderEntity FindParentOfTask(string taskId)
         {
             // Descending order by Task Count, check the bigger folders first
             var sortedList = Cache.SortedBy(Sort.TASK_COUNT + "", reversed: true);

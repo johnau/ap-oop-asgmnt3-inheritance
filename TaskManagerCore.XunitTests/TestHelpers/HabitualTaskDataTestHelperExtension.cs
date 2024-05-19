@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using TaskManagerCore.Model;
 
 namespace TaskManagerCore.XunitTests.TestHelpers
@@ -33,7 +34,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             FakeDateTime = DateTime.Parse(dateString);
         }
 
-        public override HabitualTaskDataTestHelperExtension WithCompleted(bool value)
+        public new HabitualTaskDataTestHelperExtension WithCompleted(bool value)
         {
             var completed = base.WithCompleted(value);
 

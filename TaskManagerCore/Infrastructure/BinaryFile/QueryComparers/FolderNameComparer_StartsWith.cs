@@ -1,4 +1,5 @@
-﻿using TaskManagerCore.Infrastructure.BinaryFile.Entity;
+﻿using System;
+using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.QueryComparers
 {

@@ -1,29 +1,51 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.IO;
 using TaskManagerCore.Infrastructure.Sqlite.Entity;
 
-
-namespace TaskManagerCore.Infrastructure.Sqlite.Dao;
-
-internal class SqliteContext : DbContext
+namespace TaskManagerCore.Infrastructure.Sqlite.Dao
 {
-    public DbSet<TaskFolderEntityV2> Folders { get; set; }
-    public DbSet<TaskDataEntityV2> Tasks { get; set; }
 
-    public string DbPath { get; }
-
-    public SqliteContext()
+    internal class SqliteContext : DbContext
     {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        DbPath = Path.Join(path, "task_manager.db");
-    }
+        public DbSet<TaskFolderEntityV2> Folders { get; set; }
+        public DbSet<TaskDataEntityV2> Tasks { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-    {
-        options.UseSqlite($"Data Source={DbPath}");
-    }
+        public string DbPath { get; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+        public SqliteContext()
+            :this(null)
+        { }
+
+        public SqliteContext(string dataFolderPath)
+        {
+            var fileName = "task_manager_sqlite.db";
+            if (string.IsNullOrWhiteSpace(dataFolderPath))
+            {
+                var folder = Environment.SpecialFolder.LocalApplicationData;
+                var path = Environment.GetFolderPath(folder);
+                DbPath = Path.Combine(path, fileName);
+            } else
+            {
+                DbPath = Path.Combine(dataFolderPath, fileName);
+            }
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlite($"Data Source={DbPath}");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TaskFolderEntityV2>(entity =>
+            {
+                //entity.HasKey(e => e.Id); // specified with annotation in EntityBaseV2
+                entity.Ignore(e => e.TaskIds);
+                entity.Property(e => e.TaskIdsString).HasColumnName("TaskIds");
+            });
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

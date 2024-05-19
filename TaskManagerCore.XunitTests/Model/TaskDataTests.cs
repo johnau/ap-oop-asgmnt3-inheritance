@@ -1,4 +1,6 @@
-﻿using TaskManagerCore.XunitTests.TestHelpers;
+﻿using System;
+using TaskManagerCore.XunitTests.TestHelpers;
+using Xunit;
 
 namespace TaskManagerCore.XunitTests.Model
 {

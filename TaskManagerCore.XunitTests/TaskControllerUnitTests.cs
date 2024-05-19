@@ -1,10 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using Xunit;
+using System.Threading.Tasks;
 using TaskManagerCore.Configuration;
 using TaskManagerCore.Controller;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Dto;
 using TaskManagerCore.Model.Repository;
 using TaskManagerCore.XunitTests.TestHelpers;
+using System.Collections.Generic;
+using System;
+using System.Linq;
 
 namespace TaskManagerCore.XunitTests
 {
@@ -216,7 +220,7 @@ namespace TaskManagerCore.XunitTests
         {
             // Test setup: Create mock instances of classes
             TaskDataRepository = new MockTaskDataRepository();
-            var taskFolder = new TaskFolder("not used", "", new());
+            var taskFolder = new TaskFolder("not used", "", new List<string>());
             var taskFolderId = taskFolder.Id;
             TaskFolderRepository = new MockTaskFolderRepository()
             {
@@ -236,8 +240,8 @@ namespace TaskManagerCore.XunitTests
             var taskId = task.Id;
             TaskDataRepository = new MockTaskDataRepository()
             {
-                OnFindById = (id) => task,
-                OnSave = (task) => taskId,
+                OnFindById = (id) => task, // return task
+                OnSave = (t) => taskId, // return id
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
@@ -254,7 +258,7 @@ namespace TaskManagerCore.XunitTests
             TaskDataRepository = new MockTaskDataRepository()
             {
                 OnFindById = (id) => id == taskId ? task : null,
-                OnSave = (task) => taskId,
+                OnSave = (t) => taskId,
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
@@ -270,7 +274,7 @@ namespace TaskManagerCore.XunitTests
             TaskDataRepository = new MockTaskDataRepository()
             {
                 OnFindById = (id) => task,
-                OnSave = (task) => null,
+                OnSave = (t) => null,
             };
 
             var controller = new TaskController(TaskDataRepository, TaskFolderRepository);
@@ -285,7 +289,7 @@ namespace TaskManagerCore.XunitTests
         {
             var task = new TaskData(Guid.NewGuid().ToString(), "Test Task 1 - Do The Thing", "", false, null);
             var taskId = task.Id;
-            var taskFolder = new TaskFolder("not used", "", new());
+            var taskFolder = new TaskFolder("not used", "", new List<string>());
             var taskFolderId = taskFolder.Id;
 
             TaskDataRepository = new MockTaskDataRepository()
@@ -311,7 +315,7 @@ namespace TaskManagerCore.XunitTests
         {
             var task = new TaskData(Guid.NewGuid().ToString(), "Test Task 1 - Do The Thing", "", false, null);
             var taskId = task.Id;
-            var taskFolder = new TaskFolder("not used", "", new());
+            var taskFolder = new TaskFolder("not used", "", new List<string>());
             var taskFolderId = taskFolder.Id;
 
             TaskDataRepository = new MockTaskDataRepository()
@@ -336,7 +340,7 @@ namespace TaskManagerCore.XunitTests
         {
             var task = new TaskData(Guid.NewGuid().ToString(), "Test Task 1 - Do The Thing", "", false, null);
             var taskId = task.Id;
-            var taskFolder = new TaskFolder("not used", "", new());
+            var taskFolder = new TaskFolder("not used", "", new List<string>());
             var taskFolderId = taskFolder.Id;
 
             TaskDataRepository = new MockTaskDataRepository()
@@ -360,7 +364,7 @@ namespace TaskManagerCore.XunitTests
         {
             var task = new TaskData(Guid.NewGuid().ToString(), "Test Task 1 - Do The Thing", "", false, null);
             var taskId = task.Id;
-            var taskFolder = new TaskFolder("not used", "", new());
+            var taskFolder = new TaskFolder("not used", "", new List<string>());
             var taskFolderId = taskFolder.Id;
 
             TaskDataRepository = new MockTaskDataRepository()
@@ -386,7 +390,7 @@ namespace TaskManagerCore.XunitTests
         {
             var task = new TaskData(Guid.NewGuid().ToString(), "Test Task 1 - Do The Thing", "", false, null);
             var taskId = task.Id;
-            var taskFolder = new TaskFolder("not used", "", new());
+            var taskFolder = new TaskFolder("not used", "", new List<string>());
             var taskFolderId = taskFolder.Id;
 
             TaskDataRepository = new MockTaskDataRepository()
@@ -580,16 +584,16 @@ namespace TaskManagerCore.XunitTests
         {
             var task = new TaskData(Guid.NewGuid().ToString(), "Test Task 1 - Do The Thing", "", false, null);
             var taskId = task.Id;
-            var taskFolderFrom = new TaskFolder(Guid.NewGuid().ToString(), "Folder From", new());
+            var taskFolderFrom = new TaskFolder(Guid.NewGuid().ToString(), "Folder From", new List<string>());
             var taskFolderFromId = taskFolderFrom.Id;            
-            var taskFolderTo = new TaskFolder(Guid.NewGuid().ToString(), "Folder To", new());
+            var taskFolderTo = new TaskFolder(Guid.NewGuid().ToString(), "Folder To", new List<string>());
             var taskFolderToId = taskFolderFrom.Id;
 
             // Set up mock responses
             TaskDataRepository = new MockTaskDataRepository()
             {
                 OnFindById = (id) => id == taskId ? task : null,
-                OnSave = (task) => taskId,
+                OnSave = (t) => taskId,
             };
             TaskFolderRepository = new MockTaskFolderRepository()
             {

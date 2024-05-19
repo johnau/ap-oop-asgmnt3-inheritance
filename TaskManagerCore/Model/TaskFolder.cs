@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualBasic;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TaskManagerCore.Model
 {
@@ -100,5 +102,38 @@ namespace TaskManagerCore.Model
             return new TaskFolder(Id, Name, _taskIds);
         }
         #endregion
+
+        #region Equals and GetHashCode
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as TaskFolder);
+        }
+
+        public bool Equals(TaskFolder other)
+        {
+            if (other == null)
+                return false;
+
+            return Id == other.Id &&
+                   Name == other.Name &&
+                   _taskIds.SequenceEqual(other._taskIds);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17; // Start with small prime, convention
+                hash = hash * 23 + (Id?.GetHashCode() ?? 0);
+                hash = hash * 23 + (Name?.GetHashCode() ?? 0);
+                foreach (var taskId in _taskIds)
+                {
+                    hash = hash * 23 + (taskId?.GetHashCode() ?? 0);
+                }
+                return hash;
+            }
+        }
+        #endregion
+
     }
 }

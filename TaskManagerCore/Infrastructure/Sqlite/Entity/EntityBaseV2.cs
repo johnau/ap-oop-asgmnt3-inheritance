@@ -9,7 +9,7 @@ namespace TaskManagerCore.Infrastructure.Sqlite.Entity
         public long Id { get; set; } // for auto generated id in database (we will store a record for every change to keep track of changes)
         public string GlobalId { get; set; }
 
-        protected EntityBaseV2(string? globalId = "")
+        protected EntityBaseV2(string globalId = "")
         {
             if (globalId != null && globalId != string.Empty)
             {

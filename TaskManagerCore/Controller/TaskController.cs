@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Dto;
 using TaskManagerCore.Model.Dto.Mapper;
@@ -58,7 +61,7 @@ namespace TaskManagerCore.Controller
         /// </summary>
         /// <param name="id">The ID of the task to retrieve.</param>
         /// <returns>The GetTaskDto representing the retrieved task, or <see langword="null"/> if the task is not found.</returns>
-        public GetTaskDto? GetTask(string id)
+        public GetTaskDto GetTask(string id)
         {
             var task = TaskDataRepository.FindById(id);
             if (task == null)
@@ -111,7 +114,7 @@ namespace TaskManagerCore.Controller
         /// </summary>
         /// <param name="folderId">The ID of the task folder to retrieve.</param>
         /// <returns>The <see cref="GetFolderDto"/> representing the retrieved task folder, or null if not found.</returns>
-        public GetFolderDto? GetTaskFolder(string folderId)
+        public GetFolderDto GetTaskFolder(string folderId)
         {
             try
             {

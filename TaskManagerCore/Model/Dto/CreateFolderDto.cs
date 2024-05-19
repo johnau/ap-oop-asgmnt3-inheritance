@@ -1,4 +1,6 @@
-﻿namespace TaskManagerCore.Model.Dto
+﻿using System;
+
+namespace TaskManagerCore.Model.Dto
 {
     /// <summary>
     /// Data Transfer Object (DTO) representing a new folder.

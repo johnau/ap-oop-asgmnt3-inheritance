@@ -1,4 +1,6 @@
-﻿using TaskManagerCore.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using TaskManagerCore.Configuration;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Repository;
 
@@ -6,12 +8,12 @@ namespace TaskManagerCore.XunitTests.TestHelpers
 {
     internal class MockTaskFolderRepository : ITaskFolderRepository
     {
-        public Func<string, bool>? OnDelete { get; set; }
-        public Func<List<TaskFolder>>? OnFindAll { get; set; }
-        public Func<string, TaskFolder?>? OnFindById { get; set; }
-        public Func<string, TaskFolder?>? OnFindByName { get; set; }
-        public Func<List<string>, List<TaskFolder>>? OnFindByIds { get; set; }
-        public Func<TaskFolder, string?>? OnSave { get; set; }
+        public Func<string, bool> OnDelete { get; set; }
+        public Func<List<TaskFolder>> OnFindAll { get; set; }
+        public Func<string, TaskFolder> OnFindById { get; set; }
+        public Func<string, TaskFolder> OnFindByName { get; set; }
+        public Func<List<string>, List<TaskFolder>> OnFindByIds { get; set; }
+        public Func<TaskFolder, string> OnSave { get; set; }
 
         public bool Delete(string id)
         {
@@ -28,7 +30,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             return OnFindAll != null ? OnFindAll() : throw new NotImplementedException("Did not provide a function for testing");
         }
 
-        public TaskFolder? FindById(string id)
+        public TaskFolder FindById(string id)
         {
             return OnFindById != null ? OnFindById(id) : throw new NotImplementedException("Did not provide a function for testing");
         }
@@ -38,7 +40,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             return OnFindByIds != null ? OnFindByIds(ids) : throw new NotImplementedException("Did not provide a function for testing");
         }
 
-        public TaskFolder? FindByName(string name)
+        public TaskFolder FindByName(string name)
         {
             throw new NotImplementedException();
         }
@@ -58,7 +60,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             throw new NotImplementedException();
         }
 
-        public TaskFolder? FindOneByName(string name)
+        public TaskFolder FindOneByName(string name)
         {
             return OnFindByName != null ? OnFindByName(name) : throw new NotImplementedException("Did not provide a function for testing");
         }

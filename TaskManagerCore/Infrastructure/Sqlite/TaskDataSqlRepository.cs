@@ -2,6 +2,8 @@
 using TaskManagerCore.Model;
 using TaskManagerCore.Infrastructure.Sqlite.Dao;
 using Microsoft.VisualBasic;
+using System.Collections.Generic;
+using System;
 
 namespace TaskManagerCore.Infrastructure.Sqlite
 {
@@ -17,7 +19,7 @@ namespace TaskManagerCore.Infrastructure.Sqlite
         public List<TaskData> FindAll()
         {
             var all = Dao.FindAll();
-            return EntityFactory.ToModel(all);
+            return EntityFactoryV2.ToModel(all);
         }
 
         public List<TaskData> FindByIds(List<string> ids)
@@ -33,17 +35,17 @@ namespace TaskManagerCore.Infrastructure.Sqlite
             return matched;
         }
 
-        public TaskData? FindById(string id)
+        public TaskData FindById(string id)
         {
             var one = Dao.FindById(id);
             if (one == null) return null;
 
-            return EntityFactory.ToModel(one);
+            return EntityFactoryV2.ToModel(one);
         }
 
         public string Save(TaskData o)
         {
-            if (Dao.Save(EntityFactory.FromModel(o)))
+            if (Dao.Save(EntityFactoryV2.FromModel(o)))
             {
                 return o.Id;
             }
@@ -63,14 +65,14 @@ namespace TaskManagerCore.Infrastructure.Sqlite
         {
             var results = Dao.FindByDueDate(dueDate);
 
-            return EntityFactory.ToModel(results);
+            return EntityFactoryV2.ToModel(results);
         }
 
         public List<TaskData> FindByDescription(string description)
         {
             var results = Dao.FindByDescription(description);
 
-            return EntityFactory.ToModel(results);
+            return EntityFactoryV2.ToModel(results);
         }
 
         //public TaskData? FindOneByDescription(string description)
@@ -84,14 +86,14 @@ namespace TaskManagerCore.Infrastructure.Sqlite
         {
             var results = Dao.FindByNotes(notes);
 
-            return EntityFactory.ToModel(results);
+            return EntityFactoryV2.ToModel(results);
         }
 
         public List<TaskData> FindByCompleted(bool completed)
         {
             var results = Dao.FindByCompleted(completed);
 
-            return EntityFactory.ToModel(results);
+            return EntityFactoryV2.ToModel(results);
         }
 
         #endregion

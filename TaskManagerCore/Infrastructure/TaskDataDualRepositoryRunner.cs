@@ -1,4 +1,8 @@
-﻿using TaskManagerCore.Infrastructure.Sqlite;
+﻿using Microsoft.VisualBasic;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using TaskManagerCore.Infrastructure.Sqlite;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Repository;
 
@@ -20,7 +24,7 @@ namespace TaskManagerCore.Infrastructure
             var result1 = _taskDataRepository1.Delete(id);
             var result2 = _taskDataRepository2.Delete(id);
 
-            // compare results
+            ComparePrimitive("deleted successfully", result1, result2);
 
             return result1;
         }
@@ -30,7 +34,7 @@ namespace TaskManagerCore.Infrastructure
             var result1 = _taskDataRepository1.FindAll();
             var result2 = _taskDataRepository2.FindAll();
 
-            // compare results
+            CompareMultiple(result1, result2);
 
             return result1;
         }
@@ -40,7 +44,7 @@ namespace TaskManagerCore.Infrastructure
             var result1 = _taskDataRepository1.FindByCompleted(completed);
             var result2 = _taskDataRepository2.FindByCompleted(completed);
 
-            // compare results
+            CompareMultiple(result1, result2);
 
             return result1;
         }
@@ -50,7 +54,7 @@ namespace TaskManagerCore.Infrastructure
             var result1 = _taskDataRepository1.FindByDescription(description);
             var result2 = _taskDataRepository2.FindByDescription(description);
 
-            // compare results
+            CompareMultiple(result1, result2);
 
             return result1;
         }
@@ -60,17 +64,17 @@ namespace TaskManagerCore.Infrastructure
             var result1 = _taskDataRepository1.FindByDueDate(dueDate);
             var result2 = _taskDataRepository2.FindByDueDate(dueDate);
 
-            // compare results
+            CompareMultiple(result1, result2);
 
             return result1;
         }
 
-        public TaskData? FindById(string id)
+        public TaskData FindById(string id)
         {
             var result1 = _taskDataRepository1.FindById(id);
             var result2 = _taskDataRepository2.FindById(id);
 
-            // compare results
+            CompareSingle(result1, result2);
 
             return result1;
         }
@@ -80,7 +84,7 @@ namespace TaskManagerCore.Infrastructure
             var result1 = _taskDataRepository1.FindByIds(ids);
             var result2 = _taskDataRepository2.FindByIds(ids);
 
-            // compare results
+            CompareMultiple(result1, result2);
 
             return result1;
         }
@@ -90,7 +94,7 @@ namespace TaskManagerCore.Infrastructure
             var result1 = _taskDataRepository1.FindByNotes(notes);
             var result2 = _taskDataRepository2.FindByNotes(notes);
 
-            // compare results
+            CompareMultiple(result1, result2);
 
             return result1;
         }
@@ -98,11 +102,45 @@ namespace TaskManagerCore.Infrastructure
         public string Save(TaskData o)
         {
             var result1 = _taskDataRepository1.Save(o);
-            var result2 = _taskDataRepository2.Save(EntityFactory.WithId(o, result1));
 
-            // compare results
+            var forSql = EntityFactoryV2.WithId(o, result1);
+            var result2 = _taskDataRepository2.Save(forSql);
+
+            ComparePrimitive("id", result1, result2);
 
             return result1;
+        }
+
+        private void CompareMultiple(List<TaskData> list1, List<TaskData> list2)
+        {
+            for (int i = 0; i < list1.Count; i++)
+            {
+                var result1 = list1[i];
+                var result2 = list2[i];
+                if (!result1.Equals(result2))
+                {
+                    Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Task: {result1.Description}");
+                    return;
+                }
+            }
+
+            Debug.WriteLine($"✔ Results match for BinaryFile and SQL database");
+        }
+
+        private void CompareSingle(TaskData a, TaskData b)
+        {
+            if (a.Equals(b))
+                Debug.WriteLine($"✔ Results match for BinaryFile and SQL database");
+            else
+                Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Task: {a.Description}");
+        }
+
+        private void ComparePrimitive(string name, object a, object b)
+        {
+            if (a == b)
+                Debug.WriteLine($"✔ Results match for BinaryFile and SQL database");
+            else
+                Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Task Primitive: {name}");
         }
     }
 }

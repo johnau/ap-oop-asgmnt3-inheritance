@@ -1,4 +1,6 @@
-﻿using TaskManagerCore.Infrastructure.BinaryFile.Entity;
+﻿using System;
+using System.Collections.Generic;
+using TaskManagerCore.Infrastructure.BinaryFile.Entity;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile
 {
@@ -26,6 +28,12 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
                                                             T criteria,
                                                             IComparer<T> comparer)
         {
+            if (list is null)
+                throw new ArgumentNullException(nameof(list));
+
+            if (comparer is null)
+                throw new ArgumentNullException(nameof(comparer));
+
             var matches = new List<T>();
 
             int firstMatch = 0;

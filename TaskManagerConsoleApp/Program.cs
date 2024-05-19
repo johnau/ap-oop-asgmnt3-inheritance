@@ -21,9 +21,10 @@ namespace TaskManagerConsoleApp
             /**
              * Construct application graph / bootstrap
              */
-
-            var tasksFileConf = new BinaryFileConfig("taskmanager-task-data");
-            var folderFileConf = new BinaryFileConfig("taskmanager-folder-data");
+            var dataFilesFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tm_data");
+            Directory.CreateDirectory(dataFilesFolderPath);
+            var tasksFileConf = new BinaryFileConfig("taskmanager-task-data", dataFilesFolderPath);
+            var folderFileConf = new BinaryFileConfig("taskmanager-folder-data", dataFilesFolderPath);
 
             var taskWriter = new TaskDataFileWriter(tasksFileConf);
             var taskReader = new TaskDataFileReader(tasksFileConf);
@@ -48,7 +49,7 @@ namespace TaskManagerConsoleApp
             /**
              * Infrastructure: Persistence stuff (Sql data store)
              */
-            var dbContext = new SqliteContext();
+            var dbContext = new SqliteContext(dataFilesFolderPath);
             dbContext.Database.EnsureCreated();
 
             var taskDataDaoSql = new TaskDataSqlDao(dbContext);

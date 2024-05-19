@@ -4,13 +4,13 @@
     {
         public int Streak { get; set; }
 
-        public HabitualTaskDataEntity(string? id = "")
+        public HabitualTaskDataEntity(string id = "")
             : base(id)
         {
             Streak = 0;
         }
 
-        public override int CompareTo(TaskDataEntity? other)
+        public override int CompareTo(TaskDataEntity other)
         {
             var baseResult = base.CompareTo(other);
 

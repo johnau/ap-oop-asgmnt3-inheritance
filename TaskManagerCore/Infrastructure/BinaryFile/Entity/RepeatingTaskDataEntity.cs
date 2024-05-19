@@ -1,15 +1,15 @@
-﻿using TaskManagerCore.Model;
+﻿using System;
+using TaskManagerCore.Model;
 
 namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
 {
     internal class RepeatingTaskDataEntity : TaskDataEntity
     {
-        //public new DateTime DueDate { get; set; } // overriding this property causes issues...
         public TimeInterval RepeatingInterval { get; set; }
         public int Repetitions { get; set; }
 
         //public DateTime StartFrom { get; set; }  // retain the start date?
-        public RepeatingTaskDataEntity(string? id = "")
+        public RepeatingTaskDataEntity(string id = "")
             : base(id)
         { 
             DueDate = DateTime.MinValue;
@@ -17,7 +17,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile.Entity
             Repetitions = 0;
         }
 
-        public override int CompareTo(TaskDataEntity? other)
+        public override int CompareTo(TaskDataEntity other)
         {
             var baseResult = base.CompareTo(other);
 

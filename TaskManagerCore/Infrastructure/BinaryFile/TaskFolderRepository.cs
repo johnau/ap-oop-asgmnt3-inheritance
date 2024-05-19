@@ -1,4 +1,5 @@
-﻿using TaskManagerCore.Infrastructure.BinaryFile.Dao;
+﻿using System.Collections.Generic;
+using TaskManagerCore.Infrastructure.BinaryFile.Dao;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Repository;
 
@@ -24,7 +25,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return EntityFactory.ToModel(matching);
         }
 
-        public TaskFolder? FindById(string id)
+        public TaskFolder FindById(string id)
         {
             var one = Dao.FindById(id);
             if (one == null) return null;
@@ -49,7 +50,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return EntityFactory.ToModel(results);
         }
 
-        public TaskFolder? FindOneByName(string name)
+        public TaskFolder FindOneByName(string name)
         {
             var results = Dao.FindOneByName(name);
             if (results == null) return null;
@@ -69,7 +70,7 @@ namespace TaskManagerCore.Infrastructure.BinaryFile
             return EntityFactory.ToModel(results);
         }
 
-        public TaskFolder? FindByName(string name)
+        public TaskFolder FindByName(string name)
         {
             var result = Dao.FindOneByName(name);
             if (result == null)

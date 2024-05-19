@@ -1,4 +1,6 @@
-﻿namespace TaskManagerCore.Model.Dto
+﻿using System.Collections.Generic;
+
+namespace TaskManagerCore.Model.Dto
 {
     /// <summary>
     /// Data Transfer Object (DTO) representing a folder entity retrieved from the system.

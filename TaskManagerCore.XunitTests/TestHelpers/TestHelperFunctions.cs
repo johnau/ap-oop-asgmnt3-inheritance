@@ -1,4 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace TaskManagerCore.XunitTests.TestHelpers
@@ -88,7 +92,7 @@ namespace TaskManagerCore.XunitTests.TestHelpers
             }
 
             var mostCommon = nameOccurences.OrderByDescending(pair => pair.Value)
-                .FirstOrDefault();
+                                            .FirstOrDefault();
 
             return (mostCommon.Key, mostCommon.Value);
         }

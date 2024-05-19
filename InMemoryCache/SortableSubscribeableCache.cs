@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Security.Principal;
 
 namespace InMemoryCache
@@ -32,7 +34,7 @@ namespace InMemoryCache
         /// <param name="action"></param>
         /// <param name="id"></param>
         /// <exception cref="ArgumentException"></exception>
-        protected sealed override void NotifySubscribers(NotifiedAction action, string? id = null)
+        protected sealed override void NotifySubscribers(NotifiedAction action, string id = null)
         {
             base.NotifySubscribers(action, id);
 
@@ -81,7 +83,7 @@ namespace InMemoryCache
             }
         }
 
-        protected sealed override void NotifySubscribers(NotifiedAction action, T? obj)
+        protected sealed override void NotifySubscribers(NotifiedAction action, T obj)
         {
             base.NotifySubscribers(action, obj);
 
@@ -314,7 +316,7 @@ namespace InMemoryCache
         /// Should this be CommitChanges() or Dirty() or something like that...?
         /// </summary>
         /// <returns></returns>
-        public sealed override void MarkDirty(string? id = null)
+        public sealed override void MarkDirty(string id = null)
         {
             base.MarkDirty(id);
             ReSortAll();
