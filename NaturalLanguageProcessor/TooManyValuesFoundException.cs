@@ -1,6 +1,17 @@
-﻿namespace NaturalLanguageProcessor;
+﻿using System;
 
-public class TooManyValuesFoundException : Exception
+namespace NaturalLanguageProcessor
 {
-    public TooManyValuesFoundException(string message) : base(message) { }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class TooManyValuesFoundException : Exception
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        public TooManyValuesFoundException(string message) : base(message) { }
+    }
 }

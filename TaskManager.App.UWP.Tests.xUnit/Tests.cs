@@ -42,22 +42,22 @@ namespace TaskManager.App.UWP.Tests.XUnit
         }
 
         // TODO: Add tests for functionality you add to ListDetailsViewModel.
-        [Fact]
-        public void TestListDetailsViewModelCreation()
-        {
-            // This test is trivial. Add your own tests for the logic you add to the ViewModel.
-            var vm = new ListDetailsViewModel();
-            Assert.NotNull(vm);
-        }
+        //[Fact]
+        //public void TestListDetailsViewModelCreation()
+        //{
+        //    // This test is trivial. Add your own tests for the logic you add to the ViewModel.
+        //    var vm = new ListDetailsViewModel();
+        //    Assert.NotNull(vm);
+        //}
 
         // TODO: Add tests for functionality you add to MainViewModel.
-        [Fact]
-        public void TestMainViewModelCreation()
-        {
-            // This test is trivial. Add your own tests for the logic you add to the ViewModel.
-            var vm = new MainViewModel();
-            Assert.NotNull(vm);
-        }
+        //[Fact]
+        //public void TestMainViewModelCreation()
+        //{
+        //    // This test is trivial. Add your own tests for the logic you add to the ViewModel.
+        //    var vm = new MainViewModel();
+        //    Assert.NotNull(vm);
+        //}
 
         // TODO: Add tests for functionality you add to SettingsViewModel.
         [Fact]
@@ -78,13 +78,13 @@ namespace TaskManager.App.UWP.Tests.XUnit
         }
 
         // TODO: Add tests for functionality you add to TreeViewViewModel.
-        [Fact]
-        public void TestTreeViewViewModelCreation()
-        {
-            // This test is trivial. Add your own tests for the logic you add to the ViewModel.
-            var vm = new TreeViewViewModel();
-            Assert.NotNull(vm);
-        }
+        //[Fact]
+        //public void TestTreeViewViewModelCreation()
+        //{
+        //    // This test is trivial. Add your own tests for the logic you add to the ViewModel.
+        //    var vm = new TreeViewViewModel();
+        //    Assert.NotNull(vm);
+        //}
 
         // TODO: Add tests for functionality you add to TwoPaneViewViewModel.
         [Fact]

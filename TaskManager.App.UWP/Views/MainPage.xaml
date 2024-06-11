@@ -4,15 +4,29 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="using:TaskManager.App.UWP.Core.Models"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
-    <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">
-        <Grid
-            Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
-            <!--
-                The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
-                Place your content here.
-            -->
+    <Grid x:Name="ContentArea">
+        <Grid Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
+                <TextBlock Text="Create a new task..." HorizontalAlignment="Center" FontSize="40" />
+                <TextBox Width="400" PlaceholderText="Type here..." Text="{x:Bind ViewModel.TaskInput, Mode=TwoWay}" TextChanged="{x:Bind ViewModel.OnTaskInputChanged}"/>
+                <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" HorizontalAlignment="Center" FontSize="16" Foreground="Red" Margin="0,10,0,0"/>
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="5">
+                    <TextBlock Text="Choose folder for Task:" TextAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <ComboBox Width="200" ItemsSource="{x:Bind ViewModel.Data.TaskFolderItems, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedTaskFolder, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="model:TaskFolderViewObject">
+                                <TextBlock Text="{x:Bind Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Margin="0,0,0,0">
+                    <Button Content="Create" HorizontalAlignment="Center" Width="200" Command="{x:Bind ViewModel.CreateTaskCommand}" />
+                </StackPanel>
+            </StackPanel>
         </Grid>
     </Grid>
 </Page>

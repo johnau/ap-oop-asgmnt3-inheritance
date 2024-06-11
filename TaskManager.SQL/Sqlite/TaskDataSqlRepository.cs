@@ -7,9 +7,17 @@ using System;
 
 namespace TaskManagerCore.SQL.Sqlite
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class TaskDataSqlRepository : ITaskDataRepository
     {
         readonly TaskDataSqlDao Dao;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dao"></param>
         public TaskDataSqlRepository(TaskDataSqlDao dao)
         {
             Dao = dao;

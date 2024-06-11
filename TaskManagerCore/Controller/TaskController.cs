@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NaturalLanguageProcessor;
+using NaturalLanguageProcessor.Aggregates;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,6 +24,7 @@ namespace TaskManagerCore.Controller
         private readonly GetFolderDtoMapper DtoMapperGetFolder;
         private readonly CreateTaskDtoMapper DtoMapperCreateTask;
         private readonly CreateFolderDtoMapper DtoMapperCreateFolder;
+        private readonly ForgivingFormatWithRegexProcessor TaskNLP;
 
         /// <summary>
         /// Initializes a new instance of the TaskController class.

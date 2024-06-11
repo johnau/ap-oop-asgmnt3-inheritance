@@ -11,11 +11,16 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:converters="using:TaskManager.App.UWP.Converters"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <DataTemplate x:Key="TaskFolderTemplate" x:DataType="model:TempTaskFolderViewObject">
+        <converters:TextToBoolConverter x:Key="TextToBoolConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:TaskTypeToVisibilityConverter x:Key="TaskTypeToVisibilityConverter"/>
+        
+        <DataTemplate x:Key="TaskFolderTemplate" x:DataType="model:TaskFolderViewObject">
             <winui:TreeViewItem
                 AutomationProperties.Name="{x:Bind Name}"
                 ItemsSource="{x:Bind Tasks}" IsExpanded="False">
@@ -23,113 +28,223 @@
             </winui:TreeViewItem>
         </DataTemplate>
 
-        <DataTemplate x:Key="TaskFolderContentTemplate" x:DataType="model:TempTaskFolderViewObject">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
+        <DataTemplate x:Key="TaskFolderContentTemplate" x:DataType="model:TaskFolderViewObject">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="100" />
+                </Grid.RowDefinitions>
+                <StackPanel
+                    Grid.Row="0"
+                    Orientation="Vertical"
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Text="Folder Name"
+                            Style="{StaticResource TitleTextBlockStyle}" />
+                        <TextBlock
+                            Text="{x:Bind Name}"
+                            Margin="{StaticResource SmallLeftMargin}"
+                            Style="{StaticResource TitleTextBlockStyle}" />
+                    </StackPanel>
                     <TextBlock
-                        Text="Folder Name"
-                        Style="{StaticResource TitleTextBlockStyle}" />
+                        Margin="{StaticResource MediumTopMargin}"
+                        Style="{StaticResource DetailSubTitleStyle}"
+                        Text="Tasks in Folder" />
                     <TextBlock
-                        Text="{x:Bind Name}"
-                        Margin="{StaticResource SmallLeftMargin}"
-                        Style="{StaticResource TitleTextBlockStyle}" />
+                        Style="{StaticResource DetailBodyBaseMediumStyle}"
+                        Text="{x:Bind TaskCount}" />
+                    <TextBlock
+                        Margin="{StaticResource MediumTopMargin}"
+                        Style="{StaticResource DetailSubTitleStyle}"
+                        Text="Incomplete Tasks" />
+                    <TextBlock
+                        Style="{StaticResource DetailBodyBaseMediumStyle}"
+                        Text="{x:Bind IncompleteTaskCount}" />
+                    <TextBlock
+                        Margin="{StaticResource XSmallTopMargin}"
+                        Style="{StaticResource DetailSubTitleStyle}"
+                        Text="Overdue Tasks" />
+                    <TextBlock
+                        Style="{StaticResource DetailBodyBaseMediumStyle}"
+                        Text="{x:Bind OverdueTaskCount}" />
                 </StackPanel>
-                <TextBlock
-                    Margin="{StaticResource MediumTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="Tasks in Folder" />
-                <TextBlock
-                    Style="{StaticResource DetailBodyBaseMediumStyle}"
-                    Text="{x:Bind TaskCount}" />
-                <TextBlock
-                    Margin="{StaticResource MediumTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="Incomplete Tasks" />
-                <TextBlock
-                    Style="{StaticResource DetailBodyBaseMediumStyle}"
-                    Text="{x:Bind IncompleteTaskCount}" />
-                <TextBlock
-                    Margin="{StaticResource XSmallTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="Overdue Tasks" />
-                <TextBlock
-                    Style="{StaticResource DetailBodyBaseMediumStyle}"
-                    Text="{x:Bind OverdueTaskCount}" />
-            </StackPanel>
+                <Grid
+                    Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                            Grid.Column="0"
+                            x:Uid="Folder_AddTaskToFolder"
+                            Margin="{StaticResource SmallLeftRightMargin}"
+                            VerticalAlignment="Stretch"
+                            VerticalContentAlignment="Center"
+                            FontFamily="Segoe MDL2 Assets"
+                            Height="50"
+                            HorizontalAlignment="Stretch"
+                            Click="ShowNewTaskDialog">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xED0E;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Add Task" FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                            Grid.Column="1"
+                            x:Uid="Folder_DeleteFolder"
+                            Margin="{StaticResource SmallLeftRightMargin}"
+                            VerticalAlignment="Stretch"
+                            VerticalContentAlignment="Center"
+                            FontFamily="Segoe MDL2 Assets"
+                            Height="50"
+                            HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Delete" FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button
+                            Grid.Column="2"
+                            x:Uid="Folder_RenameFolder"
+                            FontSize="14"
+                            Margin="{StaticResource SmallLeftRightMargin}"
+                            VerticalAlignment="Stretch"
+                            VerticalContentAlignment="Center"
+                            FontFamily="Segoe MDL2 Assets"
+                            Height="50"
+                            HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xE8AC;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Rename Folder" FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="TaskTemplate" x:DataType="model:TempTaskViewObject">
+        <DataTemplate x:Key="TaskTemplate" x:DataType="model:TaskViewObject">
             <winui:TreeViewItem
                 AutomationProperties.Name="{x:Bind Description}">
                 <TextBlock Text="{x:Bind ShortDescription}" TextWrapping="Wrap" Margin="{StaticResource XXSmallTopRightBottomMargin}" />
             </winui:TreeViewItem>
         </DataTemplate>
 
-        <DataTemplate x:Key="TaskContentTemplate" x:DataType="model:TempTaskViewObject">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock
+        <DataTemplate x:Key="TaskContentTemplate" x:DataType="model:TaskViewObject">
+            <Grid VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="50px" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="1">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
                         Text="Task Description"
                         Style="{StaticResource TitleTextBlockStyle}" />
-                    <TextBlock
+                        <TextBlock
                         Text="{x:Bind Description}"
                         Margin="{StaticResource SmallLeftMargin}"
                         Style="{StaticResource TitleTextBlockStyle}" />
-                </StackPanel>
-                <TextBlock
+                    </StackPanel>
+                    <TextBlock
                     Margin="{StaticResource XSmallTopMargin}"
                     Style="{StaticResource DetailSubTitleStyle}"
                     Text="In Folder" />
-                <TextBlock
+                    <TextBlock
                     Style="{StaticResource DetailBodyBaseMediumStyle}"
                     Text="{x:Bind ParentFolderName}" />
-                <TextBlock
+                    <TextBlock
                     Margin="{StaticResource MediumTopMargin}"
                     Style="{StaticResource DetailSubTitleStyle}"
                     Text="Task Due" />
-                <TextBlock
+                    <TextBlock
                     Style="{StaticResource DetailBodyBaseMediumStyle}"
-                    Text="{x:Bind DueDate}" />                
-                <TextBlock
+                    Text="{x:Bind DueDate}" />
+                    <TextBlock
                     Margin="{StaticResource MediumTopMargin}"
                     Style="{StaticResource DetailSubTitleStyle}"
                     Text="Task Notes" />
-                <TextBlock
+                    <TextBlock
                     Style="{StaticResource DetailBodyBaseMediumStyle}"
                     Text="{x:Bind Notes}" />
-                <TextBlock
+                    <TextBlock
                     Margin="{StaticResource MediumTopMargin}"
                     Style="{StaticResource DetailSubTitleStyle}"
                     Text="Task Completed" />
-                <TextBlock
+                    <TextBlock
                     Style="{StaticResource DetailBodyBaseMediumStyle}"
                     Text="{x:Bind Completed}" />
-                <TextBlock
+                    <TextBlock
                     Margin="{StaticResource XSmallTopMargin}"
                     Style="{StaticResource DetailSubTitleStyle}"
                     Text="Task Overdue" />
-                <TextBlock
+                    <TextBlock
                     Style="{StaticResource DetailBodyBaseMediumStyle}"
                     Text="{x:Bind Overdue}" />
-            </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="5" Grid.Row="2">
+                    <Button Content="&#xE74D;"
+                        x:Uid="TreeView_CollapseAllButton"
+                        FontSize="14"
+                        Padding="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50" />
+                    <Button
+                        x:Uid="Task_MoveToFolder"
+                        Content="&#xE8DE;"
+                        FontSize="14"
+                        Padding="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50" />
+                    <Button
+                        x:Uid="Task_DuplicateTask"
+                        Content="&#xE8C8;"
+                        FontSize="14"
+                        Padding="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50" />
+                    <Button
+                        x:Uid="Task_CompleteTask"
+                        Content="&#xE930;"
+                        FontSize="14"
+                        Padding="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50" />
+                </StackPanel>
+            </Grid>
         </DataTemplate>
 
         <templateSelectors:TaskDataTemplateSelector x:Key="TreeViewTemplateSelector"
-            TaskFolderTemplate="{StaticResource TaskFolderTemplate}"
-            TaskTemplate="{StaticResource TaskTemplate}"/>
+                                                    TaskFolderTemplate="{StaticResource TaskFolderTemplate}"
+                                                    TaskTemplate="{StaticResource TaskTemplate}" />
 
         <templateSelectors:TaskDataTemplateSelector x:Key="ContentTemplateSelector"
-            TaskFolderTemplate="{StaticResource TaskFolderContentTemplate}"
-            TaskTemplate="{StaticResource TaskContentTemplate}"/>
+                                                    TaskFolderTemplate="{StaticResource TaskFolderContentTemplate}"
+                                                    TaskTemplate="{StaticResource TaskContentTemplate}" />
 
     </Page.Resources>
 
-    <Grid>
+    <Grid
+        SizeChanged="MainGrid_SizeChanged">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="treeViewColumn" MinWidth="150" MaxWidth="350" />
+            <ColumnDefinition x:Name="treeViewColumn" MinWidth="200" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+       
         <Grid
+            SizeChanged="TreeView_SizeChanged"
             Background="{ThemeResource SystemChromeMediumLowColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40" />
@@ -146,24 +261,60 @@
                     Margin="{StaticResource SmallLeftMargin}"
                     Style="{StaticResource ListTitleStyle}"
                     VerticalAlignment="Center" />
-                <Button
-                    Grid.Column="1"
-                    x:Uid="TreeView_CollapseAllButton"
-                    Content="&#xF165;"
-                    FontSize="14"
-                    Padding="{StaticResource SmallLeftRightMargin}"
-                    VerticalAlignment="Stretch"
-                    VerticalContentAlignment="Center"
-                    FontFamily="Segoe MDL2 Assets"
-                    Command="{Binding ElementName=collapseBehavior, Path=CollapseAllCommand}"
-                    Background="Transparent" />
+                <StackPanel Orientation="Horizontal" Grid.Column="1">
+                    <Button
+                        x:Uid="TreeView_AddFolderMenuButton"
+                        FontSize="14"
+                        Padding="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Background="Transparent"
+                        Click="ShowNewFolderDialog"
+                        ToolTipService.ToolTip="Add Folder">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock
+                                Text="&#xE8F4;"
+                                FontFamily="Segoe MDL2 Assets"
+                                VerticalAlignment="Center" />
+                            <TextBlock
+                                x:Name="NewFolderButtonTextLabel"
+                                Text="Add Folder"
+                                FontFamily="Segoe"
+                                VerticalAlignment="Center"
+                                Visibility="{x:Bind ViewModel.TreeViewIsWide, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        x:Uid="TreeView_CollapseAllButton"
+                        FontSize="14"
+                        Padding="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe"
+                        Command="{Binding ElementName=collapseBehavior, Path=CollapseAllCommand}"
+                        Background="Transparent">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock
+                                Text="&#xF165;"
+                                FontFamily="Segoe MDL2 Assets"
+                                VerticalAlignment="Center" />
+                            <TextBlock
+                                x:Name="CollapseAllTextLabel"
+                                Text="Collapse All"
+                                VerticalAlignment="Center"
+                                Margin="0,0,5,0"
+                                Visibility="{x:Bind ViewModel.TreeViewIsWide, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
             <winui:TreeView
                 x:Name="treeView"
                 Grid.Row="1"
                 SelectionMode="Single"
                 CanReorderItems="False"
-                ItemsSource="{x:Bind ViewModel.TestingItems}"
+                ItemsSource="{x:Bind ViewModel.Data.TaskFolderItems}"
                 ItemTemplateSelector="{StaticResource TreeViewTemplateSelector}">
                 <i:Interaction.Behaviors>
                     <behaviors:TreeViewCollapseBehavior x:Name="collapseBehavior" />
@@ -174,12 +325,35 @@
             </winui:TreeView>
         </Grid>
 
+        <!--<Popup x:Name="CreateNewFolderPopup" IsOpen="{x:Bind ViewModel.IsNewFolderModalOpen, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" IsLightDismissEnabled="False">
+            <Border Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="10" Width="300">
+                <StackPanel>
+                    <TextBlock Text="Create New Folder" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBox PlaceholderText="Enter folder name" x:Name="folderNameTextBox" Margin="0,0,0,10"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Command="{x:Bind ViewModel.HideNewFolderPopupCommand}" Margin="0,0,5,0"/>
+                        <Button Content="Create" IsEnabled="{x:Bind folderNameTextBox.Text, Mode=OneWay, Converter={StaticResource TextToBoolConverter}}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Popup>-->
+
         <ScrollViewer
+            SizeChanged="DetailsPane_SizeChanged"
             Grid.Column="1"
-            Padding="{StaticResource DetailPageMargin}">
+            Padding="{StaticResource DetailPageMargin}"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch">
             <ContentControl
                 Content="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
-                ContentTemplateSelector="{StaticResource ContentTemplateSelector}" />
+                ContentTemplateSelector="{StaticResource ContentTemplateSelector}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                VerticalContentAlignment="Stretch"
+                />
         </ScrollViewer>
 
         <controls:GridSplitter
@@ -190,5 +364,34 @@
             ResizeBehavior="BasedOnAlignment"
             CursorBehavior="ChangeOnSplitterHover"
             Width="16" />
+
+        <ContentDialog
+            x:Name="CreateNewFolderDialog"
+            PrimaryButtonText="Create"
+            IsPrimaryButtonEnabled="{x:Bind FolderNameTextBox.Text, Mode=OneWay, Converter={StaticResource TextToBoolConverter}}"
+            CloseButtonText="Cancel"
+            DefaultButton="Primary">
+            <i:Interaction.Behaviors>
+                <ic:EventTriggerBehavior EventName="PrimaryButtonClick">
+                    <ic:InvokeCommandAction Command="{x:Bind ViewModel.NewFolderInvokedCommand}" CommandParameter="{Binding ElementName=FolderNameTextBox, Path=Text}" />
+                </ic:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+            <ContentDialog.TitleTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="ms-appx:///Assets/Square150x150Logo.scale-200.png" Width="40" Height="40" Margin="10,0"/>
+                        <TextBlock Text="Create New Folder"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ContentDialog.TitleTemplate>
+            <StackPanel>
+                <TextBlock TextWrapping="WrapWholeWords">
+                <Run>Folder name</Run><LineBreak/>
+                <Run FontStyle="Italic">(Note: Folder name must be unique)</Run><LineBreak/>
+                </TextBlock>
+                <TextBox x:Name="FolderNameTextBox" PlaceholderText="New folder name..." Margin="0,0,0,10" />
+            </StackPanel>
+        </ContentDialog>
     </Grid>
+
 </Page>

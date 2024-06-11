@@ -9,6 +9,7 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 
 using TaskManager.App.UWP.Core.Models;
 using TaskManager.App.UWP.Core.Services;
+using TaskManager.App.UWP.Data;
 using TaskManagerCore.Controller;
 using TaskManagerCore.Model.Dto;
 
@@ -17,62 +18,28 @@ namespace TaskManager.App.UWP.ViewModels
     public class ListDetailsViewModel : ObservableObject
     {
         private readonly TaskController TaskController;
+        public readonly DataLoader Data;
 
-        public TempTaskFolderViewObject Selected
+        public TaskFolderViewObject Selected
         {
             get { return _selected; }
             set { SetProperty(ref _selected, value); }
         }
-        private TempTaskFolderViewObject _selected;
+        private TaskFolderViewObject _selected;
 
-        public ObservableCollection<TempTaskFolderViewObject> TestingItems { get; private set; } = new ObservableCollection<TempTaskFolderViewObject>();
-
-        public ListDetailsViewModel(TaskController taskController)
+        public ListDetailsViewModel(TaskController taskController, DataLoader dataLoader)
         {
             TaskController = taskController;
+            Data = dataLoader;
         }
 
         public async Task LoadDataAsync(ListDetailsViewState viewState)
         {
-            TestingItems.Clear();
+            await Data.LoadDataAsync();
 
-            var folders = await Task.Run(() => TaskController.GetTaskFolders());
-            var ttfvos = new List<TempTaskFolderViewObject>();
-
-            foreach (var folder in folders)
+            if (viewState == ListDetailsViewState.Both && Data.TaskFolderItems.Count != 0)
             {
-                var ttfvo = new TempTaskFolderViewObject();
-                ttfvo.Name = folder.Name;
-
-                var tasks = await Task.WhenAll(folder.TaskIds.Select(taskId => Task.Run(() => TaskController.GetTask(taskId))));
-
-                foreach (var task in tasks)
-                {
-                    var ttvo = new TempTaskViewObject
-                    {
-                        GlobalId = task.Id,
-                        Description = task.Description,
-                        Notes = task.Notes,
-                        DueDate = task.DueDate,
-                        Completed = task.Completed,
-                        Overdue = task.Overdue,
-                        ParentFolderName = folder.Name
-                    };
-
-                    ttfvo.Tasks.Add(ttvo);
-                }
-
-                ttfvos.Add(ttfvo);
-            }
-
-            foreach (var item in ttfvos)
-            {
-                TestingItems.Add(item);
-            }
-
-            if (viewState == ListDetailsViewState.Both)
-            {
-                Selected = TestingItems.First();
+                Selected = Data.TaskFolderItems.First();
             }
         }
     }

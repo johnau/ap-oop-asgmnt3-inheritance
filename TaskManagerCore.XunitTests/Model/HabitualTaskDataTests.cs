@@ -17,13 +17,12 @@ namespace TaskManagerCore.XunitTests.Model
         /// It then fails to meet a streak, thereby resetting streak to 0
         /// - Assertions are made to ensure that behavior is as expected
         /// </summary>
-        //[Theory]
-        //[InlineData(TimeInterval.Hourly)]
-        //[InlineData(TimeInterval.Daily)]
-        //[InlineData(TimeInterval.Weekly)]
-        //[InlineData(TimeInterval.Monthly)]
-        //[InlineData(TimeInterval.Yearly)]
-        // TODO: Fix broken test
+        [Theory]
+        [InlineData(TimeInterval.Hourly)]
+        [InlineData(TimeInterval.Daily)]
+        [InlineData(TimeInterval.Weekly)]
+        [InlineData(TimeInterval.Monthly)]
+        [InlineData(TimeInterval.Yearly)]
         public void HabitualTask_TestStreakBehavior(TimeInterval timeInterval)
         {
             var testLimit = 5;
@@ -109,8 +108,7 @@ namespace TaskManagerCore.XunitTests.Model
             Assert.False(habitualTask.Overdue);
         }
 
-        //[Fact]
-        // TODO: Fix broken test
+        [Fact]
         public void HourlyTaskWithStreak_WithCompleted_WillHaveAStreak()
         {
             var testLimit = 5;
@@ -124,7 +122,7 @@ namespace TaskManagerCore.XunitTests.Model
 
             for (int i = 1; i <= testLimit; i++)
             {
-                habitualTask.FakeDateTime = now.AddMinutes(minutesFromNow);
+                habitualTask.FakeDateTime = now.AddMinutes(minutesFromNow - 1);
                 habitualTask = habitualTask.WithCompleted(true);
                 Assert.False(habitualTask.Overdue);
                 Console.WriteLine($"Habitual Task {habitualTask.DueDate} (is overdue: {habitualTask.Overdue})");

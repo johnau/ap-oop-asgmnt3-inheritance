@@ -36,12 +36,12 @@ namespace TaskManagerCore.XunitTests.TestHelpers
 
         public new HabitualTaskDataTestHelperExtension WithCompleted(bool value)
         {
-            var completed = (HabitualTaskDataTestHelperExtension) base.WithCompleted(value);
+            var completed = (HabitualTaskData) base.WithCompleted(value);
 
             //if (completed.DueDate == null || !completed.DueDate.HasValue)
             //    throw new ArgumentException("Invalid Habitual Task; Does not have a DueDate set");
 
-            return new HabitualTaskDataTestHelperExtension(completed.Id, completed.Description, completed.Notes, false, completed.DueDate, RepeatingInterval, Repetitions, Streak) 
+            return new HabitualTaskDataTestHelperExtension(completed.Id, completed.Description, completed.Notes, false, completed.DueDate, completed.RepeatingInterval, completed.Repetitions, completed.Streak) 
             { 
                 FakeDateTime = FakeDateTime
             };

@@ -10,7 +10,7 @@
     xmlns:views="using:TaskManager.App.UWP.Views"
     mc:Ignorable="d">
     <Page.Resources>
-        <DataTemplate x:Key="ItemTemplate" x:DataType="model:TempTaskFolderViewObject">
+        <DataTemplate x:Key="ItemTemplate" x:DataType="model:TaskFolderViewObject">
             <Grid Height="60">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -67,7 +67,7 @@
             Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}"
             BorderBrush="Transparent"
             DetailsTemplate="{StaticResource DetailsTemplate}"
-            ItemsSource="{x:Bind ViewModel.TestingItems}"
+            ItemsSource="{x:Bind ViewModel.Data.TaskFolderItems}"
             ItemTemplate="{StaticResource ItemTemplate}"
             ListHeaderTemplate="{StaticResource ListHeaderTemplate}"
             NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"

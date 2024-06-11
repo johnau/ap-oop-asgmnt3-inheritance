@@ -1,6 +1,10 @@
-﻿using NaturalLanguageProcessor.Utility;
+﻿#if NET8_0_OR_GREATER
+
+using NaturalLanguageProcessor.Utility;
 using System.Diagnostics;
 using NaturalLanguageProcessor.MicrosoftRecognizers;
+using System;
+using NaturalLanguageProcessor.Aggregates;
 
 namespace NaturalLanguageProcessor;
 
@@ -11,17 +15,25 @@ public class ForgivingFormatWithRecognizersAndSpacyHandler : IForgivingFormatPro
 {
     private readonly RecognizersWrapper recognizers;
 
+    private Func<DateTime> DateTimeNow;
+    private TimeOnly _defaultTime;
+
     /// <summary>
     /// Only Constructor
     /// </summary>
-    /// <param name="recognizersCulture"></param>
     public ForgivingFormatWithRecognizersAndSpacyHandler()
     {
         recognizers = new RecognizersWrapper();
+        _defaultTime = new TimeOnly(12, 0);
     }
 
     #region implemented methods
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
     public DateTimeResult ProcessNaturalDate(string input)
     {
         input = StringHelper.SanitizeInput(input);
@@ -36,6 +48,12 @@ public class ForgivingFormatWithRecognizersAndSpacyHandler : IForgivingFormatPro
         return DateTimeResult.No_Result;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
     public DateTimeResult ProcessNaturalTime(string input)
     {
         throw new NotImplementedException();
@@ -56,7 +74,7 @@ public class ForgivingFormatWithRecognizersAndSpacyHandler : IForgivingFormatPro
         var dateResult = ProcessNaturalDate(input);
         var timeResult = ProcessNaturalTime(input);
 
-        var occursAt = NaturalLanguageHelper.CombineDateAndTimeResults(dateResult, timeResult);
+        var occursAt = CombineDateAndTimeResults(dateResult, timeResult);
         if (occursAt == null)
             return _task;
 
@@ -172,4 +190,55 @@ public class ForgivingFormatWithRecognizersAndSpacyHandler : IForgivingFormatPro
         return false;
     }
 
+    /// <summary>
+    /// Combines the results from the Natural Language processing of Date and Time
+    /// TODO: Add support for custom datetime object to use in place of DateTime.Now, and then change how date & time found is handled since we want to bump forwards in some cases
+    /// </summary>
+    /// <param name="date"></param>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    public DateTime? CombineDateAndTimeResults(DateTimeResult date, DateTimeResult time)
+    {
+        var timeMidday = new TimeOnly(12, 0);
+        if (date.Found && time.Found)
+        {
+            var dd = DateOnly.FromDateTime(date.ValueObject);
+            var dt = TimeOnly.FromDateTime(time.ValueObject);
+            return dd.ToDateTime(dt); // Combine the date and time results
+        }
+        else if (date.Found)
+        {
+            var dd = DateOnly.FromDateTime(date.ValueObject);
+            return dd.ToDateTime(_defaultTime);  // Set at Midday for the desired date
+        }
+        else if (time.Found)
+        {
+            var now = DateTimeNow.Invoke();
+            var nowTime = TimeOnly.FromDateTime(now);
+            var nowDate = DateOnly.FromDateTime(now);
+            var dt = TimeOnly.FromDateTime(time.ValueObject);
+
+            var _dateTime = nowDate.ToDateTime(dt);
+            // If the time is past current time and is AM (ie 5am), assume the person meant 5pm unless results is "Exact" meaning AM/PM was specificed
+            //if (dt > nowTime && dt < timeMidday && !time.Exact)
+            if (dt > nowTime && !time.Exact)
+            {
+                _dateTime = _dateTime.AddHours(12);
+            }
+            // If the time is past current time and is PM (ie 5pm), assume the person meant 5pm the next day
+            else if (dt > nowTime && dt > timeMidday)
+            {
+                _dateTime = _dateTime.AddHours(24);
+            }
+
+            return _dateTime;
+        }
+        else // found neither
+        {
+            return null;
+        }
+    }
+
 }
+
+#endif

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TaskManager.App.UWP.Core.Models
 {
-    public class TempTaskViewObject
+    public class TaskViewObject
     {
         public string GlobalId { get; set; }
         public string Description { get; set; }
@@ -14,7 +14,7 @@ namespace TaskManager.App.UWP.Core.Models
         public bool Overdue { get; set; }
         public string ParentFolderName { get; set; }
 
-        public TempTaskViewObject()
+        public TaskViewObject()
         {
             Description = "";
             Notes = "";

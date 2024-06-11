@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using TaskManagerCore.Model;
 using TaskManagerCore.Model.Repository;
 
@@ -112,10 +113,13 @@ namespace TaskManagerCore.Infrastructure
 
         private void CompareMultiple(List<TaskData> list1, List<TaskData> list2)
         {
-            for (int i = 0; i < list1.Count; i++)
+            var _list1 = list1.OrderBy(x => x.Description).ToList();
+            var _list2 = list2.OrderBy(x => x.Description).ToList();
+
+            for (int i = 0; i < _list1.Count; i++)
             {
-                var result1 = list1[i];
-                var result2 = list2[i];
+                var result1 = _list1[i];
+                var result2 = _list2[i];
                 if (!result1.Equals(result2))
                 {
                     Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Task: {result1.Description}");

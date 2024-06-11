@@ -2,7 +2,7 @@
 using System.IO;
 using BinaryFileHandler;
 using Microsoft.Extensions.DependencyInjection;
-
+using TaskManager.App.UWP.Data;
 using TaskManager.App.UWP.Services;
 using TaskManager.App.UWP.ViewModels;
 using TaskManager.SQL;
@@ -17,6 +17,9 @@ using TaskManagerCore.Infrastructure.BinaryFile.FileHandlers;
 using TaskManagerCore.SQL.Sqlite;
 using TaskManagerCore.SQL.Sqlite.Dao;
 using Windows.ApplicationModel.Activation;
+using Windows.Foundation;
+using Windows.Security.Cryptography.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
 namespace TaskManager.App.UWP
@@ -38,35 +41,7 @@ namespace TaskManager.App.UWP
 
         private static IServiceProvider ConfigureServices()
         {
-            ////var dataFilesFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tm_data");
             var dataFilesFolderPath = Path.Combine(Path.GetTempPath(), "task-manager", "tm_data");
-            //Directory.CreateDirectory(dataFilesFolderPath);
-            //var tasksFileConf = new BinaryFileConfig("taskmanager-task-data", dataFilesFolderPath);
-            //var folderFileConf = new BinaryFileConfig("taskmanager-folder-data", dataFilesFolderPath);
-
-            //var taskWriter = new TaskDataFileWriter(tasksFileConf);
-            //var taskReader = new TaskDataFileReader(tasksFileConf);
-            //var folderWriter = new TaskFolderFileWriter(folderFileConf);
-            //var folderReader = new TaskFolderFileReader(folderFileConf);
-
-            //var taskDao = new TaskDataDao(taskReader, taskWriter);              // Use this for the BinaryFile namespace class (part2 of task)
-            //var taskRepo = new TaskDataRepository(taskDao);
-
-            //var folderDao = new TaskFolderDao(folderReader, folderWriter);      // Use this for the BinaryFile namespace class (part2 of task)
-            //var fodlerRepo = new TaskFolderRepository(folderDao);
-
-            //var dbContext = new SqliteContext(dataFilesFolderPath);
-
-            //var taskDataDaoSql = new TaskDataSqlDao(dbContext);
-            //var taskRepoSql = new TaskDataSqlRepository(taskDataDaoSql);
-
-            //var taskFolderDaoSql = new TaskFolderSqlDao(dbContext);
-            //var folderRepoSql = new TaskFolderSqlRepository(taskFolderDaoSql);
-
-            //var dualTaskRepo = new TaskDataDualRepositoryRunner(taskRepo, taskRepoSql);
-            //var dualFolderRepo = new TaskFolderDualRepositoryRunner(fodlerRepo, folderRepoSql);
-
-            //var controller = new TaskController(dualTaskRepo, dualFolderRepo);
 
             var (secondaryTaskRepo, secondaryFolderRepo) = RepositoryFactory.BuildRepositories(dataFilesFolderPath);
 
@@ -74,6 +49,8 @@ namespace TaskManager.App.UWP
 
             var provider = new ServiceCollection()
                 .AddSingleton(controller)
+                .AddSingleton<DataLoader>()
+                .AddTransient<MainViewModel>()
                 .AddTransient<ListDetailsViewModel>()
                 .AddTransient<TreeViewViewModel>()
                 .BuildServiceProvider(true);
@@ -101,15 +78,17 @@ namespace TaskManager.App.UWP
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
+            if (_serviceProvider == null)
+            {
+                _serviceProvider = ConfigureServices();
+            }
+
             if (!args.PrelaunchActivated)
             {
                 await ActivationService.ActivateAsync(args);
             }
 
-            if (_serviceProvider == null)
-            {
-                _serviceProvider = ConfigureServices();
-            }
+            ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(900, 600));
         }
 
         protected override async void OnActivated(IActivatedEventArgs args)

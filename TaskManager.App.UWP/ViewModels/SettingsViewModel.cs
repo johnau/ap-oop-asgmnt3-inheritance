@@ -65,7 +65,7 @@ namespace TaskManager.App.UWP.ViewModels
 
         private string GetVersionDescription()
         {
-            var appName = "AppDisplayName".GetLocalized();
+            var appName = "TafeTaskManager".GetLocalized();
             var package = Package.Current;
             var packageId = package.Id;
             var version = packageId.Version;

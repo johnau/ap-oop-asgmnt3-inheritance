@@ -1,3 +1,4 @@
+using NaturalLanguageProcessor.Aggregates;
 using NaturalLanguageProcessor.Utility;
 using System.Diagnostics;
 
@@ -141,6 +142,11 @@ public class ForgivingFormatWithRegexUnitTests
         var tenAm = new TimeOnly(10, 0);
         var tenPm = new TimeOnly(22, 0);
         var noon = new TimeOnly(12, 0);
+        var four35 = new TimeOnly(4, 35);
+        var five33 = new TimeOnly(5, 33);
+        var four40pm = new TimeOnly(16, 40);
+        var six30pm = new TimeOnly(18, 30);
+        var sixPm = new TimeOnly(18, 0);
 
         Dictionary<string, TimeOnly> mockInputList = new Dictionary<string, TimeOnly>() {
             { "Call Rob at 6", six },
@@ -154,6 +160,11 @@ public class ForgivingFormatWithRegexUnitTests
             { "Call Rob at ten this morning", tenAm },
             { "Call Rob at ten this evening", tenPm },
             { "Call Rob at midday", noon },
+            { "Call Rob at twenty-five to five in the morning", four35 },
+            { "Call Rob at thirty-three past five in the morning", five33 },
+            { "Call Rob at twenty to five in the afternoon", four40pm },
+            { "Call Rob at six thirty in the afternoon", six30pm },
+            { "Call Rob at six in the afternoon", sixPm },
         };
 
         var ffHandler = new ForgivingFormatWithRegexProcessor(mockTime);

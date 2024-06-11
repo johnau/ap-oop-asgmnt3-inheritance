@@ -29,9 +29,9 @@ namespace TaskManager.App.UWP.TemplateSelectors
         {
             switch (item)
             {
-                case TempTaskFolderViewObject folder:
+                case TaskFolderViewObject folder:
                     return TaskFolderTemplate;
-                case TempTaskViewObject task:
+                case TaskViewObject task:
                     return TaskTemplate;
             }
 

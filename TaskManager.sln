@@ -29,7 +29,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.App.UWP.Tests.x
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.App.UWP.Core", "TaskManager.App.UWP.Core\TaskManager.App.UWP.Core.csproj", "{FCBD0C58-366F-46A9-9A01-DBAB299E6D4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.SQL", "TaskManager.SQL\TaskManager.SQL.csproj", "{A1C1F097-34F0-4F9A-A473-5CC936676877}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.SQL", "TaskManager.SQL\TaskManager.SQL.csproj", "{A1C1F097-34F0-4F9A-A473-5CC936676877}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalLanguageProcessor.XunitTests.NetCore3", "NaturalLanguageProcessor.XunitTests.NetCore3\NaturalLanguageProcessor.XunitTests.NetCore3.csproj", "{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -345,6 +347,26 @@ Global
 		{A1C1F097-34F0-4F9A-A473-5CC936676877}.Release|x64.Build.0 = Release|Any CPU
 		{A1C1F097-34F0-4F9A-A473-5CC936676877}.Release|x86.ActiveCfg = Release|Any CPU
 		{A1C1F097-34F0-4F9A-A473-5CC936676877}.Release|x86.Build.0 = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|ARM.Build.0 = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|x64.Build.0 = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Debug|x86.Build.0 = Debug|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|ARM.Build.0 = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|ARM64.Build.0 = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|x64.ActiveCfg = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|x64.Build.0 = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|x86.ActiveCfg = Release|Any CPU
+		{F1CA08E6-7193-4C64-ACCB-70B03CB77F20}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,14 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Catalyst.Models.English" Version="1.0.30952" />
-    <PackageReference Include="Catalyst.Spacy" Version="1.0.47753" />
+    <PackageReference Include="Catalyst.Models.English" Version="1.0.30952" Condition="'$(TargetFramework)' == 'net8.0'" />
+    <PackageReference Include="Catalyst.Spacy" Version="1.0.47753" Condition="'$(TargetFramework)' == 'net8.0'" />
     <PackageReference Include="Microsoft.Recognizers.Definitions" Version="1.8.8" />
     <PackageReference Include="Microsoft.Recognizers.Text" Version="1.8.8" />
     <PackageReference Include="Microsoft.Recognizers.Text.Choice" Version="1.8.8" />
@@ -17,11 +16,18 @@
     <PackageReference Include="Microsoft.Recognizers.Text.Number" Version="1.8.8" />
     <PackageReference Include="Microsoft.Recognizers.Text.NumberWithUnit" Version="1.8.8" />
     <PackageReference Include="Microsoft.Recognizers.Text.Sequence" Version="1.8.8" />
+    <PackageReference Include="Portable.System.DateTimeOnly" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>NaturalLanguageProcessor.XunitTests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>NaturalLanguageProcessor.XunitTests.NetCore3</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
 

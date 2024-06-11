@@ -150,7 +150,11 @@
   <ItemGroup>
     <Compile Include="Activation\ActivationHandler.cs" />
     <Compile Include="Behaviors\TreeViewCollapseBehavior.cs" />
+    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\DateTimeFormatConverter.cs" />
+    <Compile Include="Converters\TaskTypeToVisibilityConverter.cs" />
+    <Compile Include="Converters\TextToBoolConverter.cs" />
+    <Compile Include="Data\DataLoader.cs" />
     <Compile Include="DependencyInjection\INamedServiceProvider.cs" />
     <Compile Include="DependencyInjection\NamedServiceProvider.cs" />
     <Compile Include="DependencyInjection\ServiceResolver.cs" />
@@ -217,6 +221,9 @@
     </Compile>
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NewTaskDialog.xaml.cs">
+      <DependentUpon>NewTaskDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
@@ -299,6 +306,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\NewTaskDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SettingsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -366,6 +377,10 @@
     <ProjectReference Include="..\InMemoryCache\InMemoryCache.csproj">
       <Project>{b7e955d6-092a-4d1a-801e-20fb075a5d1b}</Project>
       <Name>InMemoryCache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NaturalLanguageProcessor\NaturalLanguageProcessor.csproj">
+      <Project>{50eac9b2-3b42-4380-a161-bb1188c65175}</Project>
+      <Name>NaturalLanguageProcessor</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskManager.App.UWP.Core\TaskManager.App.UWP.Core.csproj">
       <Project>{FCBD0C58-366F-46A9-9A01-DBAB299E6D4A}</Project>
