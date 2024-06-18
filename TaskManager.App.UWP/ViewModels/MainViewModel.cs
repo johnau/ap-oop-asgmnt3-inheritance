@@ -9,10 +9,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using TaskManager.App.UWP.Core.Models;
 using TaskManager.App.UWP.Data;
 using TaskManager.App.UWP.Helpers;
+using TaskManager.App.UWP.Services;
 using TaskManager.App.UWP.Views;
 using TaskManagerCore.Controller;
+using TaskManagerCore.Model;
+using TaskManagerCore.Model.Dto;
 using Windows.UI.Xaml.Controls;
 
 namespace TaskManager.App.UWP.ViewModels
@@ -23,21 +27,15 @@ namespace TaskManager.App.UWP.ViewModels
         private readonly ForgivingFormatWithRegexProcessor NLP;
         public readonly DataLoader Data;
 
+        private TaskViewObject _interpretedTask;
+        private TimeSpan _defaultTaskTime = TimeSpan.Zero;
+
         public object SelectedTaskFolder
         {
             get => _selectedTaskFolder;
             set => SetProperty(ref _selectedTaskFolder, value);
         }
         private object _selectedTaskFolder;
-
-        public MainViewModel(TaskController taskController, DataLoader dataLoader)
-        {
-            TaskController = taskController;
-            Data = dataLoader;
-            CreateTaskCommand = new RelayCommand(CreateTask);
-
-            NLP = new ForgivingFormatWithRegexProcessor();
-        }
 
         private string _taskInput;
         public string TaskInput
@@ -55,6 +53,15 @@ namespace TaskManager.App.UWP.ViewModels
 
         public ICommand CreateTaskCommand { get; }
 
+        public MainViewModel(TaskController taskController, DataLoader dataLoader)
+        {
+            TaskController = taskController;
+            Data = dataLoader;
+            CreateTaskCommand = new RelayCommand(CreateTask);
+
+            NLP = new ForgivingFormatWithRegexProcessor();
+        }
+
         public async Task LoadDataAsync()
         {
             await Data.LoadDataAsync();
@@ -63,21 +70,40 @@ namespace TaskManager.App.UWP.ViewModels
             {
                 SelectedTaskFolder = Data.TaskFolderItems.First();
             }
+
+            await DefaultTaskTimeService.InitializeAsync();
+            _defaultTaskTime = DefaultTaskTimeService.DefaultTaskTime;
         }
 
         private async void CreateTask()
         {
-            //if (response?.Id != null)
-            //{
-            //    // Redirect to another view to show the created task
-            //    // This could be done via navigation logic appropriate to your UWP app
-            //}
-            //else
-            //{
-            //    StatusMessage = "Input not recognized, Please try again";
-            //}
-        }
+            Debug.WriteLine($"Create task {_taskInput} in folder: {((TaskFolderViewObject)SelectedTaskFolder).Name}");
 
+            var parentFolderName = ((TaskFolderViewObject)_selectedTaskFolder).Name;
+
+            var dueDate = _interpretedTask.DueDate;
+            if (dueDate == null)
+            {
+                var currentDate = DateTime.Now;
+                var targetDate = currentDate.Date.Add(_defaultTaskTime);
+                if (targetDate < currentDate)
+                {
+                    targetDate = targetDate.AddDays(1);
+                }
+
+                dueDate = targetDate;
+            }
+
+            var createTaskDto = new CreateTaskDto(
+                type:       TaskType.SINGLE,
+                folderId:   parentFolderName,
+                description:_interpretedTask.Description,
+                notes:      string.Empty,
+                dueDate:    dueDate
+            );
+
+            await Task.Run(() => TaskController.CreateTask(createTaskDto));
+        }
 
         public void OnTaskInputChanged(object sender, TextChangedEventArgs e)
         {
@@ -95,6 +121,13 @@ namespace TaskManager.App.UWP.ViewModels
                 //StatusMessage += $" @ {taskInfo.OccursAt:dd-MM-yyyy HH:mm}";
                 StatusMessage += $" on {taskInfo.OccursAt:dddd d\\t\\h 'of' MMMM yyyy 'at' h:mmtt}";
             }
+
+            var task = new TaskViewObject();
+            task.ParentFolderName = ((TaskFolderViewObject)SelectedTaskFolder).Name;
+            task.Description = taskInfo.Description;
+            if (taskInfo.HasTime) task.DueDate = taskInfo.OccursAt;
+
+            _interpretedTask = task;
 
             Debug.WriteLine($"The value of statusMessage is now: {_statusMessage}");
         }

@@ -1,30 +1,40 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using TaskManager.App.UWP.Services;
+using TaskManager.App.UWP.ViewModels;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 
 namespace TaskManager.App.UWP.Views
 {
-    public enum SignInResult
-    {
-        SignInOK,
-        SignInFail,
-        SignInCancel,
-        Nothing
-    }
+    // From MS Custom Dialog example
+    //public enum SignInResult
+    //{
+    //    SignInOK,
+    //    SignInFail,
+    //    SignInCancel,
+    //    Nothing
+    //}
 
     public sealed partial class NewTaskDialog : ContentDialog
     {
-        //public SignInResult Result { get; private set; }
+        public NewTaskDialogViewModel ViewModel { get; }
 
         public NewTaskDialog()
         {
             InitializeComponent();
+
+            ViewModel = App.Services.GetRequiredService<NewTaskDialogViewModel>();
+
             //RequestedTheme = ThemeSelectorService.Theme;
             Opened += NewTaskContentDialog_Opened;
             Closing += NewTaskContentDialog_Closing;
+        }
 
+        public void SetParentFolderId(string folderId)
+        {
+            ViewModel.ParentFolderId  = folderId;
         }
 
         //private ElementTheme ConvertAppThemeToElementTheme(ApplicationTheme appTheme)
@@ -42,6 +52,7 @@ namespace TaskManager.App.UWP.Views
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
+            // Example code from ms.com custom dialog example
             //// Ensure the user name and password fields aren't empty. If a required field
             //// is empty, set args.Cancel = true to keep the dialog open.
             //if (string.IsNullOrEmpty(userNameTextBox.Text))

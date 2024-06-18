@@ -32,9 +32,7 @@ namespace TaskManager.App.UWP.ViewModels
 
             set { SetProperty(ref _versionDescription, value); }
         }
-
-        private ICommand _switchThemeCommand;
-
+                
         public ICommand SwitchThemeCommand
         {
             get
@@ -52,6 +50,17 @@ namespace TaskManager.App.UWP.ViewModels
                 return _switchThemeCommand;
             }
         }
+        private ICommand _switchThemeCommand;
+
+        public ICommand ChangeDefaultTaskTimeInvokedCommand => _changeDefaultTaskTimeInvokedCommand ?? (_changeDefaultTaskTimeInvokedCommand = new RelayCommand<TimeSpan>(OnChangeDefaultTaskTimeInvoked));
+        private ICommand _changeDefaultTaskTimeInvokedCommand;
+
+        public TimeSpan DefaultTaskTime
+        {
+            get => _defaultTaskTime;
+            set => SetProperty(ref _defaultTaskTime, value);
+        }
+        private TimeSpan _defaultTaskTime;
 
         public SettingsViewModel()
         {
@@ -60,6 +69,7 @@ namespace TaskManager.App.UWP.ViewModels
         public async Task InitializeAsync()
         {
             VersionDescription = GetVersionDescription();
+            DefaultTaskTime = await GetDefaultTaskTimeAsync();
             await Task.CompletedTask;
         }
 
@@ -71,6 +81,21 @@ namespace TaskManager.App.UWP.ViewModels
             var version = packageId.Version;
 
             return $"{appName} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+        }
+
+        private async Task<TimeSpan> GetDefaultTaskTimeAsync()
+        {
+            var ts = TimeSpan.Zero;
+
+            await DefaultTaskTimeService.InitializeAsync();
+            ts = DefaultTaskTimeService.DefaultTaskTime;
+
+            return ts;
+        }
+
+        private async void OnChangeDefaultTaskTimeInvoked(TimeSpan defaultTime)
+        {
+            await DefaultTaskTimeService.SetDefaultTaskTimeAsync(DefaultTaskTime);
         }
     }
 }

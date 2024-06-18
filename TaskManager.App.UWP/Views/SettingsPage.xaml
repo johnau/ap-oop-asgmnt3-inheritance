@@ -53,6 +53,19 @@
                 </StackPanel>
             </StackPanel>
 
+            <TextBlock Text="New Task Settings" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="{StaticResource MediumTopMargin}"/>
+            
+            <StackPanel>
+                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="Default Task Time" VerticalAlignment="Center"/>
+                <TimePicker
+                    Margin="{StaticResource SmallLeftMargin}"
+                    SelectedTime="{x:Bind ViewModel.DefaultTaskTime, Mode=TwoWay}"
+                    SelectedTimeChanged="TimePicker_SelectedTimeChanged"
+                    />
+            </StackPanel>
+
+            <StackPanel Height="50" />
+
             <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
 
             <StackPanel Margin="{StaticResource XSmallTopMargin}">
@@ -62,7 +75,7 @@
                     Margin="{StaticResource XSmallTopMargin}"
                     Style="{ThemeResource BodyTextBlockStyle}" />
 
-                <HyperlinkButton x:Uid="Settings_PrivacyTermsLink" Margin="{StaticResource XSmallTopMargin}" />
+                <HyperlinkButton x:Uid="Settings_GithubLink" Margin="{StaticResource XSmallTopMargin}" />
             </StackPanel>
         </StackPanel>
     </Grid>    

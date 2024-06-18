@@ -3,23 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManagerCore.Model;
-using Windows.UI.Xaml;
+using TaskManager.App.UWP.Core.Models;
 using Windows.UI.Xaml.Data;
 
 namespace TaskManager.App.UWP.Converters
 {
-    public class TaskTypeToVisibilityConverter : IValueConverter
+    internal class ModelObjectToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is TaskType)
+            if (value is TaskViewObject taskVO)
             {
-                int taskType = (int)value;
-                return (taskType == 2 || taskType == 3) ? Visibility.Visible : Visibility.Collapsed;
+                return taskVO.GlobalId;
+            }
+            else if (value is TaskFolderViewObject folderVO)
+            {
+                return folderVO.Name;
             }
 
-            return Visibility.Collapsed;
+            return "";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

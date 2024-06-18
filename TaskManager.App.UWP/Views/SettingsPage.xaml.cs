@@ -21,5 +21,14 @@ namespace TaskManager.App.UWP.Views
         {
             await ViewModel.InitializeAsync();
         }
+
+        private void TimePicker_SelectedTimeChanged(TimePicker sender, TimePickerSelectedValueChangedEventArgs args)
+        {
+            TimeSpan? selectedTime = args.NewTime;
+            if (!selectedTime.HasValue)
+                return;
+
+            ViewModel.ChangeDefaultTaskTimeInvokedCommand.Execute(selectedTime);
+        }
     }
 }

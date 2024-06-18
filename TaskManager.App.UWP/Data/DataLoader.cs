@@ -17,6 +17,8 @@ namespace TaskManager.App.UWP.Data
 
         public ObservableCollection<TaskFolderViewObject> TaskFolderItems { get; private set; } = new ObservableCollection<TaskFolderViewObject>();
 
+        public string LatestCreatedTaskId { get; set; } = "";
+
         public DataLoader(TaskController taskController)
         {
             TaskController = taskController;
@@ -44,27 +46,45 @@ namespace TaskManager.App.UWP.Data
                     Name = folder.Name
                 };
 
-                var _tasks = await Task.WhenAll(folder.TaskIds
-                                                    .Select((taskId) => Task.Run(() => TaskController.GetTask(taskId))));
+                //var _tasks = await Task.WhenAll(folder.TaskIds
+                //    .Select((taskId) => Task.Run(() => TaskController.GetTask(taskId))));
 
+                var taskIds = folder.TaskIds.ToArray();
+
+                var _tasks = taskIds.Select(taskId => TaskController.GetTask(taskId)).ToArray();
                 var tasks = _tasks.ToList();
                 tasks.Sort((x, y) => x.Description.CompareTo(y.Description));
 
                 foreach (var task in _tasks)
                 {
+                    var streak = 0;
+                    if (task.XData.TryGetValue("streak", out var streakStr))
+                    {
+                        int.TryParse(streakStr, out streak);
+                    }    
+
                     var ttvo = new TaskViewObject
                     {
+                        Type = task.Type,
                         GlobalId = task.Id,
                         Description = task.Description,
                         Notes = task.Notes,
                         DueDate = task.DueDate,
                         Completed = task.Completed,
                         Overdue = task.Overdue,
-                        ParentFolderName = folder.Name
+                        ParentFolderName = folder.Name,
+                        Streak = streak
                     };
 
                     ttfvo.Tasks.Add(ttvo);
                 }
+
+                // sort for overdue first and by date after
+                ttfvo.Tasks = ttfvo.Tasks
+                        .GroupBy(t => t.Overdue) 
+                        .OrderByDescending(g => g.Key)     
+                        .SelectMany(g => g.OrderBy(t => t.DueDate))
+                        .ToList();
 
                 tfvos.Add(ttfvo);
             }

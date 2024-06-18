@@ -150,7 +150,13 @@ namespace TaskManagerCore.Infrastructure
 
         private void CompareSingle(TaskFolder a, TaskFolder b)
         {
-            if (a.Equals(b))
+            if (a == null && b == null)
+                Debug.WriteLine($"✔ Results match for BinaryFile and SQL database (both null)");
+            else if (a == null && b != null)
+                Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Folder: (a == null, b != null)");
+            else if (a != null && b == null)
+                Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Folder: (a != null, b == null)");
+            else if (a.Equals(b))
                 Debug.WriteLine($"✔ Results match for BinaryFile and SQL database");
             else
                 Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Folder: {a.Name}");

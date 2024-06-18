@@ -132,7 +132,13 @@ namespace TaskManagerCore.Infrastructure
 
         private void CompareSingle(TaskData a, TaskData b)
         {
-            if (a.Equals(b))
+            if (a == null && b == null)
+                Debug.WriteLine($"✔ Results match for BinaryFile and SQL database (both Null)");
+            else if (a == null && b != null)
+                Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Task (a was null, b was not null)");
+            else if (a != null && b == null)
+                Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Task (a was not null, b was null)");
+            else if (a.Equals(b))
                 Debug.WriteLine($"✔ Results match for BinaryFile and SQL database");
             else
                 Debug.WriteLine($"✘ Sync issue with SQL database, results did not match for Task: {a.Description}");

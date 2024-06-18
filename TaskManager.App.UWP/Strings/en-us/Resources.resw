@@ -150,7 +150,7 @@
     <comment>Navigation view item name for TwoPaneView</comment>
   </data>
   <data name="TreeViewTitle.Text" xml:space="preserve">
-    <value>TreeView</value>
+    <value>Tasks and Folders</value>
     <comment>Title for TreeViewPage</comment>
   </data>
   <data name="TreeView_CollapseAllButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -162,7 +162,7 @@
     <comment>Automation Name for Collapse all button in TreeViewPages</comment>
   </data>
   <data name="Shell_TreeView.Content" xml:space="preserve">
-    <value>Tasks (Tree View)</value>
+    <value>Tasks &amp; Folders</value>
     <comment>Navigation view item name for TreeView</comment>
   </data>
   <data name="Shell_ContentGrid.Content" xml:space="preserve">
@@ -310,16 +310,16 @@
     <comment>About this application title for Settings</comment>
   </data>
   <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>Settings page placeholder text.  Your app description goes here.</value>
+    <value>This TaskManager was part of a 7 part series for Tafe Diploma of Advanced Programming.</value>
     <comment>About this application description for Settings</comment>
   </data>
-  <data name="Settings_PrivacyTermsLink.Content" xml:space="preserve">
-    <value>Privacy Statement</value>
-    <comment>Privacy Statement link content for Settings</comment>
+  <data name="Settings_GithubLink.Content" xml:space="preserve">
+    <value>Project on Github</value>
+    <comment>Link to Github Project</comment>
   </data>
-  <data name="Settings_PrivacyTermsLink.NavigateUri" xml:space="preserve">
-    <value>https://YourPrivacyUrlGoesHere/</value>
-    <comment>Here is your Privacy Statement url for Settings</comment>
+  <data name="Settings_GithubLink.NavigateUri" xml:space="preserve">
+    <value>https://github.com/johnau/ap-oop-asgmnt3-inheritance/tree/part7</value>
+    <comment>Using for github link instead</comment>
   </data>
   <data name="Settings_Personalization.Text" xml:space="preserve">
     <value>Personalization</value>

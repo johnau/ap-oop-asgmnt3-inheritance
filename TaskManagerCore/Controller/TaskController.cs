@@ -184,8 +184,11 @@ namespace TaskManagerCore.Controller
         public bool DeleteTask(string taskId)
         {
             var folders = TaskFolderRepository.FindAll();
+            if (folders == null || folders.Count == 0)
+                return false;
+
             var folder = folders.Where(f => f.TaskIds.Contains(taskId))
-                                .First();
+                                .FirstOrDefault();
             if (folder == null)
                 throw new Exception($"Unable to find Folder containing Task Id: {taskId}");
 

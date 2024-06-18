@@ -23,13 +23,15 @@
 
     <ContentDialog.Resources>
         <converters:TextToBoolConverter x:Key="TextToBoolConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </ContentDialog.Resources>
 
     <i:Interaction.Behaviors>
         <ic:EventTriggerBehavior EventName="PrimaryButtonClick">
-            <!--<ic:InvokeCommandAction Command="{x:Bind ViewModel.NewTaskInvokedCommand}" CommandParameter="{Binding ElementName=TaskDescriptionTextBox, Path=Text}" />-->
+            <ic:InvokeCommandAction Command="{x:Bind ViewModel.NewTaskInvokedCommand}" CommandParameter="{Binding ElementName=TaskDescriptionTextBox, Path=Text}" />
         </ic:EventTriggerBehavior>
     </i:Interaction.Behaviors>
+
     <ContentDialog.TitleTemplate>
         <DataTemplate>
             <StackPanel Orientation="Horizontal">
@@ -38,14 +40,21 @@
             </StackPanel>
         </DataTemplate>
     </ContentDialog.TitleTemplate>
+    
     <StackPanel HorizontalAlignment="Center" Spacing="5">
+
+        <TextBlock>
+            <Run Text="In folder:" />
+            <Run Text=" " FontSize="10"/> 
+            <Run Text="{x:Bind ViewModel.ParentFolderId, Mode=OneWay}" FontWeight="Bold" />
+        </TextBlock>
         <StackPanel HorizontalAlignment="Center">
             <TextBlock TextWrapping="WrapWholeWords">
                 <Run>Task Type</Run>
             </TextBlock>
             <ComboBox
                 x:Name="TaskTypeComboBox"
-                SelectedIndex="0"
+                SelectedIndex="{x:Bind ViewModel.TaskTypeIndex, Mode=TwoWay}"
                 Margin="0,0,0,10"
                 HorizontalAlignment="Center">
                 <ComboBoxItem Content="One-Time" />
@@ -56,7 +65,7 @@
         <TextBlock TextWrapping="WrapWholeWords">
             <Run>Task Description</Run>
         </TextBlock>
-        <TextBox x:Name="TaskDescriptionTextBox" PlaceholderText="New task description..." Margin="0,0,0,10" />
+        <TextBox x:Name="TaskDescriptionTextBox" Text="{x:Bind ViewModel.TaskDescription, Mode=TwoWay}" PlaceholderText="New task description..." Margin="0,0,0,10" />
         <TextBlock TextWrapping="WrapWholeWords">
             <Run>Task Notes</Run>
             <Run FontStyle="Italic">(Optional)</Run>
@@ -64,35 +73,37 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" Height="100">
             <TextBox
                 x:Name="TaskNotesTextBox"
+                Text="{x:Bind ViewModel.TaskNotes, Mode=TwoWay}"
                 PlaceholderText="New task notes..."
                 Margin="0,0,0,10"
                 AcceptsReturn="True"
                 TextWrapping="Wrap" />
         </ScrollViewer>
-        <CheckBox x:Name="TaskDueDateCheckBox" Content="Task Has Due Date" HorizontalAlignment="Center" />
+        <CheckBox x:Name="TaskDueDateCheckBox" IsChecked="{x:Bind ViewModel.TaskHasDueDate, Mode=TwoWay}" Content="Task Has Due Date" HorizontalAlignment="Center" />
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,10,0,0">
-            <DatePicker HorizontalAlignment="Stretch"  />
-            <TimePicker HorizontalAlignment="Stretch"  />
+            <DatePicker
+                IsEnabled="{x:Bind ViewModel.TaskHasDueDate, Mode=OneWay}"
+                SelectedDate="{x:Bind ViewModel.SelectedDate, Mode=TwoWay}"
+                HorizontalAlignment="Stretch" />
+            <TimePicker
+                IsEnabled="{x:Bind ViewModel.TaskHasDueDate, Mode=OneWay}"
+                SelectedTime="{x:Bind ViewModel.SelectedTime, Mode=TwoWay}"
+                HorizontalAlignment="Stretch" />
         </StackPanel>
         <StackPanel
                 x:Name="RepeatingTaskDetailsDisplay"
                 HorizontalAlignment="Center"
-                Visibility="Collapsed">
+                Visibility="{x:Bind ViewModel.TaskHasInterval, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="WrapWholeWords">
                 <Run>Repetition Interval</Run>
             </TextBlock>
             <ComboBox
                 x:Name="TaskRepeatIntervalComboBox"
-                SelectedIndex="0"
                 Margin="0,0,0,10"
                 HorizontalAlignment="Center"
-                Width="100">
-                <ComboBoxItem Content="Hour" />
-                <ComboBoxItem Content="Day" />
-                <ComboBoxItem Content="Week" />
-                <ComboBoxItem Content="Fortnight" />
-                <ComboBoxItem Content="Month" />
-                <ComboBoxItem Content="Year" />
+                Width="100"
+                ItemsSource="{x:Bind ViewModel.TimeIntervals, Mode=OneWay}"
+                SelectedIndex="{x:Bind ViewModel.SelectedTaskIntervalIndex, Mode=TwoWay}">
             </ComboBox>
         </StackPanel>
     </StackPanel>

@@ -34,12 +34,12 @@
             -->
             <winui:NavigationViewItem x:Uid="Shell_Main" helpers:NavHelper.NavigateTo="views:MainPage" />
             <winui:NavigationViewItem x:Uid="Shell_TreeView" helpers:NavHelper.NavigateTo="views:TreeViewPage" />
-            <winui:NavigationViewItem x:Uid="Shell_ListDetails" helpers:NavHelper.NavigateTo="views:ListDetailsPage" />
+            <!--<winui:NavigationViewItem x:Uid="Shell_ListDetails" helpers:NavHelper.NavigateTo="views:ListDetailsPage" />
             <winui:NavigationViewItem x:Uid="Shell_TwoPaneView" helpers:NavHelper.NavigateTo="views:TwoPaneViewPage" />
-            <winui:NavigationViewItem x:Uid="Shell_ContentGrid" helpers:NavHelper.NavigateTo="views:ContentGridPage" />
+            <winui:NavigationViewItem x:Uid="Shell_CosntentGrid" helpers:NavHelper.NavigateTo="views:ContentGridPage" />
             <winui:NavigationViewItem x:Uid="Shell_TelerikDataGrid" helpers:NavHelper.NavigateTo="views:TelerikDataGridPage" />
             <winui:NavigationViewItem x:Uid="Shell_Chart" helpers:NavHelper.NavigateTo="views:ChartPage" />
-            <winui:NavigationViewItem x:Uid="Shell_InkSmartCanvas" helpers:NavHelper.NavigateTo="views:InkSmartCanvasPage" />
+            <winui:NavigationViewItem x:Uid="Shell_InkSmartCanvas" helpers:NavHelper.NavigateTo="views:InkSmartCanvasPage" />-->
         </winui:NavigationView.MenuItems>
         <i:Interaction.Behaviors>
             <ic:EventTriggerBehavior EventName="ItemInvoked">

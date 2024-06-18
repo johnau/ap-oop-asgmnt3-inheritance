@@ -18,13 +18,46 @@
     <Page.Resources>
         <converters:TextToBoolConverter x:Key="TextToBoolConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InvertedBoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" />
+        <converters:TaskTypeIndexToVisibilityConverter x:Key="TaskTypeIndexToVisibilityConverter"/>
         <converters:TaskTypeToVisibilityConverter x:Key="TaskTypeToVisibilityConverter"/>
-        
+        <converters:InvertedTaskTypeToVisibilityConverter x:Key="InvertedTaskTypeToVisibilityConverter"/>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+        <converters:StringEmptyToVisibilityConverter x:Key="StringToVisibilityConverter" />
+        <converters:ModelObjectToStringConverter x:Key="ModelObjectToStringConverter" />
+        <converters:StreakToVisibilityConverter x:Key="StreakToVisibilityConverter" />
+        <converters:TaskTypeToStringConverter x:Key="TaskTypeToStringConverter" />
+        <converters:NullableToVisibilityConverter x:Key="NullableToVisibilityConverter" />
+        <converters:OverdueToColorConverter x:Key="OverdueToColorConverter" />
+        <converters:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter" />
+
         <DataTemplate x:Key="TaskFolderTemplate" x:DataType="model:TaskFolderViewObject">
             <winui:TreeViewItem
                 AutomationProperties.Name="{x:Bind Name}"
-                ItemsSource="{x:Bind Tasks}" IsExpanded="False">
-                <TextBlock Text="{x:Bind Name}" Margin="{StaticResource XXSmallTopRightBottomMargin}" />
+                ItemsSource="{x:Bind Tasks}" IsExpanded="False"
+                HorizontalContentAlignment="Stretch">
+
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="{x:Bind Name}"
+                        Margin="{StaticResource XXSmallTopRightBottomMargin}" />
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Visibility="{Binding Tasks, Converter={StaticResource CountToVisibilityConverter}, Mode=OneWay}"
+                        Text="{x:Bind Tasks.Count, Mode=OneWay}"
+                        FontWeight="ExtraBold"
+                        FontSize="16"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,10,0"/>
+                </Grid>
+
             </winui:TreeViewItem>
         </DataTemplate>
 
@@ -41,21 +74,86 @@
                     HorizontalAlignment="Stretch">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock
-                            Text="Folder Name"
+                            Text="&#xED25;"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontWeight="ExtraBold"
+                            FontSize="48"
                             Style="{StaticResource TitleTextBlockStyle}" />
                         <TextBlock
                             Text="{x:Bind Name}"
                             Margin="{StaticResource SmallLeftMargin}"
-                            Style="{StaticResource TitleTextBlockStyle}" />
+                            Style="{StaticResource TitleTextBlockStyle}"
+                            Foreground="{StaticResource SystemColorHighlightColor}"/>
                     </StackPanel>
                     <TextBlock
                         Margin="{StaticResource MediumTopMargin}"
                         Style="{StaticResource DetailSubTitleStyle}"
-                        Text="Tasks in Folder" />
-                    <TextBlock
+                         >
+                        <Run Text="{x:Bind TaskCount}" />
+                        <Run Text="Tasks in Folder" />
+                    </TextBlock>
+                    <ListView
+                        ItemsSource="{x:Bind Tasks}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Margin="{StaticResource LargeTopMargin}"
+                        IsItemClickEnabled="True"
+                        ItemClick="TaskListView_ItemClick">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ListViewItem HorizontalContentAlignment="Stretch">
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="40"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="40"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Text="&#xE739;"
+                                            FontFamily="Segoe MDL2 Assets"
+                                            FontWeight="ExtraBold"
+                                            FontSize="18"
+                                            Visibility="{Binding Completed, Converter={StaticResource InvertedBoolToVisibilityConverter}}"
+                                            Style="{StaticResource TitleTextBlockStyle}" />
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Text="&#xE73D;"
+                                            FontFamily="Segoe MDL2 Assets"
+                                            FontWeight="ExtraBold"
+                                            FontSize="18"
+                                            Visibility="{Binding Completed, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            Style="{StaticResource TitleTextBlockStyle}" />
+
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                            <TextBlock
+                                                Foreground="{Binding Overdue, Converter={StaticResource OverdueToColorConverter}}"
+                                                FontWeight="{Binding Overdue, Converter={StaticResource BoolToFontWeightConverter}}"
+                                                HorizontalAlignment="Stretch"
+                                                Text="{Binding Description}"
+                                                Margin="{StaticResource SmallLeftMargin}" />
+
+                                        </StackPanel>
+
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Visibility="{Binding Notes, Converter={StaticResource StringToVisibilityConverter}}"
+                                            Text="&#xEB7E;"
+                                            FontFamily="Segoe MDL2 Assets"
+                                            FontWeight="ExtraBold"
+                                            FontSize="18"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,10,0"/>
+                                    </Grid>
+                                </ListViewItem>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <!--<TextBlock
                         Style="{StaticResource DetailBodyBaseMediumStyle}"
-                        Text="{x:Bind TaskCount}" />
-                    <TextBlock
+                        Text="{x:Bind TaskCount}" />-->
+                    <!--<TextBlock
                         Margin="{StaticResource MediumTopMargin}"
                         Style="{StaticResource DetailSubTitleStyle}"
                         Text="Incomplete Tasks" />
@@ -68,161 +166,165 @@
                         Text="Overdue Tasks" />
                     <TextBlock
                         Style="{StaticResource DetailBodyBaseMediumStyle}"
-                        Text="{x:Bind OverdueTaskCount}" />
+                        Text="{x:Bind OverdueTaskCount}" />-->
                 </StackPanel>
-                <Grid
-                    Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Button
-                            Grid.Column="0"
-                            x:Uid="Folder_AddTaskToFolder"
-                            Margin="{StaticResource SmallLeftRightMargin}"
-                            VerticalAlignment="Stretch"
-                            VerticalContentAlignment="Center"
-                            FontFamily="Segoe MDL2 Assets"
-                            Height="50"
-                            HorizontalAlignment="Stretch"
-                            Click="ShowNewTaskDialog">
-                        <StackPanel Orientation="Horizontal" Spacing="5">
-                            <TextBlock Text="&#xED0E;" FontFamily="Segoe MDL2 Assets"/>
-                            <TextBlock Text="Add Task" FontFamily="Segoe" />
-                        </StackPanel>
-                    </Button>
-                    <Button
-                            Grid.Column="1"
-                            x:Uid="Folder_DeleteFolder"
-                            Margin="{StaticResource SmallLeftRightMargin}"
-                            VerticalAlignment="Stretch"
-                            VerticalContentAlignment="Center"
-                            FontFamily="Segoe MDL2 Assets"
-                            Height="50"
-                            HorizontalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal" Spacing="5">
-                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets"/>
-                            <TextBlock Text="Delete" FontFamily="Segoe" />
-                        </StackPanel>
-                    </Button>
-
-                    <Button
-                            Grid.Column="2"
-                            x:Uid="Folder_RenameFolder"
-                            FontSize="14"
-                            Margin="{StaticResource SmallLeftRightMargin}"
-                            VerticalAlignment="Stretch"
-                            VerticalContentAlignment="Center"
-                            FontFamily="Segoe MDL2 Assets"
-                            Height="50"
-                            HorizontalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal" Spacing="5">
-                            <TextBlock Text="&#xE8AC;" FontFamily="Segoe MDL2 Assets"/>
-                            <TextBlock Text="Rename Folder" FontFamily="Segoe" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
+                
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="TaskTemplate" x:DataType="model:TaskViewObject">
             <winui:TreeViewItem
-                AutomationProperties.Name="{x:Bind Description}">
-                <TextBlock Text="{x:Bind ShortDescription}" TextWrapping="Wrap" Margin="{StaticResource XXSmallTopRightBottomMargin}" />
+                AutomationProperties.Name="{x:Bind Description}" HorizontalContentAlignment="Stretch">
+                <!--<TextBlock Text="{x:Bind ShortDescription}" TextWrapping="Wrap" Margin="{StaticResource XXSmallTopRightBottomMargin}" />-->
+
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="{x:Bind Description}"
+                        Margin="{StaticResource XXSmallTopRightBottomMargin}" />
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Visibility="{Binding Notes, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}"
+                        Text="&#xEB7E;"
+                        FontFamily="Segoe MDL2 Assets"
+                        FontWeight="ExtraBold"
+                        FontSize="24"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,10,0"/>
+                </Grid>
+                
             </winui:TreeViewItem>
         </DataTemplate>
 
         <DataTemplate x:Key="TaskContentTemplate" x:DataType="model:TaskViewObject">
-            <Grid VerticalAlignment="Stretch">
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="50px" />
+                    <RowDefinition Height="100" />
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Row="1">
-                    <StackPanel Orientation="Horizontal">
+                <StackPanel
+                    Grid.Row="0"
+                    Orientation="Vertical"
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                    
+                        <StackPanel
+                            Grid.Column="0"
+                            Orientation="Horizontal">
+                            <TextBlock
+                                Text="&#xE739;"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontWeight="ExtraBold"
+                                FontSize="42"
+                                Visibility="{x:Bind Completed, Converter={StaticResource InvertedBoolToVisibilityConverter}, Mode=OneWay}"
+                                Style="{StaticResource TitleTextBlockStyle}" />
+                            <TextBlock
+                                Text="&#xE73D;"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontWeight="ExtraBold"
+                                FontSize="42"
+                                Visibility="{x:Bind Completed, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                                Style="{StaticResource TitleTextBlockStyle}" />                        
+                            <TextBlock
+                                Text="{x:Bind Description}"
+                                Margin="{StaticResource MediumLeftMargin}"
+                                Style="{StaticResource TitleTextBlockStyle}"/>
+                            <TextBlock
+                                Visibility="{x:Bind Overdue}"
+                                Text="is Overdue"
+                                Margin="{StaticResource MediumLeftMargin}"
+                                Style="{StaticResource TitleTextBlockStyle}"
+                                Foreground="MediumVioletRed"/>
+                        </StackPanel>
                         <TextBlock
-                        Text="Task Description"
-                        Style="{StaticResource TitleTextBlockStyle}" />
+                            HorizontalAlignment="Right"
+                            Grid.Column="1"
+                            Style="{StaticResource DetailBodyBaseMediumStyle}"
+                            >
+                            <Run Text="in" />
+                            <Run Text="{x:Bind ParentFolderName}" FontWeight="Bold" />
+                        </TextBlock>
+                    </Grid>
+                    <Grid Margin="{StaticResource LargeTopMargin}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        
                         <TextBlock
-                        Text="{x:Bind Description}"
-                        Margin="{StaticResource SmallLeftMargin}"
-                        Style="{StaticResource TitleTextBlockStyle}" />
-                    </StackPanel>
+                            Grid.Column="0"
+                            Visibility="{x:Bind Type, Converter={StaticResource TaskTypeToVisibilityConverter}}"
+                            Style="{StaticResource DetailSubTitleStyle}"
+                            Text="{x:Bind Type, Converter={StaticResource TaskTypeToStringConverter}}"
+                            Foreground="{StaticResource SystemColorHighlightColor}" />
+
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right">
+                            <TextBlock
+                                Visibility="{x:Bind Type, Converter={StaticResource TaskTypeToVisibilityConverter}}"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Text="Next Due:"
+                                VerticalAlignment="Bottom" />
+                            <StackPanel
+                                VerticalAlignment="Bottom"
+                                Visibility="{x:Bind DueDate, Converter={StaticResource NullableToVisibilityConverter}}">
+                                <TextBlock
+                                    Visibility="{x:Bind Type, Converter={StaticResource InvertedTaskTypeToVisibilityConverter}}"
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="Due:"
+                                    VerticalAlignment="Bottom" />
+                            </StackPanel>
+                            <TextBlock
+                                Margin="{StaticResource MediumLeftMargin}"
+                                Style="{StaticResource DetailSubTitleStyle}"
+                                Text="{x:Bind DueDate}"
+                                VerticalAlignment="Bottom" />
+                        </StackPanel>
+                        
+                    </Grid>
                     <TextBlock
-                    Margin="{StaticResource XSmallTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="In Folder" />
+                        Visibility="{x:Bind Streak, Converter={StaticResource StreakToVisibilityConverter}}"
+                        Margin="{StaticResource MediumTopMargin}"
+                        Style="{StaticResource DetailSubTitleStyle}"
+                        Text="Streak Counter" />
                     <TextBlock
-                    Style="{StaticResource DetailBodyBaseMediumStyle}"
-                    Text="{x:Bind ParentFolderName}" />
+                        Visibility="{x:Bind Streak, Converter={StaticResource StreakToVisibilityConverter}}"
+                        Style="{StaticResource DetailBodyBaseMediumStyle}"
+                        Text="{x:Bind Streak}" />                        
                     <TextBlock
-                    Margin="{StaticResource MediumTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="Task Due" />
-                    <TextBlock
-                    Style="{StaticResource DetailBodyBaseMediumStyle}"
-                    Text="{x:Bind DueDate}" />
-                    <TextBlock
-                    Margin="{StaticResource MediumTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="Task Notes" />
-                    <TextBlock
-                    Style="{StaticResource DetailBodyBaseMediumStyle}"
-                    Text="{x:Bind Notes}" />
-                    <TextBlock
-                    Margin="{StaticResource MediumTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="Task Completed" />
-                    <TextBlock
-                    Style="{StaticResource DetailBodyBaseMediumStyle}"
-                    Text="{x:Bind Completed}" />
-                    <TextBlock
-                    Margin="{StaticResource XSmallTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="Task Overdue" />
-                    <TextBlock
-                    Style="{StaticResource DetailBodyBaseMediumStyle}"
-                    Text="{x:Bind Overdue}" />
+                        Margin="{StaticResource MediumTopMargin}"
+                        Style="{StaticResource DetailSubTitleStyle}"
+                        Text="Task Notes" />
+                    <!--<TextBlock
+                        Style="{StaticResource DetailBodyBaseMediumStyle}"
+                        Text="{x:Bind Notes}" >
+                    </TextBlock>-->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
+                        <TextBox
+                            x:Name="TaskNotesEditBox"
+                            Text="{x:Bind Notes, Mode=OneWay}"
+                            PlaceholderText="No task notes..."
+                            Margin="0,0,0,10"
+                            AcceptsReturn="True"
+                            TextWrapping="Wrap"
+                            BorderThickness="0"
+                            TextChanged="TaskNotesChanged"
+                            Foreground="{StaticResource SystemColorHighlightColor}"/>
+                    </ScrollViewer>
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Spacing="5" Grid.Row="2">
-                    <Button Content="&#xE74D;"
-                        x:Uid="TreeView_CollapseAllButton"
-                        FontSize="14"
-                        Padding="{StaticResource SmallLeftRightMargin}"
-                        VerticalAlignment="Stretch"
-                        VerticalContentAlignment="Center"
-                        FontFamily="Segoe MDL2 Assets"
-                        Height="50" />
-                    <Button
-                        x:Uid="Task_MoveToFolder"
-                        Content="&#xE8DE;"
-                        FontSize="14"
-                        Padding="{StaticResource SmallLeftRightMargin}"
-                        VerticalAlignment="Stretch"
-                        VerticalContentAlignment="Center"
-                        FontFamily="Segoe MDL2 Assets"
-                        Height="50" />
-                    <Button
-                        x:Uid="Task_DuplicateTask"
-                        Content="&#xE8C8;"
-                        FontSize="14"
-                        Padding="{StaticResource SmallLeftRightMargin}"
-                        VerticalAlignment="Stretch"
-                        VerticalContentAlignment="Center"
-                        FontFamily="Segoe MDL2 Assets"
-                        Height="50" />
-                    <Button
-                        x:Uid="Task_CompleteTask"
-                        Content="&#xE930;"
-                        FontSize="14"
-                        Padding="{StaticResource SmallLeftRightMargin}"
-                        VerticalAlignment="Stretch"
-                        VerticalContentAlignment="Center"
-                        FontFamily="Segoe MDL2 Assets"
-                        Height="50" />
-                </StackPanel>
             </Grid>
         </DataTemplate>
 
@@ -270,7 +372,7 @@
                         VerticalContentAlignment="Center"
                         FontFamily="Segoe MDL2 Assets"
                         Background="Transparent"
-                        Click="ShowNewFolderDialog"
+                        Tapped="NewFolderAction"
                         ToolTipService.ToolTip="Add Folder">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <TextBlock
@@ -346,14 +448,161 @@
             VerticalAlignment="Stretch"
             HorizontalContentAlignment="Stretch"
             VerticalContentAlignment="Stretch">
-            <ContentControl
-                Content="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
-                ContentTemplateSelector="{StaticResource ContentTemplateSelector}"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                HorizontalContentAlignment="Stretch"
-                VerticalContentAlignment="Stretch"
-                />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="25" />
+                </Grid.RowDefinitions>
+                <ContentControl
+                    Grid.Row="0"
+                    Content="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}"
+                    ContentTemplateSelector="{StaticResource ContentTemplateSelector}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    />
+                <Grid
+                    Visibility="{x:Bind ViewModel.FolderIsSelected, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                    Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        Grid.Column="0"
+                        x:Uid="Folder_AddTaskToFolder"
+                        Margin="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50"
+                        HorizontalAlignment="Stretch"
+                        Tapped="NewTaskAction"
+                        CommandParameter="{x:Bind ViewModel.SelectedItem, Converter={StaticResource ModelObjectToStringConverter}, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xED0E;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Add Task" FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button
+                        Grid.Column="1"
+                        x:Uid="Folder_DeleteFolder"
+                        Margin="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50"
+                        HorizontalAlignment="Stretch"
+                        Tapped="DeleteFolderAction"
+                        CommandParameter="{x:Bind ViewModel.SelectedItem, Converter={StaticResource ModelObjectToStringConverter}, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Delete" FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button
+                        Grid.Column="2"
+                        x:Uid="Folder_RenameFolder"
+                        FontSize="14"
+                        Margin="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50"
+                        HorizontalAlignment="Stretch"
+                        Tapped="RenameFolderAction"
+                        CommandParameter="{x:Bind ViewModel.SelectedItem, Converter={StaticResource ModelObjectToStringConverter}, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xE8AC;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Rename Folder" FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+                <Grid
+                    Visibility="{x:Bind ViewModel.TaskIsSelected, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                    Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        Grid.Column="0"
+                        x:Uid="Task_Complete"
+                        Margin="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50"
+                        HorizontalAlignment="Stretch"
+                        Tapped="CompleteTaskAction"
+                        CommandParameter="{x:Bind ViewModel.SelectedItem, Converter={StaticResource ModelObjectToStringConverter}, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xE930;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Complete" FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button
+                        Grid.Column="1"
+                        x:Uid="Task_MoveToFolder"
+                        Margin="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50"
+                        HorizontalAlignment="Stretch"
+                        Tapped="MoveTaskAction"
+                        CommandParameter="{x:Bind ViewModel.SelectedItem, Converter={StaticResource ModelObjectToStringConverter}, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xE8DE;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Move To..." FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button
+                        Grid.Column="2"
+                        x:Uid="Task_EditTask"
+                        FontSize="14"
+                        Margin="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50"
+                        HorizontalAlignment="Stretch"
+                        Tapped="DuplicateTaskAction"
+                        CommandParameter="{x:Bind ViewModel.SelectedItem, Converter={StaticResource ModelObjectToStringConverter}, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Duplicate" FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button
+                        Grid.Column="3"
+                        x:Uid="Task_DeleteTask"
+                        FontSize="14"
+                        Margin="{StaticResource SmallLeftRightMargin}"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        FontFamily="Segoe MDL2 Assets"
+                        Height="50"
+                        HorizontalAlignment="Stretch"
+                        Tapped="DeleteTaskAction"
+                        CommandParameter="{x:Bind ViewModel.SelectedItem, Converter={StaticResource ModelObjectToStringConverter}, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets"/>
+                            <TextBlock Text="Delete" FontFamily="Segoe" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Grid>
         </ScrollViewer>
 
         <controls:GridSplitter
@@ -392,6 +641,61 @@
                 <TextBox x:Name="FolderNameTextBox" PlaceholderText="New folder name..." Margin="0,0,0,10" />
             </StackPanel>
         </ContentDialog>
+        
+        <ContentDialog
+            x:Name="RenameFolderDialog"
+            PrimaryButtonText="Rename"
+            IsPrimaryButtonEnabled="{x:Bind RenameFolderTextBox.Text, Mode=OneWay, Converter={StaticResource TextToBoolConverter}}"
+            CloseButtonText="Cancel"
+            DefaultButton="Primary">
+            <i:Interaction.Behaviors>
+                <ic:EventTriggerBehavior EventName="PrimaryButtonClick">
+                    <ic:InvokeCommandAction Command="{x:Bind ViewModel.RenameFolderInvokedCommand}" CommandParameter="{Binding ElementName=RenameFolderNameTextBox, Path=Text}" />
+                </ic:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+            <ContentDialog.TitleTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="ms-appx:///Assets/Square150x150Logo.scale-200.png" Width="40" Height="40" Margin="10,0"/>
+                        <TextBlock Text="Rename Folder"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ContentDialog.TitleTemplate>
+            <StackPanel>
+                <TextBlock TextWrapping="WrapWholeWords">
+                <Run>Folder name</Run><LineBreak/>
+                <Run FontStyle="Italic">(Note: Folder name must be unique)</Run><LineBreak/>
+                </TextBlock>
+                <TextBox x:Name="RenameFolderTextBox" PlaceholderText="New folder name..." Margin="0,0,0,10" />
+            </StackPanel>
+        </ContentDialog>
+
+        <ContentDialog
+            x:Name="CompleteTaskDialog"
+            PrimaryButtonText="Complete"
+            CloseButtonText="Cancel"
+            DefaultButton="Primary">
+            <i:Interaction.Behaviors>
+                <ic:EventTriggerBehavior EventName="PrimaryButtonClick">
+                    <ic:InvokeCommandAction Command="{x:Bind ViewModel.CompleteTaskInvokedCommand}" CommandParameter="{Binding ElementName=TaskIdTextbox, Path=Text}" />
+                </ic:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+            <ContentDialog.TitleTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="ms-appx:///Assets/Square150x150Logo.scale-200.png" Width="40" Height="40" Margin="10,0"/>
+                        <TextBlock Text="Complete Task"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ContentDialog.TitleTemplate>
+            <StackPanel>
+                <TextBlock TextWrapping="WrapWholeWords">
+                    <Run>Would you like to complete this task?</Run>
+                </TextBlock>
+                <TextBox x:Name="TaskIdTextbox" Margin="0,0,0,10" Visibility="Collapsed" IsEnabled="False"/>
+            </StackPanel>
+        </ContentDialog>
+
     </Grid>
 
 </Page>

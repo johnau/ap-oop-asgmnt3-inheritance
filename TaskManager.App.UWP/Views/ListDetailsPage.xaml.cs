@@ -30,7 +30,7 @@ namespace TaskManager.App.UWP.Views
 
         private async void ListDetailsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
+            //await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
         }
     }
 }

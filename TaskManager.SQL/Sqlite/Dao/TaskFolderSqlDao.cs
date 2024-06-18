@@ -37,11 +37,19 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
             if (existing != null)
             {
                 existing.Name = entity.Name;
-                existing.TaskIds = entity.TaskIds;
+                foreach (var taskId in entity.TaskIds)
+                {
+                    if (!existing.TaskIds.Contains(taskId))
+                        existing.TaskIds.Remove(taskId);
+                }
+
                 // existing.Tasks = entity.Tasks;
 
                 // Populating the relationship here out of laziness, performance will not be great
                 // rebuilding the relationships every save.
+
+                existing.Tasks.Clear();
+
                 foreach (var taskId in entity.TaskIds)
                 {
                     var task = _context.Tasks
@@ -50,7 +58,7 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
 
                     if (task == null)
                     {
-                        Debug.WriteLine($"SQL Database Sync Error: Folder does not exist: {taskId}");
+                        Debug.WriteLine($"SQL Database Sync Error: Task does not exist: {taskId}");
                         continue;
                     }
 
@@ -97,7 +105,7 @@ namespace TaskManagerCore.SQL.Sqlite.Dao
             Console.WriteLine("Querying for a folder name");
             var latestFolderState = _context.Folders
                                             .Include(folder => folder.Tasks)
-                                            .Where(folder => folder.Name.Equals(folderName, StringComparison.CurrentCultureIgnoreCase))
+                                            .Where(folder => folder.Name.ToLower() == folderName.ToLower())
                                             //.FromSqlRaw("SELECT * FROM Tasks WHERE GlobalId COLLATE NOCASE = {0} LIMIT 1", folderName)
                                             .FirstOrDefault();
 

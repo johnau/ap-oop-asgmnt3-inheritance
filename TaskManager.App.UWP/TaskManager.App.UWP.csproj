@@ -150,8 +150,19 @@
   <ItemGroup>
     <Compile Include="Activation\ActivationHandler.cs" />
     <Compile Include="Behaviors\TreeViewCollapseBehavior.cs" />
+    <Compile Include="Converters\BoolToFontWeightConverter.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Converters\DateTimeFormatConverter.cs" />
+    <Compile Include="Converters\InvertedBoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\InvertedTaskTypeToVisiblityConverter.cs" />
+    <Compile Include="Converters\ModelObjectToStringConverter.cs" />
+    <Compile Include="Converters\NullableToVisibilityConverter.cs" />
+    <Compile Include="Converters\OverdueToColorConverter.cs" />
+    <Compile Include="Converters\StreakToVisibilityConverter.cs" />
+    <Compile Include="Converters\StringEmptyToVisibilityConverter.cs" />
+    <Compile Include="Converters\TaskTypeToStringConverter.cs" />
+    <Compile Include="Converters\TaskTypeIndexToVisibilityConverter.cs" />
     <Compile Include="Converters\TaskTypeToVisibilityConverter.cs" />
     <Compile Include="Converters\TextToBoolConverter.cs" />
     <Compile Include="Data\DataLoader.cs" />
@@ -169,6 +180,7 @@
     <Compile Include="DependencyInjection\ServiceCollectionExtensions.cs" />
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultActivationHandler.cs" />
+    <Compile Include="Services\DefaultTaskTimeService.cs" />
     <Compile Include="Services\Ink\InkAsyncAnalyzer.cs" />
     <Compile Include="Services\Ink\InkFileService.cs" />
     <Compile Include="Services\Ink\InkLassoSelectionService.cs" />
@@ -196,6 +208,7 @@
     <Compile Include="ViewModels\InkSmartCanvasViewModel.cs" />
     <Compile Include="ViewModels\ListDetailsViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\NewTaskDialogViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="ViewModels\TelerikDataGridViewModel.cs" />

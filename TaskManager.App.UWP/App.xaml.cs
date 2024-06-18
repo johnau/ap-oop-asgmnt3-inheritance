@@ -53,6 +53,7 @@ namespace TaskManager.App.UWP
                 .AddTransient<MainViewModel>()
                 .AddTransient<ListDetailsViewModel>()
                 .AddTransient<TreeViewViewModel>()
+                .AddTransient<NewTaskDialogViewModel>()
                 .BuildServiceProvider(true);
 
             return provider;
@@ -72,7 +73,6 @@ namespace TaskManager.App.UWP
 
             UnhandledException += OnAppUnhandledException;
 
-            // Deferred execution until used. Check https://docs.microsoft.com/dotnet/api/system.lazy-1 for further info on Lazy<T> class.
             _activationService = new Lazy<ActivationService>(CreateActivationService);
         }
 
